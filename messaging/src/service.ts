@@ -2,7 +2,6 @@ import type { Config } from './config.js';
 import { Brain, BrainError } from './brain.js';
 import { DeliveryError, digest, Transport } from './photon.js';
 import type { State, Prompt } from './state.js';
-import { understand } from './intent.js';
 import { valid } from './contracts.js';
 import type { CaseDetail, SendRequest } from './contract-types.js';
 
@@ -17,7 +16,7 @@ export class Service {
     const id = await this.transport.send(request);
     if (request.expects_reply) {
       await this.state.save({ ...this.state.data, prompts: { ...this.state.data.prompts,
-        [request.user_id]: { caseId: request.case_id, ...(request.action_id ? { actionId: request.action_id } : {}) } } });
+        [request.user_id]: { caseId: request.case_id } } });
     }
     return id;
   }
@@ -63,14 +62,9 @@ export class Service {
         if (caseDetail && caseDetail.user_id !== match.user) throw new Error('case_owner_mismatch');
         // Forwarded scam content is data for the brain; never classify it into consent.
         const forwarded = !caseDetail || /^\s*(?:https?:\/\/|www\.)/i.test(text);
-        let intent = 'info';
-        if (!forwarded) {
-          try { intent = (await understand(text, this.config)).intent; }
-          catch { console.warn(JSON.stringify({ event: 'reply_understanding_unavailable' })); }
-        }
-        receipt = { caseId: forwarded ? '' : caseDetail!.case_id,
-          ...(prompt?.actionId ? { actionId: prompt.actionId } : {}), intent };
-        // Bind a replay to the original action before any side effects. Store no message bodies.
+        receipt = { caseId: forwarded ? '' : caseDetail!.case_id };
+        // Bind a replay to the original case before any side effects. The brain
+        // interprets replies and approves recovery actions (D-039).
         await this.state.save({ ...this.state.data, receipts: { ...this.state.data.receipts, [hash]: receipt } });
       }
       const eventId = `evt_photon_${hash}`;
@@ -78,22 +72,6 @@ export class Service {
         type: receipt.caseId ? 'customer.reply' : 'message.forwarded',
         ts: typeof message.createdAt === 'string' ? message.createdAt : new Date().toISOString(),
         source: 'messaging', data: { channel: message.platform, text, ...(receipt.caseId ? { case_id: receipt.caseId } : {}) } });
-      // A YES may approve only the specific action in the last brain-supplied prompt.
-      // REPORT/UNDO and disclosures stay with the brain; this door invents no actions.
-      if (receipt.caseId && receipt.actionId && ['yes', 'no'].includes(receipt.intent)) {
-        const detail = await this.brain.request<CaseDetail>(`/cases/${encodeURIComponent(receipt.caseId)}`);
-        if (detail.user_id !== match.user) throw new Error('case_owner_mismatch');
-        const action = detail.actions.find(a => a.action_id === receipt.actionId);
-        if (action?.status === 'awaiting_approval') {
-          try {
-            await this.brain.request(`/actions/${encodeURIComponent(receipt.actionId)}/${receipt.intent === 'yes' ? 'approve' : 'reject'}`, { via: 'sms' });
-          } catch (error) {
-            if (!(error instanceof BrainError) || error.status !== 409) throw error;
-            await this.transport.send({ case_id: receipt.caseId, user_id: match.user, channel: message.platform,
-              kind: 'info', text: 'Titan: Please hang up the suspicious call before asking to release protection. Your protection is still on.', expects_reply: false }, `titan:blocked:${hash}`);
-          }
-        }
-      }
     }
     const receipts = { ...this.state.data.receipts };
     delete receipts[hash];

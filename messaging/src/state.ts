@@ -1,8 +1,8 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 export interface Route { spaceId: string; senderId: string; }
-export interface Prompt { caseId: string; actionId?: string; }
-export interface Receipt extends Prompt { intent: string; }
+export interface Prompt { caseId: string; }
+export interface Receipt extends Prompt {}
 export interface Checkpoint {
   cursor: number; processed: string[];
   prompts: Record<string, Prompt>; receipts: Record<string, Receipt>;

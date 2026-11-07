@@ -27,11 +27,11 @@ export function configuration(env: NodeJS.ProcessEnv = process.env): Config {
   const port = Number(env.PORT ?? 8200);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
   const llmBase = env.MESSAGING_LLM_BASE_URL ?? 'https://integrate.api.nvidia.com/v1';
-  const llmModel = env.MESSAGING_LLM_MODEL ?? 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning';
+  const llmModel = env.MESSAGING_LLM_MODEL ?? 'nvidia/nemotron-3.5-lightning-30b-a3b';
   // A local Brev-hosted Nano is allowed, but never silently use another provider.
   const llmHost = new URL(llmBase).hostname;
   if (!(llmHost === 'integrate.api.nvidia.com' || llmHost === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(llmHost))
-      || !/nemotron.*nano/i.test(llmModel)) throw new Error('Reply understanding requires Nemotron Nano');
+      || !(/nemotron.*nano/i.test(llmModel) || llmModel === 'nvidia/nemotron-3.5-lightning-30b-a3b')) throw new Error('Reply understanding requires an approved Nemotron model');
   return { project, key, agent: required('PHOTON_AGENT_HANDLE'),
     brain: env.BRAIN_URL ?? 'http://localhost:8000', port, allowlist, users,
     stateDir: env.MESSAGING_STATE_DIR ?? `.state/${project}`,

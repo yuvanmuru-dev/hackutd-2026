@@ -60,23 +60,18 @@ test('Photon routing rejects outgoing messages, group messages, foreign lines an
 async function harness(text = 'YES') {
   const dir = await mkdtemp(join(tmpdir(), 'titan-test-'));
   const state = new State(dir);
-  await state.save({ ...state.data, prompts: { usr_maya: { caseId: 'case_test', actionId: 'act_original' } } });
+  await state.save({ ...state.data, prompts: { usr_maya: { caseId: 'case_test' } } });
   const calls: { path: string; body?: any }[] = [];
   const actions = [{ action_id: 'act_original', status: 'awaiting_approval' }];
-  let fail = false, blocked = false;
+  let fail = false;
   const detail = () => ({ case_id: 'case_test', user_id: 'usr_maya', actions });
   const brain = {
     openCase: async () => detail(),
     request: async (path: string, body?: unknown) => {
       calls.push({ path, body });
-      if (path.startsWith('/actions')) {
-        if (blocked) throw new BrainError(409);
-        actions[0].status = 'applied';
-        if (fail) { fail = false; throw new BrainError(503); }
-      }
       return detail();
     },
-    event: async (body: unknown) => { calls.push({ path: '/events', body }); return { duplicate: false }; },
+    event: async (body: unknown) => { calls.push({ path: '/events', body }); if (fail) { fail = false; throw new BrainError(503); } return { duplicate: false }; },
   } as unknown as Pick<Brain, 'request' | 'event' | 'openCase'>;
   const realTransport = new Transport(config, state);
   const sent: string[] = [];
@@ -87,16 +82,16 @@ async function harness(text = 'YES') {
   };
   return { state, dir, calls, actions, sent, brain, transport,
     service: new Service(config, state, transport, brain),
-    failOnce: () => { fail = true; }, block: () => { blocked = true; } };
+    failOnce: () => { fail = true; } };
 }
 
-test('duplicate delivery and restart approve once and never write bodies to checkpoint', async () => {
+test('duplicate delivery and restart forward once without approval calls or stored bodies', async () => {
   const h = await harness();
   await h.service.handle(envelope);
   await h.service.handle(envelope);
   const restored = new State(h.dir); await restored.load();
   await new Service(config, restored, h.transport, h.brain).handle(envelope);
-  assert.equal(h.calls.filter(c => c.path.endsWith('/approve')).length, 1);
+  assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
   assert.equal(h.calls.filter(c => c.path === '/events').length, 1);
   assert.equal(h.calls.some(c => c.path.endsWith('/events') && c.path !== '/events'), false);
   const saved = await readFile(join(h.dir, 'checkpoint.json'), 'utf8');
@@ -104,24 +99,29 @@ test('duplicate delivery and restart approve once and never write bodies to chec
   assert.equal(saved.includes('+15555550102'), false);
 });
 
-test('ambiguous approval response replays the original action, never the next prompt', async () => {
+test('ambiguous event response retries the same event and original case', async () => {
   const h = await harness(); h.failOnce();
   await assert.rejects(() => h.service.handle(envelope));
-  await h.state.save({ ...h.state.data, prompts: { usr_maya: { caseId: 'case_test', actionId: 'act_next' } } });
+  await h.state.save({ ...h.state.data, prompts: { usr_maya: { caseId: 'case_next' } } });
   h.actions.push({ action_id: 'act_next', status: 'awaiting_approval' });
   await h.service.handle(envelope);
-  assert.equal(h.calls.filter(c => c.path.endsWith('/approve')).length, 1);
-  assert.equal(h.actions[1].status, 'awaiting_approval');
+  assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
+  const posts = h.calls.filter(c => c.path === '/events');
+  assert.equal(posts.length, 2);
+  assert.deepEqual(posts[0].body, posts[1].body);
+  assert.equal(posts[1].body.data.case_id, 'case_test');
   assert.ok(h.state.data.processed.includes(digest(messageId)));
 });
 
-test('brain 409 stays blocked and sends a safe hang-up explanation', async () => {
-  const h = await harness(); h.block();
-  await h.service.handle(envelope);
-  assert.equal(h.actions[0].status, 'awaiting_approval');
-  assert.equal(h.sent.length, 1);
-  assert.equal(safeOutbound(h.sent[0]), true);
-  assert.match(h.sent[0], /hang up/);
+test('YES and NO are forwarded verbatim; the brain alone chooses recovery actions', async () => {
+  for (const text of ['YES', 'NO', "No that wasn't me", 'UNDO', 'REPORT']) {
+    const h = await harness(text);
+    await h.service.handle(envelope);
+    assert.equal(h.calls.find(c => c.path === '/events')?.body.data.text, text);
+    assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
+    assert.equal(h.sent.length, 0);
+    assert.equal(h.actions[0].status, 'awaiting_approval');
+  }
 });
 
 test('forwarded links never become approval requests or get echoed outbound', async () => {
@@ -132,12 +132,25 @@ test('forwarded links never become approval requests or get echoed outbound', as
   assert.equal(h.sent.length, 0);
 });
 
-test('free-form disclosure without Nano is recorded without approving anything', async () => {
+test('free-form disclosure goes to the brain unchanged without local model calls or approvals', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Unexpected local model call'); });
   const h = await harness('I told him my PIN');
   await h.service.handle(envelope);
   assert.equal(h.calls.find(c => c.path === '/events')?.body.data.text, 'I told him my PIN');
   assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
   assert.equal(keyword(' YES ')?.intent, 'yes');
+  assert.equal(fetch.mock.calls.length, 0);
+});
+
+test('legacy action/intent receipts cannot trigger messaging-side approvals', async () => {
+  const h = await harness();
+  const legacy = JSON.parse(JSON.stringify(h.state.data));
+  legacy.receipts[digest(messageId)] = { caseId: 'case_test', actionId: 'act_original', intent: 'yes' };
+  await h.state.save(legacy);
+  await h.service.handle(envelope);
+  assert.equal(h.calls.filter(c => c.path === '/events').length, 1);
+  assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
+  assert.equal(h.actions[0].status, 'awaiting_approval');
 });
 
 test('serialized work stays ordered after a failed delivery', async () => {
@@ -155,7 +168,7 @@ test('a stale fixture case falls back to the real case without approving a stale
     if (path === '/cases/case_stale') throw new BrainError(404);
     return originalRequest(path, body);
   }) as typeof h.brain.request;
-  await h.state.save({ ...h.state.data, prompts: { usr_maya: { caseId: 'case_stale', actionId: 'act_stale' } } });
+  await h.state.save({ ...h.state.data, prompts: { usr_maya: { caseId: 'case_stale' } } });
   await h.service.handle(envelope);
   assert.equal(h.calls.find(c => c.path === '/events')?.body.data.case_id, 'case_test');
   assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);

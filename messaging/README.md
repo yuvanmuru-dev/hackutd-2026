@@ -36,13 +36,13 @@ Inbound `message.received` events are resolved through the authenticated Photon 
 
 Exact YES/NO/REPORT/UNDO are recognized without a model. Configure `NVIDIA_API_KEY` for free-form interpretation by Nemotron Nano. If Nano is unavailable, the text is still recorded on the case and no approval is inferred. Disclosures such as “I told him my PIN” remain information. REPORT/UNDO are forwarded to the brain; messaging does not invent carrier actions.
 
-A YES/NO may approve/reject only the `action_id` supplied by the brain's latest reply-expected prompt, if the action still awaits approval. The service persists that binding before side effects. The brain enforces safety; HTTP 409 produces a fixed instruction to hang up before requesting release. Messaging does not select the next recovery step itself.
+Messaging never calls `/actions/{id}/approve` or `/reject`, even if SendRequest includes an action_id. It binds retries to the original case and forwards a deterministic customer.reply event only. The brain wakes an awaiting workflow and maps recovery replies to its next pending action, preventing double approvals. Legacy checkpoints containing action/intent metadata are safe to load; those fields are ignored.
 
 ## Replay and privacy
 
 Socket.IO authenticates with the project API key over TLS; there is no inbound HTTP webhook or HMAC handler. Each reconnect subscribes after the last successfully processed cursor, pinned to event contract `2026-07-01`. Processing is serialized with at most 128 queued events. Handler/checkpoint failures stop the process rather than advancing the cursor; restart after resolving the error. Network reconnects are owned by Socket.IO.
 
-`.state/<project>/checkpoint.json` contains cursors, hashes of processed provider IDs, and case/action bindings. It contains no phone numbers or message bodies. The key and raw teammate number live only in local `.env`; message text is sent only to Photon, NVIDIA for the conversation turn, and the brain/case. Never run multiple writers on the same state directory. Do not delete checkpoints during a live case; replay depends on them. A new consumer with cursor 0 has no durable replay history until an event is processed.
+`.state/<project>/checkpoint.json` contains cursors, hashes of processed provider IDs, and case bindings. It contains no phone numbers or message bodies. The key and raw teammate number live only in local `.env`; message text is sent only to Photon, NVIDIA for the conversation turn, and the brain/case. Never run multiple writers on the same state directory. Do not delete checkpoints during a live case; replay depends on them. A new consumer with cursor 0 has no durable replay history until an event is processed.
 
 Logs contain fixed event/error categories, sequence numbers and provider request IDs, without message bodies or raw numbers. Provider exception bodies are never logged.
 
@@ -53,11 +53,11 @@ npm run check
 npm test
 ```
 
-Tests cover schema validation, unsafe output, recipient/line/group filtering, deduplication after restart, ambiguous approval responses, brain 409 handling, forwarded links and safe failure without Nano.
+Tests cover schema validation, unsafe output, recipient/line/group filtering, deduplication after restart, ambiguous event responses, verbatim YES/NO forwarding without action calls, forwarded links, and disclosures without local classification. Brain recovery tests live in agent/test_workflow_offline.py.
 
 This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it.
 
-Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404, so the verified model is the default. This does not establish free-form recovery approvals end to end.
+Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404. D-035/D-039 now prefer Lightning, verified live with HTTP 200 and thinking disabled. Production reply interpretation is in the brain. This does not establish free-form recovery approvals end to end.
 
 ## Official Photon 2.0 references
 
@@ -67,3 +67,7 @@ Live verification on the teammate's existing line confirmed alert receipt and a 
 - [API specification](https://api.photon.codes/openapi.json)
 
 Photon 2.0 supports SMS as well as iMessage. SMS requires sender/recipient authorization and campaign eligibility unless all recipients are in-network; iMessage line assignment alone does not establish SMS availability. The existing team's SMS activation has not been verified.
+
+## Real reply integration (D-039)
+
+`MOCK=1` replays a scripted fixture and intentionally ignores replies. To test acknowledgment and recovery, put the NVIDIA key in the gitignored agent/.env, use current model names from agent/.env.example, then start the brain with `MOCK=0`. Confirm GET /health reports mock=false before playing T2 and replying. Only the existing allowlisted teammate line should receive demo texts.
