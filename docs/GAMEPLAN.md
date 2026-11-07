@@ -47,6 +47,14 @@ Verify every slug on build.nvidia.com at kickoff; swap in `.env` if one 404s.
 | Search our own docs (policies, manuals) | NeMo Retriever embed + rerank NIMs |
 | Guardrail on transcripts / outbound messages | Nemotron Safety Guard |
 
+### Brev GPUs ($60 credits per person, $240 total)
+Build everything against hosted build.nvidia.com first. Self-hosting on Brev is an **upgrade behind env vars**, not a dependency.
+- **Voice box (1 GPU, voice owner's credits):** the voice skill's single-GPU stack. vLLM serves Nemotron 3.5 Lightning 30B-A3B (W4A16 ≈ 19 GB; NVFP4 only on Blackwell), and one NeMo-Speech.cpp service runs streaming ASR (≈ 6 GB) + Magpie TTS (≈ 13 GB). That's about 40 GB plus headroom: an 80 GB A100/H100 is comfortable, a 48 GB L40S is tight. Gains: no shared rate limits, steadier latency, and "fully self-hosted NVIDIA voice stack on Brev" for the NVIDIA judges.
+- **Optional second box (Yuvan's credits):** Safety Guard + the eval runs, so evals and QA don't eat the hosted rate limit. Only if the voice box is stable.
+- **Keep Nemotron Super hosted.** A 120B model is not worth the credits.
+- **Credit rules:** start boxes at T+6 once code works against hosted APIs. **Stop every instance when it's idle and overnight** (idle GPUs are the #1 way credits disappear). The owner posts start/stop in the team chat. The other two people's credits are the backup if a box dies or runs dry.
+- Hosted endpoints remain the fallback. Switching back is one env change and a restart.
+
 ## Idea bank (score these at kickoff against the announced tracks)
 All fit the same brain + doors + packs. Pick the one whose second track has the best prize *and* the best free data.
 

@@ -9,6 +9,9 @@ Owner in brackets. Tick in the team chat, not here.
 - [ ] [Yuvan] ElevenLabs API key in `agent/.env` (`ELEVENLABS_API_KEY`). Pick the agent's voice ID in the Voice Library and note it
 - [ ] [Email owner] AgentMail: console.agentmail.to → API key → create 1 inbox, note the address
 - [ ] [Email owner] Supabase project created; URL + service key shared **via a password manager or DM, never in git or the group chat**
+- [ ] [Everyone] Claim your $60 Brev credits and confirm they show in your Brev account. Don't start a GPU yet
+- [ ] [Voice owner] Note Brev's hourly price for A100 80GB / H100 / L40S, and which have stock
+- [ ] [Everyone] Each person uses **their own** NVIDIA API key, so 5 agents don't share one rate limit
 - [ ] [Everyone] ngrok or cloudflared installed and logged in (Twilio + AgentMail need public webhooks)
 - [ ] [Everyone] Python 3.11+, Node 20+, `uv`, Codex CLI working; open the repo once in Codex so it reads AGENTS.md
 - [ ] [Everyone] `brew install gitleaks && bash scripts/install-hooks.sh` (blocks commits that contain keys)
