@@ -118,6 +118,22 @@ with TestClient(server.app) as c:
                                                          "text": "I told him my PIN.", "agent": "voice"}).json())
     pending = [a for a in c.get(f"/cases/{cid}").json()["actions"] if a["status"] == "awaiting_approval"]
     assert len(pending) >= 3, pending
+    # the brain texts recovery questions one at a time (D-042); a YES by text approves the step it asked about
+    steps_sent = [o["payload"] for o in c.get("/demo/outbox").json() if o["kind"] == "send" and o["payload"]["kind"] == "recovery_step"]
+    assert len(steps_sent) == 1 and steps_sent[0]["action_id"] == pending[0]["action_id"], steps_sent
+    ev = {"event_id": f"evt_{time.time_ns()}", "user_id": "usr_maya", "type": "customer.reply", "ts": "2026-11-07T21:00:00Z",
+          "source": "messaging", "call_id": None, "data": {"channel": "imessage", "text": "YES", "case_id": cid}}
+    assert c.post("/events", json=ev).json()["accepted"]
+    for _ in range(100):
+        acts = {a["action_id"]: a for a in c.get(f"/cases/{cid}").json()["actions"]}
+        if acts[pending[0]["action_id"]]["status"] == "applied":
+            break
+        time.sleep(0.05)
+    assert acts[pending[0]["action_id"]]["status"] == "applied" and acts[pending[0]["action_id"]]["approved_via"] == "sms"
+    time.sleep(0.2)
+    steps_sent = [o["payload"] for o in c.get("/demo/outbox").json() if o["kind"] == "send" and o["payload"]["kind"] == "recovery_step"]
+    assert len(steps_sent) == 2 and steps_sent[1]["action_id"] == pending[1]["action_id"], steps_sent
+    pending = pending[1:]
     for a in pending[:-1]:
         ok("Action", c.post(f"/actions/{a['action_id']}/approve", json={"via": "voice"}).json())
     c.post(f"/actions/{pending[-1]['action_id']}/reject", json={"via": "voice"})
