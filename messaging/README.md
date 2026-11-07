@@ -55,6 +55,18 @@ npm test
 
 Tests cover schema validation, unsafe output, recipient/line/group filtering, deduplication after restart, ambiguous event responses, verbatim YES/NO forwarding without action calls, forwarded links, and disclosures without local classification. Brain recovery tests live in agent/test_workflow_offline.py.
 
+For the brain regression check on a laptop with live agent/.env configured, use
+the isolated wrapper rather than launching that test directly:
+
+```sh
+cd agent
+uv run --no-project --with-requirements requirements.txt python ../messaging/scripts/test-brain-offline.py
+```
+
+The wrapper runs the unchanged brain assertions, disables dotenv reloading,
+blocks outbound requests.post, and asserts that no outbound HTTP was attempted.
+This prevents the brain test's scripted approvals from texting a live line.
+
 This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it.
 
 Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404. D-035/D-039 now prefer Lightning, verified live with HTTP 200 and thinking disabled. Production reply interpretation is in the brain. This does not establish free-form recovery approvals end to end.
