@@ -158,6 +158,7 @@ files = {
     "event.transfer_pin.json": transfer_pin,
     "event.t1_new_device_login.json": {"event_id": "evt_t1_01", "user_id": U, "type": "login", "ts": ts(-3600), "source": "portal", "call_id": None,
                                         "data": {"device_hash": "h_unknown_win11", "region": "Lagos, NG", "new_device": True, "succeeded": True}},
+    "event.line_region.json": {"event_id": "evt_t1_00", "user_id": U, "type": "line.region", "ts": ts(-3610), "source": "voice", "call_id": None, "data": {"region": "Dallas, TX"}},
     "event.t1_sim_swap.json": {"event_id": "evt_t1_02", "user_id": U, "type": "sim_swap.requested", "ts": ts(-3500), "source": "portal", "call_id": None,
                                "data": {"new_device_hash": "h_unknown_esim", "channel": "portal"}},
     "event.t1b_otp_during_call.json": {"event_id": "evt_t1b_01", "user_id": U, "type": "otp.sent", "ts": ts(300), "source": "brain", "call_id": CALL, "data": {"purpose": "login"}},
