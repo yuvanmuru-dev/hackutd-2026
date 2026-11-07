@@ -10,7 +10,9 @@ Tasks live as GitHub Issues labeled `lane:spine`, `lane:packs`, `lane:web`, `lan
 | 2 Packs + data → QA | Yuvan · Codex | `agent/packs/<pack>/`, `agent/cache/`, `evals/` | `lane/packs` | Domain tools with `source`, DEMO_MODE replay, Nemotron VL doc reading, accuracy evals. **From T+10: QA** |
 | 3 Web | saikarthikbattula / rigshank / Ish0212 (assign) · Codex | `web/` | `lane/web` | Run page (live timeline), report with verified badges, approval buttons, **case page with live call view**, share page, evidence view |
 | 4 Voice + SMS | (assign) · Codex | `voice/` | `lane/voice` | Inbound call with caller-ID case memory, streams transcript to the case, "go ahead" approvals, outbound alert call, SMS YES approvals |
-| 5 Email + memory | (assign) · Codex | `email/`, `db/`, `watcher/`, `DEVPOST.md` | `lane/email` | Forward-to-inbox → report reply; counterparty email + reply tracking; email YES approvals; Supabase schema; watcher loop |
+| 5 Messaging + memory | (assign) · Codex | `messaging/` (TypeScript, Photon), `email/`, `db/`, `watcher/`, `DEVPOST.md` | `lane/email` | Photon iMessage/SMS in and out; YES/NO replies approve/reject; Supabase schema; watcher loop |
+
+**Domain locked (2026-11-07): see docs/PACK_SPEC.md.** Tracks NVIDIA + T-Mobile + Photon. Pack name `guard`.
 
 ## Git rules (every agent follows these)
 - Branch from `main`, commit small, `git pull --rebase origin main` at least every hour and before every PR.
@@ -42,7 +44,17 @@ All Codex prompts start with:
 
 ## Phase 1 (after the idea is chosen)
 Lane 1 posts a short `docs/PACK_SPEC.md` (claims we check, tools + data sources, demo inputs, counterparty, demo script timing).
-Every lane then gets a one-line follow-up prompt: "Read docs/PACK_SPEC.md and apply it to your lane: domain copy, demo inputs, and the parts of docs/DEMO.md you own."
+Every lane then pastes its Phase 1 prompt below. Each starts with: "Read docs/PACK_SPEC.md and docs/TRACKS.md. Phase 0 still applies unless this overrides it."
+
+**Lane 1 (Claude):** Contracts v0.3: `BehaviorSession` (derived features only), `SensitiveActionRequest`, `RiskDecision` (`allow|step_up_face|hold_and_alert|block`, confidence band, signals with sources), WebAuthn endpoints, `line_status` channel event. Mock fixtures for T1/T2/T3. Pack loader with `ACTIVE_PACK=guard`.
+
+**Lane 2 (Codex):** Build `agent/packs/guard/`. (1) Synthetic data generator: 3 personas × 30 days of baseline sessions, plus labeled impostor (T1), coached (T2) and bot sessions, 200+ total; 40 labeled scam/legit texts. (2) Deterministic scoring: per-feature z-scores vs baseline, device + geo-velocity checks → signals with numbers. (3) Tools: `get_baseline`, `score_session`, `device_history`, `geo_velocity`, `line_status`, `recent_scam_reports`, `policy_lookup` (NeMo Retriever over a short carrier security policy + FTC guidance we write), `check_message` (lookalike domain, RDAP domain age, URLhaus). Every tool returns a `source`. (4) `evals/run.py`: precision, recall, false-positive rate per threat, and calibration.
+
+**Lane 3 (Codex):** Two surfaces in `web/`. (a) `/portal`: a neutral, unbranded carrier account portal (login, SIM swap, port-out PIN, add line, change email) with a behavior SDK that computes derived features in the browser (key hold/flight times, pauses, paste, pointer speed, nav path) and never sends raw keystrokes; consent screen on first use. Sensitive actions call the brain and show the decision; `step_up_face` triggers WebAuthn with the platform authenticator (Face ID / Touch ID). (b) `/guardian`: the hero screen. Live case view with the agent's tool calls streaming in, risk signals as numbers vs baseline, decision + confidence band + reasons, Photon messages and call transcript in the same timeline. Make it read well on a projector.
+
+**Lane 4 (Codex):** Photon voice. First 2 hours: prove the bridge Photon iMessage line → SIP (TLS 5061, G.711) → Twilio SIP Domain → `<Connect><Stream>` → our Pipecat bot (or LiveKit SIP → Pipecat). If not working by T+2, use a Twilio number for voice and tell Lane 1. Then: outbound "Was this you?" call for `hold_and_alert` at high risk, and the T2 call ("We never ask for your PIN on a call. Hang up, I'll wait."). Emit `line_status` events (active call, caller number, duration) to the brain as the simulated carrier signal. Every transcript line goes to POST /cases/{id}/events.
+
+**Lane 5 (Codex):** Create `messaging/` in TypeScript with Photon `spectrum-ts` (webhook mode, dedupe on `message.id`). Inbound: a forwarded text or screenshot → POST /runs (channel `sms`, pack `guard`) → reply with the verdict + sources. Outbound: POST /internal/send for alerts ("Someone is trying to move your number to a new SIM. Was this you? Reply YES or NO"). Replies: YES/NO → POST /actions/{id}/approve or reject. Trusted contact alert only after the user approves. Check in the Photon dashboard whether 2.0 beta gives an SMS number and email; report back to Lane 1. Then `db/` schema and the `watcher/` 24h watch on scam numbers/domains.
 
 ## Phase 2: QA (Lane 2 from T+10)
 > Every hour: pull main, start everything with scripts/dev.sh in DEMO_MODE, and run the docs/DEMO.md script with playwright-cli (web) plus a scripted call. Time each beat against the budget. File each failure or slow beat as a GitHub Issue labeled with the owning lane and `demo-blocker` or `polish`.

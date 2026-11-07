@@ -1,7 +1,7 @@
 # Game plan (read this first)
 
-Status: tracks not announced. NVIDIA is our confirmed track (Nemotron / NVIDIA models required).
-Second track: open. Nothing below is tied to a domain until we pick one at kickoff.
+Status: **LOCKED 2026-11-07. Tracks: NVIDIA + T-Mobile (Safe Signal) + Photon. Product: behavioral scam guard, see docs/PACK_SPEC.md.**
+PACK_SPEC.md overrides anything domain-specific below (idea bank, demo beats).
 
 ## The bet
 We are not building a chatbot. We are building **one agent brain with many doors** that
