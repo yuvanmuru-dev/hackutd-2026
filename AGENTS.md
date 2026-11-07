@@ -25,6 +25,7 @@ Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains ar
 
 ## Skills (in `.claude/skills/<name>/SKILL.md`; Codex should open and read them)
 - UI: `design-taste-frontend`, `web-design-guidelines`, `better-layout`, `better-typography`, `better-colors`, `better-ui`, `better-accessibility`, `better-writing`, `find-animation-opportunities`, `better-interface` (full review, once)
+- Image/mockup/screenshot → code: `screenshot-to-code` (in this repo: target is `web/`, Next.js App Router + Tailwind v4; use `playwright-cli` for the render-and-compare step; apply `design-taste-frontend` tokens over guessed ones)
 - Voice: `nemotron-voice-agent-builder` (cloud profile, no GPU)
 - Email: `agentmail`, `agentmail-toolkit`
 - Browser testing/screenshots: `playwright-cli`

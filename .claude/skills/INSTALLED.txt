@@ -7,3 +7,4 @@ better-* + interface-review  jakubkrehel/skills     592aedc  (0-8)
 nemotron-voice-agent-builder NVIDIA/skills          fce3cca  (24 caution; untagged docker refs in docs)
 agentmail, agentmail-toolkit agentmail-to/agentmail-skills 181b2e1  (7, 0)
 Skipped: nemotron-speech (self-hosted GPU setup, sudo/docker, not needed), teardown, explain-interface
+screenshot-to-code      OneWave-AI/claude-skills    b2267d9  (no scripts; reviewed by hand 2026-11-07, SkillSpector not run)
