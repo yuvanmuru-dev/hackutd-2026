@@ -271,13 +271,15 @@ async def play(scenario: str):
 
     async def run():
         if scenario == "t2":
-            seq = [ev("call.started", {"direction": "in", "other_number_hash": "h_8f2c19", "caller_name": "T-Mobile Support",
+            seq = [ev("line.region", {"region": "Dallas, TX"}, "voice"),
+                   ev("call.started", {"direction": "in", "other_number_hash": "h_8f2c19", "caller_name": "T-Mobile Support",
                                        "attestation": "C", "seen_before": False, "scam_label": False}, "voice"),
                    ev("login", {"device_hash": "h_maya_laptop", "region": "Dallas, TX", "new_device": False, "succeeded": True}, "portal"),
                    ev("protection.changed", {"name": "port_out_protection", "enabled": False, "via": "portal"}, "portal"),
                    ev("transfer_pin.requested", {}, "portal")]
         elif scenario == "t1":
-            seq = [ev("login", {"device_hash": "h_unknown_win11", "region": "Lagos, NG", "new_device": True, "succeeded": True}, "portal"),
+            seq = [ev("line.region", {"region": "Dallas, TX"}, "voice"),
+                   ev("login", {"device_hash": "h_unknown_win11", "region": "Lagos, NG", "new_device": True, "succeeded": True}, "portal"),
                    ev("sim_swap.requested", {"new_device_hash": "h_unknown_esim", "channel": "portal"}, "portal")]
         elif scenario == "t3":
             seq = [ev("message.forwarded", {"channel": "imessage", "text": "T-Mobile: your account is locked. Verify now at t-mobile-secure-help.co", "from_hash": "h_31aa02"}, "messaging")]

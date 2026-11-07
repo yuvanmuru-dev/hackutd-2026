@@ -217,6 +217,19 @@
       ],
       "additionalProperties": false
     },
+    "LineRegionData": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "region"
+      ],
+      "additionalProperties": false,
+      "description": "line.region payload: where the phone on this line is right now (serving region). Simulated carrier signal, read only at a trigger."
+    },
     "SimSwapData": {
       "type": "object",
       "properties": {
@@ -412,7 +425,8 @@
             "portal.signals",
             "message.forwarded",
             "customer.reply",
-            "face.result"
+            "face.result",
+            "line.region"
           ]
         },
         "ts": {
@@ -644,6 +658,22 @@
             "properties": {
               "data": {
                 "$ref": "#/$defs/FaceResult"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "line.region"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/LineRegionData"
               }
             }
           }

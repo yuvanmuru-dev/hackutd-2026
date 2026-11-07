@@ -1,9 +1,10 @@
 """Model router for Titan's agents. NVIDIA endpoints only (D-015), OpenAI SDK as the client.
 
 Roles -> (base URL env, model env, default model):
-  super     Context / Risk / Verifier / Response   NEMOTRON_BASE_URL, NEMOTRON_MODEL
-  nano      fallback + messaging/voice helpers     NEMOTRON_BASE_URL, NEMOTRON_NANO_MODEL
-  safety    Safety Guard on outbound text          NEMOTRON_BASE_URL, SAFETY_MODEL (optional; empty = rules only)
+  super     Risk / Verifier / Response (Nemotron 3 Ultra)   NEMOTRON_BASE_URL, NEMOTRON_MODEL
+  nano      Context, reply reading, fallback (Nemotron 3.5 Lightning)   NEMOTRON_BASE_URL, NEMOTRON_NANO_MODEL
+  safety    Nemotron Safety Guard v3 on outbound text   SAFETY_MODEL (empty = rules only)
+Model names verified against this account's /v1/models and live calls on 2026-11-07.
 
 chat_json() retries 429/5xx/timeouts with backoff, falls back from super to nano, strips <think> blocks and
 code fences, and parses the first JSON object. Tests inject a fake client with set_client().
@@ -21,9 +22,9 @@ load_dotenv()
 
 DEFAULT_BASE = "https://integrate.api.nvidia.com/v1"
 MODELS = {
-    "super": ("NEMOTRON_MODEL", "nvidia/nemotron-3-super-120b-a12b"),
-    "nano": ("NEMOTRON_NANO_MODEL", "nvidia/nemotron-3-nano-30b-a3b"),
-    "safety": ("SAFETY_MODEL", ""),
+    "super": ("NEMOTRON_MODEL", "nvidia/nemotron-3-ultra-550b-a55b"),
+    "nano": ("NEMOTRON_NANO_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
+    "safety": ("SAFETY_MODEL", "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"),
 }
 _client = None
 _calls: list[dict] = []  # last calls, for the dashboard/debug (model, ms, ok)

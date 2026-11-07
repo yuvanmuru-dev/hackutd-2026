@@ -2,8 +2,8 @@
 
 Each is a small, strict JSON prompt on Nemotron. Code around them enforces the rules (safer-only actions,
 no links, never ask for a PIN), so a bad model answer can't loosen protection or stall the demo.
-Agent model roles come from env: AGENT_CONTEXT_ROLE (default nano), AGENT_RISK_ROLE / AGENT_VERIFIER_ROLE /
-AGENT_RESPONSE_ROLE (default super), AGENT_REPLY_ROLE (default nano).
+Agent model roles come from env: AGENT_CONTEXT_ROLE (default nano), AGENT_RISK_ROLE / AGENT_VERIFIER_ROLE (default super = Nemotron 3 Ultra),
+AGENT_RESPONSE_ROLE (default nano = Lightning, customer words need speed), AGENT_REPLY_ROLE (default nano).
 """
 from __future__ import annotations
 
@@ -73,6 +73,8 @@ def verify(claims: list[dict], results: dict) -> tuple[dict, str]:
 # ---------------- Response (customer-facing words)
 RESPONSE = RULES + """
 You are the Response agent. Write what Titan says to the customer. Calm, short, plain words; the customer may be 68.
+Speak to her directly as "you". No jargon (never say "coached", "attestation", "port-out", "STIR/SHAKEN"); say what happened plainly
+(e.g. "someone on a call you can't verify asked you to turn off a protection").
 Never blame her. Never ask for a PIN, code or password. No links. Confidence in words ("we're fairly sure, not certain").
 Input: {"customer_name", "threat", "facts": [verified facts], "actions_taken": [strings], "on_call_now": bool}
 Output: {"alert_text": "one iMessage under 320 characters that ends with 'Reply YES or NO.' asking if this was her idea",
@@ -81,20 +83,23 @@ Output: {"alert_text": "one iMessage under 320 characters that ends with 'Reply 
 
 
 def response_text(name: str, threat: str, facts: list[str], actions: list[str], on_call: bool) -> tuple[dict, str]:
-    return llm.chat_json(_role("response", "super"), RESPONSE,
+    return llm.chat_json(_role("response", "nano"), RESPONSE,
                          {"customer_name": name, "threat": threat, "facts": facts, "actions_taken": actions, "on_call_now": on_call},
                          max_tokens=500)
 
 
 SUMMARY = RULES + """
 You are the Response agent writing the incident summary the customer gets by iMessage after Titan stepped in.
+Write to her as "you" (never her name in the third person). Plain words, no jargon ("coached", "attestation", "STIR/SHAKEN").
 Input: {"customer_name", "case_number", "threat", "facts", "actions_taken", "customer_approved", "customer_declined", "customer_said"}
-Output: {"what_happened": "1-2 sentences", "why_we_stepped_in": "1-2 sentences", "confidence_text": "plain words",
-         "next_steps": ["2-3 short steps"], "spot_it_next_time": "one sentence"}"""
+Output: {"what_happened": "1-2 sentences describing what the caller asked her to do", "why_we_stepped_in": "1-2 sentences",
+         "confidence_text": "plain words, honest (fairly sure / not certain)",
+         "next_steps": ["2-3 short things SHE should do now; never repeat actions already taken or approved"],
+         "spot_it_next_time": "one sentence"}"""
 
 
 def summary_text(payload: dict) -> tuple[dict, str]:
-    return llm.chat_json(_role("response", "super"), SUMMARY, payload, max_tokens=600)
+    return llm.chat_json(_role("response", "nano"), SUMMARY, payload, max_tokens=600)
 
 
 # ---------------- Reply reader (messaging / voice answers)
@@ -129,19 +134,23 @@ def read_reply(text: str, question: str = "") -> dict:
 
 # ---------------- outbound guard (rules + optional Safety Guard)
 _LINK = re.compile(r"https?://|www\.|\b[a-z0-9-]+\.(com|net|org|co|io|info|xyz|us)\b", re.I)
-_ASKS_SECRET = re.compile(r"(?i)(send|tell|give|read|share|enter|reply with)[^.?!]{0,30}\b(pin|passcode|password|code)\b")
+# A request aimed at the customer: "send/tell/give/read/share/enter/reply with ... your/me/us ... PIN/code/password",
+# or "what is your PIN". Describing what the scammer asked ("he asked you to share a transfer PIN") is not a request.
+_ASKS_SECRET = re.compile(r"(?i)\b(send|tell|give|read|share|enter|reply with|text|confirm)\b(\s+(it|them))?\s+(me|us|titan)?\s*(your|the)\s+"
+                          r"([a-z-]+\s+){0,2}(pin|passcode|password|code)\b|\bwhat(?:'s| is)\s+your\s+([a-z-]+\s+)?(pin|passcode|password|code)\b")
 
 
-def outbound_ok(text: str) -> tuple[bool, str]:
+def outbound_ok(text: str, use_model: bool = True) -> tuple[bool, str]:
     if _LINK.search(text or ""):
         return False, "contains a link"
     for sentence in re.split(r"(?<=[.?!])\s+", text or ""):
         if _ASKS_SECRET.search(sentence) and not re.search(r"(?i)\b(never|don'?t|do not|won'?t|will not|not)\b", sentence):
             return False, "asks for a secret"
-    if llm.model_for("safety"):
+    if use_model and llm.model_for("safety"):
         try:
-            out, _ = llm.chat_json("safety", "Classify the message for safety. Reply JSON {\"safe\": true|false}.", text, max_tokens=50)
-            if out.get("safe") is False:
+            out, _ = llm.chat_json("safety", "Assess this outbound message from a security service to a customer.", text, max_tokens=60)
+            verdicts = [str(v).lower() for v in out.values()]  # Safety Guard v3: {"User Safety": "safe", ...}
+            if out.get("safe") is False or any(v == "unsafe" for v in verdicts):
                 return False, "Safety Guard flagged it"
         except Exception:  # noqa: BLE001
             return True, "Safety Guard unavailable; rules passed"

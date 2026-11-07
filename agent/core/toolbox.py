@@ -53,8 +53,9 @@ def account_history(store: Store, user_id: str, **_):
     devices = sorted({e["data"]["device_hash"] for e in logins})
     res = {"transfer_pins_before": max(0, len(pins) - 1), "devices_seen": devices, "logins": len(logins),
            "home_region": HOME_REGION.get(user_id), "persona": store.users[user_id].get("persona")}
-    summary = (f"{'First' if res['transfer_pins_before'] == 0 else 'Not the first'} transfer PIN request on record"
-               f" · {len(devices) or 'no'} known device(s)")
+    pin_txt = ("No transfer PIN requests on record" if not pins else
+               "First transfer PIN request on record" if res["transfer_pins_before"] == 0 else f"{len(pins)} transfer PIN requests on record")
+    summary = f"{pin_txt} · {len(devices) or 'no'} known device(s)"
     return {"summary": summary, "result": res, "source": {"name": "Account history (synthetic)", "record": f"users/{user_id}"}}
 
 
@@ -70,13 +71,18 @@ def device_sim_status(store: Store, user_id: str, **_):
 
 
 def location_match(store: Store, user_id: str, **_):
+    """Is the device making the request in the same region as the phone on the line right now?"""
     logins = _events(store, user_id, "login")
+    lines = _events(store, user_id, "line.region")
     region = logins[-1]["data"].get("region") if logins else None
-    home = HOME_REGION.get(user_id)
-    match = region is None or region == home
-    return {"summary": f"Request from {region or 'unknown'} · line is in {home} · {'match' if match else 'MISMATCH'}",
-            "result": {"request_region": region, "line_region": home, "match": match},
-            "source": {"name": "Login region vs line region"}}
+    line = lines[-1]["data"]["region"] if lines else None
+    if not region or not line:
+        return {"summary": "Line location unknown (unverifiable)", "result": {"request_region": region, "line_region": line, "match": None},
+                "source": {"name": "Login region vs line serving region (simulated carrier signal)"}}
+    match = region == line
+    return {"summary": f"Request from {region} · her phone is in {line} · {'match' if match else 'MISMATCH'}",
+            "result": {"request_region": region, "line_region": line, "match": match},
+            "source": {"name": "Login region vs line serving region (simulated carrier signal)", "record": f"events/{lines[-1]['event_id']}"}}
 
 
 def portal_signals(store: Store, user_id: str, **_):
@@ -167,7 +173,7 @@ def rules_score(store: Store, user_id: str, event: dict) -> dict:
         return {"threat": "scam_text" if p >= 0.5 else "legit", "probability": p, "calibrated": False, "confidence": _conf(p),
                 "anomaly": None, "top_reasons": reasons or [{"feature": "none", "contribution": 0, "text": "Nothing suspicious found"}], "model": "rules"}
 
-    if ds["last_login_new_device"] and not lm["match"]:
+    if ds["last_login_new_device"] and lm["match"] is False:
         add("new_device", 0.35, "A device never seen on this account")
         add("region_mismatch", 0.35, f"Request from {lm['request_region']} while her line is in {lm['line_region']}")
         p, threat = 0.9, "takeover"
@@ -188,7 +194,7 @@ def rules_score(store: Store, user_id: str, event: dict) -> dict:
             if pt.get("tab_switches", 0) >= 2 or pt.get("hesitation_ms", 0) > 20000:
                 p += 0.05
                 add("portal_hesitation", 0.05, "Long pauses and leaving the page mid-flow")
-            if not ds["last_login_new_device"] and lm["match"]:
+            if not ds["last_login_new_device"] and lm["match"] is not False:
                 add("known_device_home_region", -0.05, "Her own device and area: it is really her")
             threat = "coached" if p >= 0.5 else "legit"
         p = min(p, 0.95)

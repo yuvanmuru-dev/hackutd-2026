@@ -103,6 +103,8 @@ class Run:
         except Exception as e:  # noqa: BLE001
             chosen = []
             self.step("context", "context", "error", f"Planner unavailable ({type(e).__name__}); using the standard checks", {})
+        if self.threat != "scam_text":  # message checks only make sense for a forwarded text
+            chosen = [t for t in chosen if t not in ("check_message",)]
         names = list(dict.fromkeys(required + chosen))
         args = {n: ({"text": self.trigger["data"].get("text", "")} if n == "check_message" else {"user_id": self.uid}) for n in names}
         for n in names:
@@ -188,7 +190,7 @@ class Run:
                 a = self.action("relock", f"Turned {name.replace('_', ' ').title()} back on", applied=True, approval=False)
                 taken.append(a["description"])
                 self.step("response", "respond", "action", a["description"], {"action_id": a["action_id"]})
-            if st.transfer_pins[self.uid]["status"] in ("active", "held"):
+            if st.transfer_pins[self.uid]["status"] in ("active", "held") or self.trigger["type"] == "transfer_pin.requested":
                 st.hold_transfer_pin(self.uid)
                 a = self.action("hold_transfer_pin", "Held the transfer PIN for 24 hours so it can't be used", applied=True, approval=False)
                 taken.append(a["description"])
@@ -237,8 +239,9 @@ class Run:
 
     async def recover(self):
         self.case["status"] = "recovering"
-        plan = [("reset_pin", "Reset your account PIN"), ("sign_out_sessions", "Sign out all other devices"),
-                ("report_number", "Report the caller's number so other customers get warned")]
+        plan = [("reset_pin", "Reset your account PIN"), ("sign_out_sessions", "Sign out all other devices")]
+        if self.results.get("call_context", {}).get("result", {}).get("active"):
+            plan.append(("report_number", "Report the caller's number so other customers get warned"))
         if any(a["kind"] == "hold_transfer_pin" for a in self.case["actions"]):
             plan.insert(1, ("revoke_transfer_pin", "Cancel the pending transfer PIN"))
         pending = [self.action(k, d, applied=False, approval=True) for k, d in plan]
@@ -286,11 +289,16 @@ class Run:
             "replies": [{"keyword": "REPORT", "meaning": "Draft an FTC report"},
                         {"keyword": "UNDO", "meaning": "Safely release the hold (after the call, with a check)"}],
         }
-        for k in ("what_happened", "why_we_stepped_in", "spot_it_next_time"):
-            if not agents.outbound_ok(summary[k])[0]:
+        replaced = {}
+        for k in ("what_happened", "why_we_stepped_in", "spot_it_next_time", "confidence_text"):
+            ok, why = agents.outbound_ok(summary[k], use_model=False)
+            if not ok:
+                replaced[k] = why
                 summary[k] = "Titan stepped in to keep your number safe."
+            summary[k] = _sentence(summary[k])
+        summary["next_steps"] = [_sentence(x) for x in summary["next_steps"]]
         self.case["summary"] = summary
-        self.step("response", "summary", "summary", "Incident summary written and checked", {"summary": summary})
+        self.step("response", "summary", "summary", "Incident summary written and checked", {"summary": summary, "replaced": replaced})
         text = (f"Titan · Case {summary['case_number']}. What happened: {summary['what_happened']} "
                 f"What we did: {'; '.join(summary['what_we_did'])}."
                 + (f" You approved: {'; '.join(approved)}." if approved else "")
@@ -334,6 +342,14 @@ TEMPLATES = {
     "question": "Titan: Please hang up any call you're on, then reply YES or NO.",
     "summary": "Titan: We stepped in to keep your number safe. Your number is protected.",
 }
+
+
+def _sentence(text: str) -> str:
+    text = (text or "").strip()
+    if not text:
+        return text
+    text = text[0].upper() + text[1:]
+    return text if text[-1] in ".!?" else text + "."
 
 
 def apply_decision(store: Store, case: dict, action: dict, approve: bool, via: str):

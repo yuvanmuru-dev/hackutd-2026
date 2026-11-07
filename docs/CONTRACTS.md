@@ -1,6 +1,6 @@
 # Contracts v0.3 (Titan)
 
-**Source of truth:** `contracts/schema.json` (JSON Schema 2020-12, 35 types in `$defs`). This page is the map.
+**Source of truth:** `contracts/schema.json` (JSON Schema 2020-12, 36 types in `$defs`). This page is the map.
 TypeScript types: `contracts/generated/types.ts` (copy into your app with `scripts/gen_types.sh`).
 Python: validate with `core.contracts.errors("TypeName", obj)` in the brain, or `jsonschema` against the same file.
 Examples for every type: `contracts/fixtures/` (the T2 coached-victim story, plus T1, T1b, T3 events). CI validates them all.
@@ -53,6 +53,7 @@ open http://localhost:8000/docs               # every endpoint, try it live
 | `message.forwarded` | `{channel, text?, image_url?, from_hash?}` | messaging |
 | `customer.reply` | `{channel, text, case_id?}` | messaging, voice |
 | `face.result` | `{match, similarity, liveness, antispoof}` | portal (computed on the device) |
+| `line.region` | `{region}`: where the phone on the line is right now (simulated carrier signal, sent only at trigger snapshots) | voice / generator / console (D-034) |
 The brain stamps `call_id` on any event that happens during an active call: that's how "actions taken during the call" works.
 
 ## Triggers (what starts a run)

@@ -1,0 +1,11 @@
+{
+  "event_id": "evt_t1_00",
+  "user_id": "usr_maya",
+  "type": "line.region",
+  "ts": "2026-11-07T19:13:50Z",
+  "source": "voice",
+  "call_id": null,
+  "data": {
+    "region": "Dallas, TX"
+  }
+}

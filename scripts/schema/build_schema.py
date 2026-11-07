@@ -19,7 +19,7 @@ PROTECTIONS = E("sim_protection", "port_out_protection", "scam_block")
 ATTEST = E("A", "B", "C", "none")
 EVENT_TYPES = ["call.started", "call.ended", "login", "otp.sent", "otp.entered", "pin.attempt",
                "protection.changed", "transfer_pin.requested", "sim_swap.requested", "portal.signals",
-               "message.forwarded", "customer.reply", "face.result"]
+               "message.forwarded", "customer.reply", "face.result", "line.region"]
 ACTION_KINDS = E("relock", "hold_transfer_pin", "require_step_up", "reset_pin", "revoke_transfer_pin",
                  "sign_out_sessions", "report_number", "notify_trusted_contact", "send_ftc_report", "release_hold")
 SENSITIVE = E("protection_off", "transfer_pin", "sim_swap", "change_email", "change_password", "add_line", "login")
@@ -39,6 +39,7 @@ d["LoginData"] = O({"device_hash": S(), "region": S(), "new_device": B, "succeed
 d["OtpData"] = O({"purpose": E("login", "account_change", "transfer_pin")})
 d["PinAttemptData"] = O({"ok": B, "channel": E("portal", "app", "care")})
 d["ProtectionChangeData"] = O({"name": PROTECTIONS, "enabled": B, "via": E("portal", "app", "care", "titan")})
+d["LineRegionData"] = O({"region": S()}, desc="line.region payload: where the phone on this line is right now (serving region). Simulated carrier signal, read only at a trigger.")
 d["SimSwapData"] = O({"new_device_hash": S(), "channel": E("portal", "app", "care", "store")})
 d["PortalSignals"] = O({
     "session_id": S(), "page_path": A(S()), "ms_per_step": A(N(minimum=0)),
@@ -56,7 +57,7 @@ d["FaceResult"] = O({"match": B, "similarity": N(minimum=0, maximum=1), "livenes
 data_for = {"call.started": "CallData", "call.ended": "CallEndedData", "login": "LoginData", "otp.sent": "OtpData",
             "otp.entered": "OtpData", "pin.attempt": "PinAttemptData", "protection.changed": "ProtectionChangeData",
             "sim_swap.requested": "SimSwapData", "portal.signals": "PortalSignals",
-            "message.forwarded": "ForwardedMessage", "customer.reply": "CustomerReply", "face.result": "FaceResult"}
+            "message.forwarded": "ForwardedMessage", "customer.reply": "CustomerReply", "face.result": "FaceResult", "line.region": "LineRegionData"}
 d["Event"] = {
     "type": "object",
     "description": "Anything that happened on the account. POST /events. Idempotent on event_id.",
