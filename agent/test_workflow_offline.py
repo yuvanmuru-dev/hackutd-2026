@@ -104,8 +104,10 @@ with TestClient(server.app) as c:
     score_step = next(s for s in d["steps"] if s["type"] == "score")
     assert score_step["data"]["decision"] == "hold_and_alert", score_step   # rules floor beat the lenient model
     assert d["verification"]["claims_dropped"] >= 1, d["verification"]      # "$5,000 from bank_records" dropped
-    assert any(s["type"] == "error" and "link" in s["title"] for s in d["steps"]), "guard should block the link"
-    assert all("http" not in m["text"] for m in d["messages"]), "no link may reach the customer"
+    import re as _re
+    tappable = _re.compile(r"https?://|www\.|\b[a-z0-9-]+\.(com|net|org|co|io)\b", _re.I)
+    assert all(not tappable.search(m["text"]) for m in d["messages"] if m["direction"] == "out"), \
+        [m["text"] for m in d["messages"] if m["direction"] == "out" and tappable.search(m["text"])]   # links defanged (D-012)
     kinds = {a["kind"]: a["status"] for a in d["actions"]}
     assert kinds.get("relock") == "applied" and kinds.get("hold_transfer_pin") == "applied", kinds
     st = c.get("/protections/usr_maya").json()
@@ -153,7 +155,9 @@ with TestClient(server.app) as c:
     t3 = next(x for x in c.get("/cases").json() if x["title"].startswith("Forwarded"))
     d3 = ok("CaseDetail", wait_status(c, t3["case_id"], {"watching"}))
     assert d3["threat"] == "scam_text" and any(m["direction"] == "out" for m in d3["messages"])
-    assert all("http" not in m["text"] and ".co" not in m["text"] for m in d3["messages"] if m["direction"] == "out")
+    outs = [m["text"] for m in d3["messages"] if m["direction"] == "out"]
+    assert all(not tappable.search(t) for t in outs), outs
+    assert any("[.]" in t for t in outs), outs   # the scam domain is named, safely
 
     # ---- resilience: every model call fails -> deterministic fallbacks, run still completes
     llm.set_client(FakeNemotron(fail=True))
