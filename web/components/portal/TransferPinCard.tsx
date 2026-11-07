@@ -52,6 +52,7 @@ export function TransferPinCard({ pin, held, busy, disabled, onRequest }: Props)
             <span className="font-semibold">Account PIN</span>
             <input
               type="password"
+              name="account_pin"
               inputMode="numeric"
               autoComplete="off"
               maxLength={8}
@@ -68,7 +69,7 @@ export function TransferPinCard({ pin, held, busy, disabled, onRequest }: Props)
           <button
             type="submit"
             disabled={!ready || busy || disabled}
-            className="h-14 rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-transform active:scale-[0.98] disabled:opacity-50"
+            className="h-14 rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
           >
             {busy ? "Requesting…" : "Generate transfer PIN"}
           </button>

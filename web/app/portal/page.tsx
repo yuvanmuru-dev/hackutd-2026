@@ -69,7 +69,7 @@ export default function PortalSignIn() {
           type="button"
           onClick={signIn}
           disabled={busy}
-          className="mt-8 h-14 w-full rounded-full bg-ink text-lead font-semibold text-surface transition-transform active:scale-[0.98] disabled:opacity-60"
+          className="mt-8 h-14 w-full rounded-full bg-ink text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
         >
           {busy ? "Signing in…" : "Continue as Maya"}
         </button>

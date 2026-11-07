@@ -26,7 +26,7 @@ export function ConsentScreen({ onChoose }: { onChoose: (yes: boolean) => void }
         <button
           type="button"
           onClick={() => onChoose(true)}
-          className="h-14 rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-transform active:scale-[0.98]"
+          className="h-14 rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98]"
         >
           That’s fine
         </button>

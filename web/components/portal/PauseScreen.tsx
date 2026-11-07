@@ -19,7 +19,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
   useEffect(() => title.current?.focus(), []);
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[rgb(20_20_20/0.55)] p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-[rgb(20_20_20/0.55)] p-4">
       <section
         role="alertdialog"
         aria-modal="true"
@@ -52,7 +52,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
             type="button"
             onClick={onHelp}
             disabled={busy !== null}
-            className="min-h-16 rounded-full bg-accent px-8 text-lead font-semibold text-accent-ink transition-transform active:scale-[0.98] disabled:opacity-60"
+            className="min-h-16 rounded-full bg-accent px-8 text-lead font-semibold text-accent-ink transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
           >
             {busy === "help" ? "Getting Titan…" : screen.help_label}
           </button>
@@ -74,7 +74,7 @@ export function CallingScreen({ caseId, onClose }: { caseId: string | null; onCl
   const title = useRef<HTMLHeadingElement>(null);
   useEffect(() => title.current?.focus(), []);
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[rgb(20_20_20/0.55)] p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-[rgb(20_20_20/0.55)] p-4">
       <section
         role="alertdialog"
         aria-modal="true"
@@ -92,7 +92,7 @@ export function CallingScreen({ caseId, onClose }: { caseId: string | null; onCl
           {caseId && (
             <Link
               href={`/case/${encodeURIComponent(caseId)}`}
-              className="inline-flex min-h-14 items-center justify-center rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-transform active:scale-[0.98]"
+              className="inline-flex min-h-14 items-center justify-center rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98]"
             >
               See what Titan is doing
             </Link>
