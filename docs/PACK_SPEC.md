@@ -4,8 +4,24 @@ Tracks: **NVIDIA + T-Mobile (Safe Signal) + Photon**. Locked 2026-11-07.
 Working name: **Tell** (a "tell" is the habit that gives someone away). PROPOSAL, rename freely. Don't use "Scam Shield" (T-Mobile's real product).
 
 ## The pitch in two sentences
-Face ID proves it's you. It can't prove you're not being scammed. Tell can, using only data T-Mobile already has to run your line, checked at the moment someone tries to move your number or change your account. When the pattern breaks, Nemotron investigates, explains with honest confidence, and reaches you on iMessage or a call through Photon.
+Face ID proves it's you. It can't prove you're not being scammed. Tell can. It sits on top of the protections T-Mobile already has (Scam Shield, SIM Protection, Port Out Protection, account PIN, 2-step codes), uses only data T-Mobile already has, checked at the moment someone tries to move your number or change your account. When the pattern breaks, Nemotron investigates, explains with honest confidence, and reaches you on iMessage or a call through Photon.
 **Behavior is always on. The face check is optional. Tell adds no new data collection.**
+
+## Built on T-Mobile's existing protections (Tell is a layer, not a replacement)
+T-Mobile already has strong locks. **Scammers don't pick the locks; they talk the owner into opening them.** Each protection works alone and can't see the others. Tell connects them: it reads what they already produce as signals, and when it acts, it acts *through* them.
+
+| Existing protection | What it stops | How scammers get around it | What Tell adds |
+|---|---|---|---|
+| **Scam Shield: Scam ID / Scam Block / Caller ID** | Labels "Scam Likely" calls, can block them | Spoofed or fresh numbers aren't labeled yet; once the call is answered, nothing connects it to what happens on the account next | Uses the label + caller-ID verification (STIR/SHAKEN) as call context at the trigger moment. When Tell confirms a scam number, it reports it back to Scam ID so *every* customer gets the label |
+| **Account PIN** (needed for care calls) | Strangers calling care as you | Victim reads it to the "support agent" | Failed/unusual PIN attempts are signals; after a scam, Tell's recovery plan resets it |
+| **Login 2-step verification (one-time code)** | Password-only takeovers | "Read me the code we just sent you" while on a call | A code sent while the line is on an unverified call is a signal (code relay) |
+| **SIM Protection** (blocks SIM changes) | SIM swaps | Victim is told to turn it off "to fix an issue" | **Turning protection off is itself a trigger.** Off during a call with an unverified number → hold + alert |
+| **Port Out Protection / Number Transfer PIN** | Unauthorized ports | Victim generates the transfer PIN herself and reads it out | Generating a transfer PIN during a suspicious call → delay issuance (cool-off) + alert + Tell calls her |
+| **Digital ID scan / facial recognition** (T-Mobile already uses it for verification) | Wrong person | Doesn't help when it *is* the owner, being coached | Our optional face check is the stand-in for this step-up. Tell decides *when* to ask for it |
+
+**What Tell does through these protections (its actions):** temporarily switch SIM Protection / Port Out Protection back on, put a cool-off on transfer PIN issuance, require the Digital ID / face step-up, suggest turning on Scam Block, and in recovery: reset account PIN, revoke the transfer PIN, sign out other sessions, report the number to Scam ID. Every action that affects the customer waits for her YES, except the temporary lock, which she can undo with one reply.
+
+In the hackathon these protections are a **mock carrier protections service** (state + events, synthetic). The portal mirrors them with neutral names. We use T-Mobile's real feature names in docs and the pitch, never their branding in the UI.
 
 ## Data rule: realistic and not invasive
 Every signal must pass three tests, or it's out:
@@ -21,6 +37,7 @@ Grounding: US law lets carriers use CPNI to protect customers from fraud (47 U.S
 | **Account history** | Logins (device hash, IP region, hour), account changes, SIM swaps, port-out PIN requests, care contacts (channel: app, store, phone) | Account + security logs | Per-person baseline: usual devices, usual login regions, usual hours, how often they change things, which channel they use | T1: new device + new region + rushing to SIM swap |
 | **Device + SIM** | Device model/ID hash, SIM/eSIM change dates | Network registration records | "Device age on this line", "SIM changed in last 30 days" | T1, T5 |
 | **Call context** (CPNI) | At trigger time only: is a call active, its duration, has this number been in contact with the line in 90 days (yes/no), caller-ID attestation (STIR/SHAKEN A/B/C), network scam label on the number | Call detail records, STIR/SHAKEN, network scam labeling | 4 values, no call log, no contact list | **T2**: active long call, never-seen number, unverified caller ID claiming "support" |
+| **Protection events** | SIM Protection / Port Out Protection on/off changes, transfer PIN generated, one-time code sent/entered, account PIN attempts, Scam ID label on a call | The protections' own logs | Event + timestamp, at trigger time | T1b code relay; T2 protection turned off or transfer PIN made during a call |
 | **Requesting vs. line location** | At trigger time only: is the device making the request in the same region as the phone on the line | Network + login IP | Same region yes/no. No location history, no movement tracking | T1 attacker in another state |
 | **Portal behavior** | On T-Mobile's own site/app: page path, time per step, hesitation, paste into PIN field, leaving the page mid-flow, typing rhythm summary | First-party site/app analytics | Derived numbers for that session only, no raw keystrokes or typed text | T1 unfamiliar user; T2 dictated input, app switching to the caller/texts |
 | **Face check** (optional) | Selfie match + liveness | T-Mobile already uses facial recognition for ID verification | On-device match; brain gets `{match, similarity, liveness, antispoof}` | T1 wrong person |
@@ -44,7 +61,7 @@ Grounding: US law lets carriers use CPNI to protect customers from fraud (47 U.S
 ## How it works (fits the existing brain + doors)
 1. **Events in:** synthetic history preloaded; live events from the voice line (call context), Photon (forwarded texts, YES/NO), the portal (portal behavior, account actions), and the **demo console** that injects scripted events on cue.
 2. **Baselines + scoring (deterministic):** per person: device familiarity, login-region familiarity, hour likelihood, change frequency, care-channel match, portal-path likelihood, plus the call-context answers. Output: signals with numbers and the baseline they're compared against. Nemotron never makes up numbers.
-3. **Investigate (Nemotron Super agent):** a sensitive action starts a run. Tools: `account_history`, `device_sim_status`, `call_context`, `location_match`, `portal_signals`, `check_message` (lookalike domain, RDAP domain age, URLhaus), `recent_scam_reports`, `policy_lookup` (carrier security policy + FTC guidance via NeMo Retriever). It reads the sequence, picks `allow | step_up_face | hold_and_alert | block`, and explains it.
+3. **Investigate (Nemotron Super agent):** a sensitive action starts a run. Tools: `account_history`, `device_sim_status`, `protection_status` (what's on/off, recent toggles, codes, transfer PINs), `call_context`, `location_match`, `portal_signals`, `check_message` (lookalike domain, RDAP domain age, URLhaus), `recent_scam_reports`, `policy_lookup` (carrier security policy + FTC guidance via NeMo Retriever). It reads the sequence, picks `allow | step_up_face | hold_and_alert | block`, names which existing protection to use (re-lock, cool-off, Digital ID step-up), and explains it.
 4. **Verify (second pass):** Nemotron checks each claimed signal against raw tool output; unsupported claims are downgraded. Confidence is a band with reasons.
 5. **Face check (optional, off by default):** `@vladmandic/human` (MIT) in the browser, on-device descriptor (IndexedDB), blink/head-turn challenge. Step-up only, never the only factor.
 6. **Reach the user (Photon):** iMessage (SMS fallback) "Was this you?" YES/NO; NO locks and opens recovery. High risk → Tell calls her. Trusted contact alerted only with her approval.
@@ -54,7 +71,8 @@ Grounding: US law lets carriers use CPNI to protect customers from fraud (47 U.S
 | # | Threat | What gives it away | What Tell does |
 |---|---|---|---|
 | T1 | Account takeover → SIM swap | New device, login region ≠ where her phone is, goes straight to SIM swap, unfamiliar portal behavior | Hold → face check fails if enabled → iMessage "Was this you?" → NO → locked + recovery |
-| T2 | **Coached victim → port-out PIN** (the novel one) | Active 22-min call from a never-contacted number, caller ID unverified (STIR/SHAKEN C) claiming "support"; dictated input, app switching; but her own device and region (so it *is* her) | Face check passes. Tell still pauses it, texts and calls her: "We never ask for your PIN on a call. Hang up, I'll wait." |
+| T2 | **Coached victim → transfer PIN** (the novel one) | Told to turn off Port Out Protection and generate a transfer PIN; active 22-min call from a never-contacted number, caller ID unverified (STIR/SHAKEN C) claiming "support"; dictated input, app switching; but her own device and region (so it *is* her) | All existing locks pass (it's her, she has the PIN and the code). Tell re-locks, puts the transfer PIN on cool-off, texts and calls her: "We never ask for your PIN on a call. Hang up, I'll wait." |
+| T1b | Code relay | One-time code sent while her line is on an unverified call, login from a new device right after | Block that login, alert her, re-lock SIM Protection |
 | T3 | Scam text | Lookalike domain, 3-day-old domain, known script | Verdict + sources in iMessage, raises her risk for 24h |
 
 ## Straight verdict
