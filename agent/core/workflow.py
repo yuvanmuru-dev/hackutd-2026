@@ -340,6 +340,8 @@ def apply_decision(store: Store, case: dict, action: dict, approve: bool, via: s
     """Apply an approval/rejection to an action and its effect on the account (shared with the server)."""
     if not approve:
         action.update(status="rejected", approved_via=via if via in ("web", "sms", "voice") else "sms")
+        store.add_step(case, new_id("run"), "voice" if via == "voice" else "messaging" if via == "sms" else "system", "recover",
+                       "action", f"Declined via {via}: {action['description']}", {"action_id": action["action_id"], "approved": False})
         return action
     action.update(status="applied", approved_via=via if via in ("web", "sms", "voice") else "sms", applied_at=iso(now()))
     uid = case["user_id"]
