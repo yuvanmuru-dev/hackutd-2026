@@ -3,7 +3,7 @@
 7 agents build this repo in parallel. These rules keep us from colliding.
 
 ## Read first
-0. docs/PLAN.md + docs/PACK_SPEC.md: what we are building (Shield Pro). They win over older docs
+0. docs/PLAN.md + docs/PACK_SPEC.md: what we are building (Titan). They win over older docs
 1. docs/GAMEPLAN.md: architecture and why it beats ChatGPT
 2. docs/CONTRACTS.md + contracts/schema.json: the API every lane builds against
 3. docs/LANES.md: your lane, your folders, your branch

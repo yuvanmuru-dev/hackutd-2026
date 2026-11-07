@@ -1,4 +1,4 @@
-# Shield Pro: the merged plan (read this first)
+# Titan: the merged plan (read this first)
 
 Tracks: **NVIDIA + T-Mobile (Safe Signal) + Photon**. Details: docs/PACK_SPEC.md. Who builds what: docs/LANES.md.
 
@@ -8,14 +8,14 @@ Scammers call T-Mobile customers pretending to be **T-Mobile support**. They tal
 **Why T-Mobile's protections fail here:** every one of them trusts the account owner. When the owner is the one being manipulated, she passes every check: right password, right PIN, right code, her own phone. Scam Shield can label a call, but nothing connects "she's on a call with an unverified number right now" to "she just turned off her protection."
 
 ## The solution in one line
-Shield Pro sits on top of T-Mobile's existing protections. When a sensitive account action happens **while the customer is on a suspicious call**, a team of Nemotron agents checks what's going on, re-locks the account through T-Mobile's own protections, and reaches the customer on iMessage and a phone call through Photon before the scammer gets anything usable.
+Titan sits on top of T-Mobile's existing protections. When a sensitive account action happens **while the customer is on a suspicious call**, a team of Nemotron agents checks what's going on, re-locks the account through T-Mobile's own protections, and reaches the customer on iMessage and a phone call through Photon before the scammer gets anything usable.
 
 ## Yes, T-Mobile can see the call (and what she does during it)
 - **Network side (carrier only):** T-Mobile's network knows in real time that a line is on a call, when it started, the other number, and the caller-ID verification result (STIR/SHAKEN A/B/C). That's how calls get routed, billed and labeled by Scam ID today.
 - **Account side:** every action in T-Life / the website / care is logged with a timestamp (protection turned off, transfer PIN generated, code sent, PIN entered).
 - **Join the two:** "actions taken while on the call" = account actions whose timestamp falls inside the active call window. No call content, no recording.
 - **App side (optional):** the T-Life app can also tell "on a call right now" on the device (iOS CallKit call observer, Android call state), without the number.
-- **Industry precedent:** carriers already expose fraud signals like this to banks through GSMA Open Gateway / CAMARA network APIs (SIM Swap is live in several countries; call-forwarding and device-swap signals are being standardized). Shield Pro uses the same kind of signal inside the carrier.
+- **Industry precedent:** carriers already expose fraud signals like this to banks through GSMA Open Gateway / CAMARA network APIs (SIM Swap is live in several countries; call-forwarding and device-swap signals are being standardized). Titan uses the same kind of signal inside the carrier.
 - **Legal footing:** US rules on carrier customer data (CPNI, 47 U.S.C. §222) allow use to protect customers from fraud. Verify wording before quoting.
 - **In our demo:** our Photon/Twilio number sits in front of the demo phone, so we see each call exactly the way a carrier would (start, duration, number, verified or not). Say this is simulated.
 
@@ -34,7 +34,7 @@ Trigger: sensitive action during a call (protection off, transfer PIN, code rela
 | **3. Verifier** | Nemotron Super (second pass) | Checks every claim from agents 1–2 against the raw data. Anything unsupported is removed or downgraded before anything reaches the customer. This is T-Mobile's "honest confidence" |
 | **4. Response agent** | Nemotron Super | Acts **through T-Mobile's protections**: turns the protection back on, holds the transfer PIN for 24h, asks for the face check if identity is in doubt. Decides how to reach her. After her answer, builds the recovery plan |
 | **Messaging agent** | Nemotron Nano + Nemotron VL | iMessage through Photon: the alert, understands free-form replies, walks her through recovery one approval at a time, checks scam texts/screenshots she forwards |
-| **Voice agent** | Nemotron Nano + Nemotron ASR + Magpie TTS | Calls her through Photon **as a second incoming call** while the scam call is live: "This is Shield Pro. The person you're talking to isn't T-Mobile. Please hang up, I'll stay on the line." Takes spoken YES/NO and approvals |
+| **Voice agent** | Nemotron Nano + Nemotron ASR + Magpie TTS | Calls her through Photon **as a second incoming call** while the scam call is live: "This is Titan. The person you're talking to isn't T-Mobile. Please hang up, I'll stay on the line." Takes spoken YES/NO and approvals |
 
 Not agents: the **watcher** (24h watch for follow-up "recovery" scams, wakes the Context agent), **Safety Guard** (screens every outbound message and script), the **ML models** (tools the Risk agent calls).
 
@@ -42,7 +42,7 @@ Not agents: the **watcher** (24h watch for follow-up "recovery" scams, wakes the
 1. Maya (68) gets a call: caller ID "T-Mobile Support", unverified, number never seen before.
 2. 19 minutes in, he tells her to turn off Port Out Protection and generate a transfer PIN. She does. **She passes every existing check.**
 3. Agents 1 → 2 → Verifier → 3 run live on the `/guardian` screen: "coached victim, 87%".
-4. Port Out Protection goes back on; the PIN is held 24h. iMessage arrives. No reply in 60s → Shield Pro calls her. She hangs up on the scammer.
+4. Port Out Protection goes back on; the PIN is held 24h. iMessage arrives. No reply in 60s → Titan calls her. She hangs up on the scammer.
 5. She says "I told him my PIN" → recovery plan with YES approvals (reset PIN, cancel transfer PIN, sign out sessions, report the number to Scam ID).
 6. Next day the "fraud recovery department" calls → now labeled Scam Likely for everyone.
 
@@ -67,5 +67,5 @@ Not agents: the **watcher** (24h watch for follow-up "recovery" scams, wakes the
 ## Data rules (short)
 Only data T-Mobile already holds, read only at the trigger moment, reduced to yes/no or buckets. Never call or message content, never location history, never contact lists. All data is synthetic. Face check is optional and runs on the device.
 
-## Open: the name
-"Shield Pro" sounds like an upgrade of T-Mobile's real **Scam Shield**, which already has paid tiers. Judges may read it as T-Mobile's own product. Fine to keep if we pitch it as "built for Scam Shield", but decide by T+1.
+## Name: Titan
+The first "T" is styled after the T-Mobile T. **Branding caution:** T-Mobile's T logo and its magenta are trademarks. Inside a T-Mobile-sponsored track, showing it as "Titan, built for T-Mobile" in the pitch is reasonable, but in the app UI use our own T glyph in a magenta-like color, not the official logo file, so nothing looks like we're impersonating T-Mobile.
