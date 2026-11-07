@@ -55,7 +55,9 @@ npm test
 
 Tests cover schema validation, unsafe output, recipient/line/group filtering, deduplication after restart, ambiguous approval responses, brain 409 handling, forwarded links and safe failure without Nano.
 
-This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, live Nano classification, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it. Live phone delivery must be confirmed on the teammate's device.
+This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it.
+
+Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404, so the verified model is the default. This does not establish free-form recovery approvals end to end.
 
 ## Official Photon 2.0 references
 

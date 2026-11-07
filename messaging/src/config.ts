@@ -27,7 +27,7 @@ export function configuration(env: NodeJS.ProcessEnv = process.env): Config {
   const port = Number(env.PORT ?? 8200);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
   const llmBase = env.MESSAGING_LLM_BASE_URL ?? 'https://integrate.api.nvidia.com/v1';
-  const llmModel = env.MESSAGING_LLM_MODEL ?? 'nvidia/nemotron-3-nano-30b-a3b';
+  const llmModel = env.MESSAGING_LLM_MODEL ?? 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning';
   // A local Brev-hosted Nano is allowed, but never silently use another provider.
   const llmHost = new URL(llmBase).hostname;
   if (!(llmHost === 'integrate.api.nvidia.com' || llmHost === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(llmHost))
