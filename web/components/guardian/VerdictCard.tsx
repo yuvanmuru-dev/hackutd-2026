@@ -1,0 +1,49 @@
+import type { Contract as C } from "@/lib/api/client";
+import { confidenceWords, wordsFor, type GuardianView } from "./derive";
+
+type Props = { detail: C.CaseDetail | null; head: C.Case | null; view: GuardianView };
+
+export function VerdictCard({ detail, head, view }: Props) {
+  const risk = detail?.risk ?? null;
+  const threat = risk?.threat ?? head?.threat ?? null;
+  const revealed = view.verdictRevealed && !!threat;
+  const v = detail?.verification ?? null;
+  const reasons = (risk?.top_reasons ?? []).filter((r) => r.contribution > 0).slice(0, 3);
+  const counter = (risk?.top_reasons ?? []).find((r) => r.contribution < 0);
+
+  return (
+    <section className="g-panel g-verdict flex min-h-0 flex-col overflow-hidden px-6 py-5" data-revealed={revealed} aria-live="polite" aria-label="Verdict">
+      <p className="g-label">Verdict</p>
+      <p className="g-verdict-threat mt-1">{revealed ? wordsFor(threat) : "Scoring…"}</p>
+      <p className="mt-2 text-[clamp(20px,1.4vw,26px)] font-semibold tabular text-[var(--g-ink-2)]">
+        {revealed ? confidenceWords(risk, head) : "The Risk agent has not scored yet"}
+      </p>
+
+      {revealed && reasons.length > 0 && (
+        <div className="g-scroll min-h-0 flex-1">
+          <p className="g-label mt-5">Why</p>
+          <ul className="mt-2 flex flex-col gap-2">
+            {reasons.map((r) => (
+              <li key={r.feature} className="flex gap-3 leading-snug">
+                <span className="mt-[9px] h-2 w-2 flex-none rounded-full bg-[var(--g-accent)]" aria-hidden />
+                <span>{r.text}</span>
+              </li>
+            ))}
+          </ul>
+          {counter && <p className="mt-3 leading-snug text-[var(--g-ink-2)]">Against it: {counter.text}</p>}
+        </div>
+      )}
+
+      <div className="mt-auto flex-none pt-4">
+        {v ? (
+          <span className="g-pill" data-tone={v.status === "verified" ? "positive" : "notice"}>
+            {v.status === "verified" ? "Checked twice" : "Confidence lowered"} · {v.claims_checked} claims,{" "}
+            {v.claims_dropped} dropped
+          </span>
+        ) : (
+          <span className="g-pill">{view.verified ? "Checked twice" : "Verifier pending"}</span>
+        )}
+      </div>
+    </section>
+  );
+}
