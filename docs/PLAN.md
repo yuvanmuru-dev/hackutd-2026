@@ -38,13 +38,30 @@ Trigger: sensitive action during a call (protection off, transfer PIN, code rela
 
 Not agents: the **watcher** (24h watch for follow-up "recovery" scams, wakes the Context agent), **Safety Guard** (screens every outbound message and script), the **ML models** (tools the Risk agent calls).
 
+## Customer experience: before, during, after (the customer is the star)
+The dashboard is the "under the hood" view. What the judges should remember is Maya's experience.
+- **Before**
+  - **Heads-up text:** an unverified call using a "T-Mobile" caller-ID name connects → Titan texts right away: "Heads up: this call says it's T-Mobile, but we can't verify it. We'll never ask for your PIN or to turn off protection."
+  - **Shield mode:** while that call is active, protections are harder to turn off (pause screen, plus the face check if she enabled it).
+  - **Scam-text check:** forward any text or screenshot to Titan's iMessage → verdict, sources, plain words.
+- **During**
+  - **Pause screen** in the portal, *before* the action is applied: "Pause. Are you on the phone with someone who asked you to do this?" → [I'm on a call: help me] / [I'm doing this on my own]. It's instant (rules + ML, no waiting on the LLM).
+  - Agents step in → re-lock, 24 h hold on the transfer PIN → iMessage → Titan calls her as a second incoming call.
+  - Customer messages say confidence in plain words ("we're fairly sure, not certain"); the percentage lives on the dashboard.
+- **After**
+  - **Incident summary** (iMessage, no links): what happened, why we stepped in, what we did, what she approved, next steps, how to spot it next time, what data we looked at, case number. Replies: REPORT (FTC report draft), UNDO (safe release, see below).
+  - **Case number works with T-Mobile care:** any rep sees the same summary, so she never has to re-explain.
+  - Report to Scam ID, 24 h watch for follow-up "recovery" scams.
+- **UNDO / "it was me" rule:** never released while the suspicious call is still active. Released only after she's off the call *and* passes the face check, or when the 24 h hold ends.
+- **Titan never asks for a PIN, code or password, and never sends a link.**
+
 ## The demo scenario (2 minutes)
-1. Maya (68) gets a call: caller ID "T-Mobile Support", unverified, number never seen before.
-2. 19 minutes in, he tells her to turn off Port Out Protection and generate a transfer PIN. She does. **She passes every existing check.**
-3. Agents 1 → 2 → Verifier → 3 run live on the `/guardian` screen: "coached victim, 87%".
-4. Port Out Protection goes back on; the PIN is held 24h. iMessage arrives. No reply in 60s → Titan calls her. She hangs up on the scammer.
-5. She says "I told him my PIN" → recovery plan with YES approvals (reset PIN, cancel transfer PIN, sign out sessions, report the number to Scam ID).
-6. Next day the "fraud recovery department" calls → now labeled Scam Likely for everyone.
+1. Maya (68) answers a call: caller ID "T-Mobile Support", unverified, never seen before. **Heads-up text** lands on her phone.
+2. 19 minutes in, he tells her to turn off Port Out Protection. She taps it → **pause screen**. Under pressure she taps "I'm doing this on my own", then requests a transfer PIN. She passes every existing check.
+3. Agents run live on the dashboard: Context → Risk → Verifier → Response: "coached victim, fairly confident".
+4. Port Out Protection back on; transfer PIN on a 24 h hold. iMessage. No reply in 60 s → Titan calls her. She hangs up on the scammer.
+5. "I told him my PIN" → recovery with a YES per step (reset PIN, cancel transfer PIN, sign out devices, report the number).
+6. **Incident summary** arrives on her phone (full screen in the video). Next day the "fraud recovery department" calls → now labeled Scam Likely for everyone.
 
 ## What changed from the first draft (and why)
 | First draft | Merged plan | Why |

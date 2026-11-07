@@ -5,6 +5,7 @@ Titan sits on top of T-Mobile's existing protections and uses behavioral biometr
 
 Start here, in order:
 1. **docs/PLAN.md**: the merged plan on one page (read this first)
+1a. **docs/ARCHITECTURE.md**: components, the fast gate + agent workflow, endpoints, folders
 1b. docs/PACK_SPEC.md: full details: data rules, threats, ML, demo
 2. docs/TRACKS.md: all track prompts and why we picked these three
 3. docs/LANES.md: who owns what, plus the prompt to paste into your agent
