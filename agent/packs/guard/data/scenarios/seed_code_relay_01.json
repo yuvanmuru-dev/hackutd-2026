@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_seed_code_relay_01",
+  "user_id": "usr_maya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_code_relay_01_02",
+  "events": [
+    {
+      "event_id": "evt_seed_code_relay_01_01",
+      "user_id": "usr_maya",
+      "type": "call.started",
+      "ts": "2026-11-07T18:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_relay_caller_01",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_code_relay_01"
+    },
+    {
+      "event_id": "evt_seed_code_relay_01_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T18:07:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_seed_code_relay_01"
+    },
+    {
+      "event_id": "evt_seed_code_relay_01_02",
+      "user_id": "usr_maya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T18:08:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_seed_code_relay_01"
+    },
+    {
+      "event_id": "evt_seed_code_relay_01_03",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T18:11:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_new_device_01",
+        "region": "Phoenix, AZ",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_seed_code_relay_01"
+    }
+  ],
+  "generator": {
+    "seed": 1201,
+    "variant": "code_relay"
+  }
+}

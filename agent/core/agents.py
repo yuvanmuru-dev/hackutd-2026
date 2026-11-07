@@ -73,26 +73,28 @@ def verify(claims: list[dict], results: dict) -> tuple[dict, str]:
 # ---------------- Response (customer-facing words)
 RESPONSE = RULES + """
 You are the Response agent. Write what Titan says to the customer. Calm, short, plain words; the customer may be 68.
-Speak to her directly as "you". No jargon (never say "coached", "attestation", "port-out", "STIR/SHAKEN"); say what happened plainly
-(e.g. "someone on a call you can't verify asked you to turn off a protection").
+Speak to her directly as "you". No jargon (never say "coached", "attestation", "port-out", "STIR/SHAKEN").
+"what_happened" is the verified account of events: describe ONLY that. Never add calls, callers, requests or places it doesn't mention.
 Never blame her. Never ask for a PIN, code or password. No links. Confidence in words ("we're fairly sure, not certain").
-Input: {"customer_name", "threat", "facts": [verified facts], "actions_taken": [strings], "on_call_now": bool}
+Input: {"customer_name", "threat", "what_happened", "facts": [verified facts], "actions_taken": [strings], "on_call_now": bool}
 Output: {"alert_text": "one iMessage under 320 characters that ends with 'Reply YES or NO.' asking if this was her idea",
          "call_opening_line": "first sentence Titan says when it calls her (introduce Titan, say it will never ask for a PIN or code)",
          "call_facts": ["3 short facts Titan can say on the call"]}"""
 
 
-def response_text(name: str, threat: str, facts: list[str], actions: list[str], on_call: bool) -> tuple[dict, str]:
+def response_text(name: str, threat: str, story: str, facts: list[str], actions: list[str], on_call: bool) -> tuple[dict, str]:
     return llm.chat_json(_role("response", "nano"), RESPONSE,
-                         {"customer_name": name, "threat": threat, "facts": facts, "actions_taken": actions, "on_call_now": on_call},
-                         max_tokens=500)
+                         {"customer_name": name, "threat": threat, "what_happened": story, "facts": facts,
+                          "actions_taken": actions, "on_call_now": on_call}, max_tokens=500)
 
 
 SUMMARY = RULES + """
 You are the Response agent writing the incident summary the customer gets by iMessage after Titan stepped in.
 Write to her as "you" (never her name in the third person). Plain words, no jargon ("coached", "attestation", "STIR/SHAKEN").
-Input: {"customer_name", "case_number", "threat", "facts", "actions_taken", "customer_approved", "customer_declined", "customer_said"}
-Output: {"what_happened": "1-2 sentences describing what the caller asked her to do", "why_we_stepped_in": "1-2 sentences",
+Input: {"customer_name", "case_number", "threat", "what_happened" (verified, already written), "facts", "actions_taken" (Titan did these),
+        "customer_approved" (recovery steps SHE approved with Titan, not anything a scammer asked), "customer_declined", "customer_said"}
+Never describe Titan's recovery steps as something a caller or scammer asked for. Don't invent callers, calls or places.
+Output: {"why_we_stepped_in": "1-2 sentences",
          "confidence_text": "plain words, honest (fairly sure / not certain)",
          "next_steps": ["2-3 short things SHE should do now; never repeat actions already taken or approved"],
          "spot_it_next_time": "one sentence"}"""
@@ -148,10 +150,14 @@ def outbound_ok(text: str, use_model: bool = True) -> tuple[bool, str]:
             return False, "asks for a secret"
     if use_model and llm.model_for("safety"):
         try:
-            out, _ = llm.chat_json("safety", "Assess this outbound message from a security service to a customer.", text, max_tokens=60)
-            verdicts = [str(v).lower() for v in out.values()]  # Safety Guard v3: {"User Safety": "safe", ...}
-            if out.get("safe") is False or any(v == "unsafe" for v in verdicts):
-                return False, "Safety Guard flagged it"
+            out, _ = llm.chat_json("safety", "Assess this outbound message from a security service to a customer.", text, max_tokens=80)
+            unsafe = out.get("safe") is False or any(str(v).lower() == "unsafe" for k, v in out.items() if "safety" in k.lower())
+            cats = {c.strip().lower() for c in str(out.get("Safety Categories", "")).split(",") if c.strip()}
+            severe = {c for c in cats if not c.startswith(("needs caution", "criminal planning", "fraud", "unauthorized advice", "other"))}
+            if unsafe and severe:  # Safety Guard v3 tags scam *warnings* as "Criminal Planning / Needs Caution"; those are advisory
+                return False, f"Safety Guard flagged it ({', '.join(sorted(severe))})"
+            if unsafe:
+                return True, f"Safety Guard advisory only ({', '.join(sorted(cats)) or 'no category'})"
         except Exception:  # noqa: BLE001
             return True, "Safety Guard unavailable; rules passed"
     return True, "ok"

@@ -1,0 +1,51 @@
+{
+  "scenario_id": "scn_gen_0081",
+  "user_id": "usr_priya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0081_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0081_01",
+      "user_id": "usr_priya",
+      "type": "call.started",
+      "ts": "2026-11-07T13:33:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0081",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0081"
+    },
+    {
+      "event_id": "evt_gen_0081_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T13:44:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      },
+      "call_id": "call_gen_0081"
+    },
+    {
+      "event_id": "evt_gen_0081_02",
+      "user_id": "usr_priya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T13:45:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0081"
+    }
+  ],
+  "generator": {
+    "seed": 20261188,
+    "variant": "code_relay"
+  }
+}

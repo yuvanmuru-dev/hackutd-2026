@@ -1,0 +1,58 @@
+{
+  "scenario_id": "scn_gen_0015",
+  "user_id": "usr_elena",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0015_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0015_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T19:32:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0015",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0015_02",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T19:33:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0015_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T19:34:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0015_03",
+      "user_id": "usr_elena",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T19:35:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0015",
+        "channel": "app"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261122,
+    "variant": "pin_failure_before_swap"
+  }
+}

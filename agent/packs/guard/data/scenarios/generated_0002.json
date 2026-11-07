@@ -1,0 +1,47 @@
+{
+  "scenario_id": "scn_gen_0002",
+  "user_id": "usr_dev",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0002_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0002_01",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T16:03:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0002",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0002_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:05:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0002_02",
+      "user_id": "usr_dev",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T16:06:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0002",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261109,
+    "variant": "remote_new_device_swap"
+  }
+}
