@@ -8,8 +8,8 @@ import time
 
 os.environ["MOCK"] = "1"
 os.environ["MOCK_STEP_MS"] = "5"
-os.environ.pop("MESSAGING_URL", None)
-os.environ.pop("VOICE_URL", None)
+# Set (not pop): load_dotenv() never overrides an existing variable, so agent/.env can't re-enable real sends.
+os.environ.update(MESSAGING_URL="", VOICE_URL="", SAFETY_MODEL="", URLHAUS_AUTH_KEY="")
 
 from fastapi.testclient import TestClient  # noqa: E402
 

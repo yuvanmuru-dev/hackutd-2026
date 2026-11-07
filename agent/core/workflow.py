@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 from datetime import timedelta
 
 from core import agents, outbound, toolbox
@@ -32,6 +33,20 @@ DATA_USED = {
     "recent_scam_reports": "Numbers and domains already reported",
     "policy_lookup": "Carrier security policy",
 }
+
+
+POLICY_Q = {
+    "coached": "Does T-Mobile ever ask customers on a call to turn off Port Out Protection or share a transfer PIN?",
+    "takeover": "What should happen when a SIM swap is requested from a new device in another region?",
+    "scam_text": "Does T-Mobile send texts asking customers to verify their account through a link?",
+}
+_HOST = re.compile(r"\b([a-z0-9-]+(?:\.[a-z0-9-]+)*)\.(com|net|org|co|io|info|xyz|us|app|biz|site|online)\b", re.I)
+
+
+def defang(text: str) -> str:
+    """Write domains so they can't be tapped: t-mobile-secure-help[.]co (D-012: never send a link)."""
+    text = re.sub(r"(?i)https?://", "", text or "")
+    return _HOST.sub(lambda m: m.group(0).replace(".", "[.]"), text)
 
 
 def notify(case_id: str, item: dict | None = None):
@@ -80,11 +95,37 @@ class Run:
         self.case["actions"].append(a)
         return a
 
-    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None) -> dict:
-        ok, why = agents.outbound_ok(text)
+    def story(self) -> str:
+        """What happened, built only from tool results (never model wording), so the customer is told verified facts."""
+        r = {k: (v.get("result") or {}) for k, v in self.results.items()}
+        cc, ps, lm = r.get("call_context", {}), r.get("protection_status", {}), r.get("location_match", {})
+        if self.case.get("threat") == "scam_text" or self.threat == "scam_text":
+            cm = r.get("check_message", {})
+            dom = (cm.get("lookalike_domains") or cm.get("domains") or ["an unknown site"])[0]
+            age = re.search(r"registered (\d+) days? ago", self.results.get("check_message", {}).get("summary", ""))
+            return defang(f"You forwarded a text that points to {dom}, which imitates T-Mobile's website"
+                          + (f" and was registered {age.group(1)} days ago." if age else "."))
+        if self.case.get("threat") == "takeover":
+            where = f" in {lm.get('request_region')}" if lm.get("request_region") else ""
+            phone = f" while your phone was in {lm.get('line_region')}" if lm.get("line_region") else ""
+            return f"Someone signed in to your account from a new device{where}{phone} and asked to move your number to a new SIM."
+        off = [n.replace("_", " ").title() for n in (ps.get("off_during_call") or [])]
+        did = (" turn off " + " and ".join(off)) if off else ""
+        pin = " request a transfer PIN" if self.trigger["type"] == "transfer_pin.requested" else ""
+        asks = " and".join(x for x in (did, pin) if x) or " change your account security"
+        caller = f" calling itself \"{cc['caller_name']}\"" if cc.get("caller_name") else ""
+        mins = f"{cc['minutes']}-minute " if cc.get("minutes") else ""
+        return f"While you were on a {mins}call with a number{caller} that we couldn't verify, someone asked you to{asks}."
+
+    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None, model_written: bool = False,
+             fallback: str | None = None) -> dict:
+        """Every message gets the rule checks (no links, never asks for a secret). Safety Guard also screens text a model wrote;
+        Titan's fixed templates and fact-built sentences skip it (it flags plain PIN-reset questions as PII)."""
+        text = defang(text)
+        ok, why = agents.outbound_ok(text, use_model=model_written)
         if not ok:
             self.step("verifier", "reach", "error", f"Blocked an outbound message ({why}); using the safe template", {"reason": why})
-            text = TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"])
+            text = defang(fallback or TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"], story=self.story()))
         msg = {"message_id": new_id("msg"), "case_id": self.case["case_id"], "channel": "imessage", "direction": "out",
                "kind": kind, "text": text, "ts": iso(now())}
         self.case["messages"].append(msg)
@@ -106,9 +147,16 @@ class Run:
         if self.threat != "scam_text":  # message checks only make sense for a forwarded text
             chosen = [t for t in chosen if t not in ("check_message",)]
         names = list(dict.fromkeys(required + chosen))
-        args = {n: ({"text": self.trigger["data"].get("text", "")} if n == "check_message" else {"user_id": self.uid}) for n in names}
+        def args_for(n):
+            if n == "check_message":
+                return {"text": self.trigger["data"].get("text", "")}
+            if n == "policy_lookup":
+                return {"question": POLICY_Q.get(self.threat, POLICY_Q["coached"])}
+            return {"user_id": self.uid}
+        args = {n: args_for(n) for n in names}
         for n in names:
-            self.step("context", "context", "tool_call", f"{n}({self.uid if n != 'check_message' else 'forwarded text'})", {"tool": n})
+            label = "forwarded text" if n == "check_message" else "policy question" if n == "policy_lookup" else self.uid
+            self.step("context", "context", "tool_call", f"{n}({label})", {"tool": n})
         outs = await asyncio.gather(*(asyncio.to_thread(toolbox.run_tool, self.store, n, args[n]) for n in names))
         for n, out in zip(names, outs):
             self.results[n] = out
@@ -179,7 +227,7 @@ class Run:
         """Safer-only actions through the protections, then the alert. Returns True if we should wait for her."""
         st, taken = self.store, []
         if self.threat == "scam_text" or self.case["threat"] == "scam_text":
-            text = ("Titan: This text is a scam. " + (self.claims[0]["claim"] + ". " if self.claims else "") +
+            text = (f"Titan: This text is a scam. {self.story()} "
                     "Don't tap anything in it. T-Mobile will never ask you to verify your account by text.")
             self.send("info", text, False)
             self.step("messaging", "reach", "message", "Reply sent: this text is a scam", {})
@@ -204,12 +252,13 @@ class Run:
         on_call = bool(st.active_call(self.uid))
         name = st.users[self.uid]["name"]
         try:
-            words, model = await self.call(agents.response_text, name, self.case["threat"], [c["claim"] for c in self.claims], taken, on_call)
+            words, model = await self.call(agents.response_text, name, self.case["threat"], self.story(),
+                                           [c["claim"] for c in self.claims], taken, on_call)
         except Exception:  # noqa: BLE001
             words = {}
         self.call_words = words
-        alert = words.get("alert_text") or TEMPLATES["alert"].format(name=name)
-        self.send("alert", alert, True)
+        alert = words.get("alert_text") or TEMPLATES["alert"].format(name=name, story=self.story())
+        self.send("alert", alert, True, model_written=bool(words.get("alert_text")))
         self.step("messaging", "reach", "message", f"iMessage sent: \"{alert[:90]}{'…' if len(alert) > 90 else ''}\"", {})
         return True
 
@@ -255,7 +304,10 @@ class Run:
             if nxt and nxt["action_id"] not in prompted:
                 prompted.add(nxt["action_id"])
                 n = pending.index(nxt) + 1
-                self.send("recovery_step", f"Titan: Step {n} of {len(pending)}. {nxt['description']}? Reply YES or NO.", True, nxt["action_id"])
+                question = f"Titan: Step {n} of {len(pending)}. {nxt['description']}? Reply YES or NO."
+                # the fallback still asks THIS step's question, so the text and the action stay in sync (D-042)
+                self.send("recovery_step", question, True, nxt["action_id"],
+                          fallback=f"Titan: Step {n} of {len(pending)}. Should we do this for you: {nxt['description'].lower()}? Reply YES or NO.")
                 self.step("messaging", "recover", "message", f"Recovery question {n}/{len(pending)} sent: {nxt['description']}",
                           {"action_id": nxt["action_id"]})
 
@@ -283,7 +335,7 @@ class Run:
         declined = [a["description"] for a in self.case["actions"] if a["requires_approval"] and a["status"] == "rejected"]
         said = [m["text"] for m in self.case["messages"] if m["direction"] == "in"][-3:]
         payload = {"customer_name": name, "case_number": self.case["case_number"], "threat": self.case["threat"],
-                   "facts": [c["claim"] for c in self.claims], "actions_taken": getattr(self, "taken", []),
+                   "what_happened": self.story(), "facts": [c["claim"] for c in self.claims], "actions_taken": getattr(self, "taken", []),
                    "customer_approved": approved, "customer_declined": declined, "customer_said": said}
         try:
             s, model = await self.call(agents.summary_text, payload)
@@ -291,7 +343,7 @@ class Run:
             s = {}
         summary = {
             "case_number": self.case["case_number"],
-            "what_happened": s.get("what_happened") or "Someone on a call we couldn't verify asked you to change your account security.",
+            "what_happened": self.story(),
             "why_we_stepped_in": s.get("why_we_stepped_in") or self.assessment,
             "confidence_text": s.get("confidence_text") or {"high": "We're fairly confident this was a scam, but not certain.",
                                                            "medium": "This looked like a scam, but we're not sure.",
@@ -306,7 +358,8 @@ class Run:
         }
         replaced = {}
         for k in ("what_happened", "why_we_stepped_in", "spot_it_next_time", "confidence_text"):
-            ok, why = agents.outbound_ok(summary[k], use_model=False)
+            summary[k] = defang(summary[k])
+            ok, why = agents.outbound_ok(summary[k], use_model=k != "what_happened" and bool(s.get(k)))
             if not ok:
                 replaced[k] = why
                 summary[k] = "Titan stepped in to keep your number safe."
@@ -351,8 +404,8 @@ class Run:
 
 
 TEMPLATES = {
-    "alert": "Titan: {name}, you're on a call with a number we can't verify that says it's T-Mobile. We never ask you to turn off "
-             "protection or share a transfer PIN on a call. Your number is safe and locked again. Was this your idea? Reply YES or NO.",
+    "alert": "Titan: {name}, here's what we saw. {story} We stopped it and your number is safe. T-Mobile will never ask you to turn off protection "
+             "or share a PIN. Was this your idea? Reply YES or NO.",
     "info": "Titan: We checked this for you. T-Mobile will never ask you for a PIN or code, or send you a link to verify your account.",
     "question": "Titan: Please hang up any call you're on, then reply YES or NO.",
     "summary": "Titan: We stepped in to keep your number safe. Your number is protected.",
