@@ -1,0 +1,37 @@
+{
+  "case_number": "TTN-4821",
+  "what_happened": "While you were on a 19-minute call with a number calling itself \"T-Mobile Support\", someone asked you to turn off Port Out Protection and create a transfer PIN.",
+  "why_we_stepped_in": "That number couldn't be verified and had never contacted you before, and turning off protection during a call like this is a common scam pattern.",
+  "confidence_text": "We're fairly confident this was a scam, but not certain.",
+  "what_we_did": [
+    "Turned Port Out Protection back on",
+    "Held your transfer PIN for 24 hours so it can't be used"
+  ],
+  "you_approved": [
+    "Reset your account PIN",
+    "Cancelled the pending transfer PIN",
+    "Signed out other devices",
+    "Reported the number"
+  ],
+  "next_steps": [
+    "Nothing else is needed. Your number is safe.",
+    "If you shared bank details on that call, call your bank using the number on your card.",
+    "Reply REPORT and we'll fill in an FTC report for you."
+  ],
+  "spot_it_next_time": "T-Mobile will never call and ask you to turn off protection or read out a PIN or code.",
+  "data_we_looked_at": [
+    "When your call started and whether the number was verified",
+    "Account changes made during that call",
+    "Whether this was your usual device and area"
+  ],
+  "replies": [
+    {
+      "keyword": "REPORT",
+      "meaning": "Draft an FTC report"
+    },
+    {
+      "keyword": "UNDO",
+      "meaning": "Safely release the hold (after the call, with a check)"
+    }
+  ]
+}

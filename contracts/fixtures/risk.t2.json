@@ -1,0 +1,35 @@
+{
+  "threat": "coached",
+  "probability": 0.87,
+  "calibrated": true,
+  "confidence": "high",
+  "anomaly": 0.34,
+  "top_reasons": [
+    {
+      "feature": "protection_off_during_unverified_call",
+      "contribution": 0.31,
+      "text": "Port Out Protection was turned off during a call from an unverified number"
+    },
+    {
+      "feature": "transfer_pin_during_call",
+      "contribution": 0.22,
+      "text": "Transfer PIN requested 19 minutes into that call"
+    },
+    {
+      "feature": "first_transfer_pin_ever",
+      "contribution": 0.12,
+      "text": "Maya has never requested a transfer PIN before"
+    },
+    {
+      "feature": "tab_switches",
+      "contribution": 0.07,
+      "text": "Left the page 3 times mid-flow"
+    },
+    {
+      "feature": "known_device_home_region",
+      "contribution": -0.05,
+      "text": "Her own laptop, her usual region: it is really her"
+    }
+  ],
+  "model": "ml+rules"
+}

@@ -1,0 +1,25 @@
+{
+  "threat": "takeover",
+  "probability": 0.93,
+  "calibrated": true,
+  "confidence": "high",
+  "anomaly": 0.88,
+  "top_reasons": [
+    {
+      "feature": "new_device",
+      "contribution": 0.29,
+      "text": "A device never seen on this account"
+    },
+    {
+      "feature": "region_mismatch",
+      "contribution": 0.27,
+      "text": "Login from Lagos while her phone is in Dallas"
+    },
+    {
+      "feature": "straight_to_sim_swap",
+      "contribution": 0.18,
+      "text": "Went straight to SIM swap after login"
+    }
+  ],
+  "model": "ml+rules"
+}

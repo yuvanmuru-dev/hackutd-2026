@@ -1,0 +1,26 @@
+{
+  "event_id": "evt_t2_03",
+  "user_id": "usr_maya",
+  "type": "portal.signals",
+  "ts": "2026-11-07T20:31:10Z",
+  "source": "portal",
+  "call_id": "call_t2",
+  "data": {
+    "session_id": "ses_t2",
+    "page_path": [
+      "/portal",
+      "/portal/security",
+      "/portal/security/port-out"
+    ],
+    "ms_per_step": [
+      6200,
+      41000,
+      9800
+    ],
+    "hesitation_ms": 41000,
+    "paste_into_pin": false,
+    "tab_switches": 3,
+    "pointer_speed": 0.42,
+    "typing_rhythm_distance": 1.1
+  }
+}

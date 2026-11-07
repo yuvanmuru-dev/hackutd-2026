@@ -1,596 +1,1550 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "contracts/schema.json",
-  "title": "Brain API contracts v0.2 (see docs/CONTRACTS.md)",
+  "$id": "titan/contracts/v0.3",
+  "title": "Titan contracts v0.3",
   "$defs": {
     "Source": {
       "type": "object",
-      "required": [
-        "label",
-        "url"
-      ],
       "properties": {
-        "label": {
+        "name": {
           "type": "string"
         },
         "url": {
           "type": "string"
         },
-        "retrieved_at": {
+        "record": {
           "type": "string",
-          "format": "date-time"
+          "description": "Internal record ref, e.g. events/evt_123"
         }
-      }
-    },
-    "Attachment": {
-      "type": "object",
+      },
       "required": [
-        "mime"
+        "name"
       ],
+      "additionalProperties": false,
+      "description": "Where a fact came from. Every Signal and claim carries one."
+    },
+    "Error": {
+      "type": "object",
       "properties": {
-        "url": {
+        "error": {
           "type": "string"
         },
-        "base64": {
-          "type": "string"
-        },
-        "mime": {
-          "type": "string"
-        },
-        "filename": {
+        "detail": {
           "type": "string"
         }
-      }
-    },
-    "RunRequest": {
-      "type": "object",
+      },
       "required": [
-        "input",
-        "channel"
+        "error"
       ],
+      "additionalProperties": false
+    },
+    "User": {
+      "type": "object",
       "properties": {
-        "input": {
-          "type": "object",
-          "required": [
-            "text"
-          ],
-          "properties": {
-            "text": {
-              "type": "string",
-              "maxLength": 20000
-            },
-            "subject": {
+        "user_id": {
+          "type": "string",
+          "pattern": "^usr_"
+        },
+        "name": {
+          "type": "string"
+        },
+        "persona": {
+          "type": "string"
+        },
+        "face_enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "user_id",
+        "name",
+        "face_enabled"
+      ],
+      "additionalProperties": false
+    },
+    "CallData": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "type": "string",
+          "enum": [
+            "in",
+            "out"
+          ]
+        },
+        "other_number_hash": {
+          "type": "string"
+        },
+        "caller_name": {
+          "anyOf": [
+            {
               "type": "string"
             },
-            "attachments": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/Attachment"
-              },
-              "maxItems": 5
+            {
+              "type": "null"
             }
-          }
+          ]
+        },
+        "attestation": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "none"
+          ]
+        },
+        "seen_before": {
+          "type": "boolean"
+        },
+        "scam_label": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "direction",
+        "other_number_hash",
+        "attestation",
+        "seen_before",
+        "scam_label"
+      ],
+      "additionalProperties": false,
+      "description": "call.started payload. Metadata only, never content. Simulated carrier signal in the demo."
+    },
+    "CallEndedData": {
+      "type": "object",
+      "properties": {
+        "duration_s": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "duration_s"
+      ],
+      "additionalProperties": false
+    },
+    "LoginData": {
+      "type": "object",
+      "properties": {
+        "device_hash": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "new_device": {
+          "type": "boolean"
+        },
+        "succeeded": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "device_hash",
+        "region",
+        "new_device",
+        "succeeded"
+      ],
+      "additionalProperties": false
+    },
+    "OtpData": {
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "login",
+            "account_change",
+            "transfer_pin"
+          ]
+        }
+      },
+      "required": [
+        "purpose"
+      ],
+      "additionalProperties": false
+    },
+    "PinAttemptData": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
         },
         "channel": {
+          "type": "string",
           "enum": [
-            "web",
-            "voice",
-            "email",
-            "sms",
-            "watch",
-            "mcp"
+            "portal",
+            "app",
+            "care"
+          ]
+        }
+      },
+      "required": [
+        "ok",
+        "channel"
+      ],
+      "additionalProperties": false
+    },
+    "ProtectionChangeData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "sim_protection",
+            "port_out_protection",
+            "scam_block"
           ]
         },
-        "pack": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "via": {
+          "type": "string",
+          "enum": [
+            "portal",
+            "app",
+            "care",
+            "titan"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "enabled",
+        "via"
+      ],
+      "additionalProperties": false
+    },
+    "SimSwapData": {
+      "type": "object",
+      "properties": {
+        "new_device_hash": {
           "type": "string"
         },
-        "reply_to": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string"
+        "channel": {
+          "type": "string",
+          "enum": [
+            "portal",
+            "app",
+            "care",
+            "store"
+          ]
+        }
+      },
+      "required": [
+        "new_device_hash",
+        "channel"
+      ],
+      "additionalProperties": false
+    },
+    "PortalSignals": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "page_path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ms_per_step": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "hesitation_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "paste_into_pin": {
+          "type": "boolean"
+        },
+        "tab_switches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pointer_speed": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
             },
-            "phone": {
-              "type": "string"
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "typing_rhythm_distance": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "session_id",
+        "page_path",
+        "hesitation_ms",
+        "paste_into_pin",
+        "tab_switches"
+      ],
+      "additionalProperties": false,
+      "description": "Derived numbers only. Never keystrokes or typed text."
+    },
+    "ForwardedMessage": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": [
+            "imessage",
+            "sms"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "image_url": {
+          "type": "string"
+        },
+        "from_hash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel"
+      ],
+      "additionalProperties": false
+    },
+    "CustomerReply": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": [
+            "imessage",
+            "sms",
+            "voice",
+            "web"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "case_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "FaceResult": {
+      "type": "object",
+      "properties": {
+        "match": {
+          "type": "boolean"
+        },
+        "similarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "liveness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "antispoof": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "match",
+        "similarity",
+        "liveness",
+        "antispoof"
+      ],
+      "additionalProperties": false,
+      "description": "Computed on the device. No images or descriptors leave it."
+    },
+    "Event": {
+      "type": "object",
+      "description": "Anything that happened on the account. POST /events. Idempotent on event_id.",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "pattern": "^evt_"
+        },
+        "user_id": {
+          "type": "string",
+          "pattern": "^usr_"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "call.started",
+            "call.ended",
+            "login",
+            "otp.sent",
+            "otp.entered",
+            "pin.attempt",
+            "protection.changed",
+            "transfer_pin.requested",
+            "sim_swap.requested",
+            "portal.signals",
+            "message.forwarded",
+            "customer.reply",
+            "face.result"
+          ]
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "portal",
+            "voice",
+            "messaging",
+            "console",
+            "watcher",
+            "generator",
+            "brain"
+          ]
+        },
+        "call_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^call_"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "event_id",
+        "user_id",
+        "type",
+        "ts",
+        "source",
+        "data"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "call.started"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CallData"
+              }
             }
           }
         },
-        "case_id": {
-          "type": "string",
-          "description": "optional; brain resolves/creates a case from reply_to + subject if absent"
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "call.ended"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CallEndedData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "login"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/LoginData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "otp.sent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/OtpData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "otp.entered"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/OtpData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "pin.attempt"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/PinAttemptData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "protection.changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/ProtectionChangeData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "sim_swap.requested"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/SimSwapData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "portal.signals"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/PortalSignals"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "message.forwarded"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/ForwardedMessage"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "customer.reply"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/CustomerReply"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "face.result"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/FaceResult"
+              }
+            }
+          }
         }
-      }
+      ]
     },
-    "Finding": {
+    "CallSummary": {
       "type": "object",
-      "required": [
-        "id",
-        "claim",
-        "verdict",
-        "evidence",
-        "sources"
-      ],
       "properties": {
-        "id": {
-          "type": "string"
+        "call_id": {
+          "type": "string",
+          "pattern": "^call_"
         },
-        "claim": {
-          "type": "string"
-        },
-        "verdict": {
-          "enum": [
-            "supported",
-            "contradicted",
-            "unverifiable",
-            "info"
+        "caller_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "severity": {
+        "attestation": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "none"
+          ]
+        },
+        "seen_before": {
+          "type": "boolean"
+        },
+        "scam_label": {
+          "type": "boolean"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "duration_s": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "call_id",
+        "caller_name",
+        "attestation",
+        "seen_before",
+        "scam_label",
+        "started_at",
+        "ended_at",
+        "duration_s"
+      ],
+      "additionalProperties": false
+    },
+    "Timeline": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CallSummary"
+          }
+        },
+        "active_call": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CallSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "user_id",
+        "events",
+        "calls",
+        "active_call"
+      ],
+      "additionalProperties": false
+    },
+    "ProtectionState": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "protections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "sim_protection",
+                  "port_out_protection",
+                  "scam_block"
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "name",
+              "enabled",
+              "updated_at"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "shield_mode": {
+          "type": "boolean",
+          "description": "True while an unverified call is active: turning protections off needs the pause screen (+ face check if enabled)."
+        },
+        "transfer_pin": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "none",
+                "held",
+                "active",
+                "revoked"
+              ]
+            },
+            "hold_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "hold_until"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "user_id",
+        "protections",
+        "shield_mode",
+        "transfer_pin"
+      ],
+      "additionalProperties": false
+    },
+    "ProtectionChangeRequest": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "via": {
+          "type": "string",
+          "enum": [
+            "portal",
+            "titan",
+            "care"
+          ]
+        },
+        "check_id": {
+          "type": "string",
+          "description": "From POST /check; required when turning a protection off"
+        }
+      },
+      "required": [
+        "enabled",
+        "via"
+      ],
+      "additionalProperties": false
+    },
+    "CheckRequest": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "pattern": "^usr_"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "protection_off",
+            "transfer_pin",
+            "sim_swap",
+            "change_email",
+            "change_password",
+            "add_line",
+            "login"
+          ]
+        },
+        "protection": {
+          "type": "string",
+          "enum": [
+            "sim_protection",
+            "port_out_protection",
+            "scam_block"
+          ]
+        },
+        "portal_signals": {
+          "$ref": "#/$defs/PortalSignals"
+        },
+        "face": {
+          "$ref": "#/$defs/FaceResult"
+        },
+        "customer_choice": {
+          "type": "string",
+          "enum": [
+            "on_call_help",
+            "doing_it_myself"
+          ]
+        }
+      },
+      "required": [
+        "user_id",
+        "action"
+      ],
+      "additionalProperties": false,
+      "description": "Fast gate before a sensitive action. No LLM. Must answer in < 300 ms."
+    },
+    "CheckResponse": {
+      "type": "object",
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "pattern": "^chk_"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "pause",
+            "hold",
+            "block"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "during_call": {
+          "type": "boolean"
+        },
+        "call": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CallSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "risk": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RiskScore"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hold_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pause_screen": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "help_label": {
+                  "type": "string"
+                },
+                "continue_label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "body",
+                "help_label",
+                "continue_label"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "check_id",
+        "decision",
+        "reasons",
+        "during_call"
+      ],
+      "additionalProperties": false
+    },
+    "Signal": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "string",
+          "enum": [
+            "account",
+            "device",
+            "protection",
+            "call",
+            "location",
+            "portal",
+            "face",
+            "message"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "baseline": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        }
+      },
+      "required": [
+        "group",
+        "name",
+        "value",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "RiskScore": {
+      "type": "object",
+      "properties": {
+        "threat": {
+          "type": "string",
+          "enum": [
+            "takeover",
+            "coached",
+            "scam_text",
+            "bot",
+            "legit"
+          ]
+        },
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "calibrated": {
+          "type": "boolean"
+        },
+        "confidence": {
+          "type": "string",
           "enum": [
             "low",
             "medium",
             "high"
           ]
         },
-        "evidence": {
-          "type": "string"
+        "anomaly": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "sources": {
+        "top_reasons": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Source"
+            "type": "object",
+            "properties": {
+              "feature": {
+                "type": "string"
+              },
+              "contribution": {
+                "type": "number"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "feature",
+              "contribution",
+              "text"
+            ],
+            "additionalProperties": false
           }
         },
-        "evidence_view": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "enum": [
-                "map",
-                "doc",
-                "none"
-              ]
-            },
-            "data": {
-              "type": "object"
-            }
-          }
+        "model": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ml",
+            "ml+rules"
+          ]
+        }
+      },
+      "required": [
+        "threat",
+        "probability",
+        "calibrated",
+        "confidence",
+        "top_reasons",
+        "model"
+      ],
+      "additionalProperties": false,
+      "description": "Output of ml.score() (Lane 2b) and of the Risk agent."
+    },
+    "Verification": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "downgraded"
+          ]
         },
-        "verification": {
-          "type": "object",
-          "required": [
-            "status"
-          ],
-          "properties": {
-            "status": {
-              "enum": [
-                "verified",
-                "downgraded",
-                "unchecked"
-              ]
-            },
-            "note": {
-              "type": "string",
-              "description": "why the verifier agreed or downgraded"
-            },
-            "original_verdict": {
-              "type": "string"
-            }
+        "claims_checked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claims_dropped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
-      }
-    },
-    "SuggestedAction": {
-      "type": "object",
+      },
       "required": [
-        "id",
-        "kind",
-        "label"
+        "status",
+        "claims_checked",
+        "claims_dropped",
+        "notes"
       ],
+      "additionalProperties": false
+    },
+    "Action": {
+      "type": "object",
       "properties": {
-        "id": {
+        "action_id": {
+          "type": "string",
+          "pattern": "^act_"
+        },
+        "case_id": {
           "type": "string"
         },
         "kind": {
+          "type": "string",
           "enum": [
-            "email_counterparty",
-            "call",
-            "watch",
-            "share"
+            "relock",
+            "hold_transfer_pin",
+            "require_step_up",
+            "reset_pin",
+            "revoke_transfer_pin",
+            "sign_out_sessions",
+            "report_number",
+            "notify_trusted_contact",
+            "send_ftc_report",
+            "release_hold"
           ]
         },
-        "label": {
-          "type": "string"
-        },
-        "draft": {
-          "type": "string"
-        }
-      }
-    },
-    "Report": {
-      "type": "object",
-      "required": [
-        "run_id",
-        "pack",
-        "channel",
-        "subject",
-        "findings",
-        "score",
-        "summary",
-        "suggested_actions",
-        "created_at",
-        "case_id"
-      ],
-      "properties": {
-        "run_id": {
-          "type": "string"
-        },
-        "pack": {
-          "type": "string"
-        },
-        "channel": {
+        "direction": {
+          "type": "string",
           "enum": [
-            "web",
-            "voice",
-            "email",
-            "sms",
-            "watch",
-            "mcp"
+            "safer",
+            "looser"
           ]
         },
-        "subject": {
-          "type": "object",
-          "required": [
-            "label"
-          ],
-          "properties": {
-            "label": {
-              "type": "string"
+        "status": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "awaiting_approval",
+            "approved",
+            "rejected",
+            "applied",
+            "failed"
+          ]
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "approved_via": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "web",
+                "sms",
+                "voice"
+              ]
             },
-            "location": {
-              "type": "object",
-              "properties": {
-                "lat": {
-                  "type": "number"
-                },
-                "lon": {
-                  "type": "number"
-                }
-              }
+            {
+              "type": "null"
             }
-          }
+          ]
         },
-        "findings": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Finding"
-          }
-        },
-        "score": {
-          "type": "object",
-          "required": [
-            "value",
-            "label"
-          ],
-          "properties": {
-            "value": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "label": {
-              "type": "string"
-            },
-            "rationale": {
-              "type": "string"
-            }
-          }
-        },
-        "summary": {
+        "description": {
           "type": "string"
-        },
-        "suggested_actions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/SuggestedAction"
-          }
         },
         "created_at": {
           "type": "string",
           "format": "date-time"
         },
-        "case_id": {
-          "type": "string"
-        }
-      }
-    },
-    "StepEvent": {
-      "type": "object",
-      "required": [
-        "seq",
-        "ts",
-        "type",
-        "label",
-        "data"
-      ],
-      "properties": {
-        "run_id": {
-          "type": "string"
-        },
-        "seq": {
-          "type": "integer"
-        },
-        "ts": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "type": {
-          "enum": [
-            "plan",
-            "tool_call",
-            "tool_result",
-            "finding",
-            "verify",
-            "action_proposed",
-            "approval_needed",
-            "transcript",
-            "channel_event",
-            "error",
-            "done"
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
           ]
-        },
-        "label": {
-          "type": "string"
-        },
-        "data": {
-          "type": "object"
+        }
+      },
+      "required": [
+        "action_id",
+        "case_id",
+        "kind",
+        "direction",
+        "status",
+        "requires_approval",
+        "description",
+        "created_at"
+      ],
+      "additionalProperties": false,
+      "description": "Safer actions may apply automatically. Looser ones always need approval and no active suspicious call."
+    },
+    "Message": {
+      "type": "object",
+      "properties": {
+        "message_id": {
+          "type": "string",
+          "pattern": "^msg_"
         },
         "case_id": {
           "type": "string"
         },
         "channel": {
+          "type": "string",
           "enum": [
-            "web",
-            "voice",
-            "email",
+            "imessage",
             "sms",
-            "watch",
-            "mcp"
+            "voice"
           ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "in",
+            "out"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "heads_up",
+            "alert",
+            "question",
+            "summary",
+            "recovery_step",
+            "info",
+            "reply",
+            "transcript"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
         }
       },
-      "anyOf": [
-        {
-          "required": [
-            "run_id"
-          ]
-        },
-        {
-          "required": [
-            "case_id"
-          ]
-        }
-      ]
-    },
-    "ActionRequest": {
-      "type": "object",
       "required": [
-        "run_id",
-        "kind"
-      ],
-      "properties": {
-        "run_id": {
-          "type": "string"
-        },
-        "kind": {
-          "enum": [
-            "email_counterparty",
-            "call",
-            "share"
-          ]
-        },
-        "params": {
-          "type": "object"
-        }
-      }
-    },
-    "Action": {
-      "type": "object",
-      "required": [
-        "action_id",
-        "run_id",
+        "message_id",
+        "case_id",
+        "channel",
+        "direction",
         "kind",
-        "status"
+        "text",
+        "ts"
       ],
+      "additionalProperties": false
+    },
+    "IncidentSummary": {
+      "type": "object",
       "properties": {
-        "action_id": {
+        "case_number": {
           "type": "string"
         },
-        "run_id": {
+        "what_happened": {
           "type": "string"
         },
-        "kind": {
+        "why_we_stepped_in": {
           "type": "string"
         },
-        "status": {
-          "enum": [
-            "awaiting_approval",
-            "approved",
-            "rejected",
-            "queued",
-            "sent",
-            "replied",
-            "failed"
-          ]
-        },
-        "detail": {
+        "confidence_text": {
           "type": "string"
         },
-        "thread_id": {
-          "type": "string"
-        },
-        "reply": {
-          "type": "string"
-        },
-        "case_id": {
-          "type": "string"
-        },
-        "draft": {
-          "type": "object",
-          "properties": {
-            "to": {
-              "type": "string"
-            },
-            "subject": {
-              "type": "string"
-            },
-            "body": {
-              "type": "string"
-            }
+        "what_we_did": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "safety": {
-          "type": "object",
-          "properties": {
-            "ok": {
-              "type": "boolean"
-            },
-            "categories": {
-              "type": "array",
-              "items": {
+        "you_approved": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "spot_it_next_time": {
+          "type": "string"
+        },
+        "data_we_looked_at": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "keyword": {
+                "type": "string"
+              },
+              "meaning": {
                 "type": "string"
               }
             },
-            "model": {
-              "type": "string"
-            }
-          }
-        },
-        "approved_via": {
-          "enum": [
-            "web",
-            "sms",
-            "email",
-            "voice"
-          ]
-        }
-      }
-    },
-    "WatchRequest": {
-      "type": "object",
-      "required": [
-        "run_id",
-        "every"
-      ],
-      "properties": {
-        "run_id": {
-          "type": "string"
-        },
-        "every": {
-          "enum": [
-            "demo-30s",
-            "1h",
-            "1d"
-          ]
-        },
-        "notify": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string"
-            },
-            "phone": {
-              "type": "string"
-            }
+            "required": [
+              "keyword",
+              "meaning"
+            ],
+            "additionalProperties": false
           }
         }
-      }
-    },
-    "Watch": {
-      "type": "object",
+      },
       "required": [
-        "watch_id",
-        "run_id",
-        "every"
+        "case_number",
+        "what_happened",
+        "why_we_stepped_in",
+        "confidence_text",
+        "what_we_did",
+        "you_approved",
+        "next_steps",
+        "spot_it_next_time",
+        "data_we_looked_at",
+        "replies"
       ],
+      "additionalProperties": false,
+      "description": "Sent as one iMessage with no links. Every sentence checked by the Verifier."
+    },
+    "StepEvent": {
+      "type": "object",
       "properties": {
-        "watch_id": {
+        "seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "case_id": {
           "type": "string"
         },
         "run_id": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^run_"
         },
-        "every": {
-          "type": "string"
-        },
-        "last_checked_at": {
+        "ts": {
           "type": "string",
           "format": "date-time"
         },
-        "last_change": {
+        "agent": {
+          "type": "string",
+          "enum": [
+            "system",
+            "context",
+            "risk",
+            "verifier",
+            "response",
+            "messaging",
+            "voice"
+          ]
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "trigger",
+            "context",
+            "risk",
+            "verify",
+            "respond",
+            "reach",
+            "await",
+            "recover",
+            "summary",
+            "watch"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "plan",
+            "tool_call",
+            "tool_result",
+            "signal",
+            "score",
+            "verify",
+            "action",
+            "message",
+            "call",
+            "transcript",
+            "approval_needed",
+            "approved",
+            "summary",
+            "error",
+            "done"
+          ]
+        },
+        "title": {
           "type": "string"
         },
-        "case_id": {
-          "type": "string"
+        "data": {
+          "type": "object"
         }
-      }
-    },
-    "Error": {
-      "type": "object",
+      },
       "required": [
-        "error"
+        "seq",
+        "case_id",
+        "run_id",
+        "ts",
+        "agent",
+        "stage",
+        "type",
+        "title",
+        "data"
       ],
-      "properties": {
-        "error": {
-          "type": "object",
-          "required": [
-            "code",
-            "message"
-          ],
-          "properties": {
-            "code": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            }
-          }
-        }
-      }
+      "additionalProperties": false,
+      "description": "One line on the dashboard. Streamed on GET /cases/{id}/stream as `event: step`."
     },
     "Case": {
       "type": "object",
-      "required": [
-        "case_id",
-        "subject_label",
-        "created_at"
-      ],
       "properties": {
         "case_id": {
+          "type": "string",
+          "pattern": "^case_"
+        },
+        "case_number": {
           "type": "string"
         },
-        "subject_label": {
+        "user_id": {
           "type": "string"
         },
-        "owner": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string"
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "awaiting_reply",
+            "recovering",
+            "watching",
+            "closed"
+          ]
+        },
+        "threat": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "takeover",
+                "coached",
+                "scam_text",
+                "bot",
+                "legit"
+              ]
             },
-            "phone": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
+            {
+              "type": "null"
             }
-          }
+          ]
         },
-        "latest_score": {
-          "type": "integer"
-        },
-        "open_actions": {
-          "type": "integer"
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "created_at": {
           "type": "string",
@@ -600,20 +1554,136 @@
           "type": "string",
           "format": "date-time"
         }
-      }
+      },
+      "required": [
+        "case_id",
+        "case_number",
+        "user_id",
+        "title",
+        "status",
+        "threat",
+        "confidence",
+        "created_at",
+        "updated_at"
+      ],
+      "additionalProperties": false
     },
     "CaseDetail": {
       "type": "object",
-      "required": [
-        "case",
-        "timeline"
-      ],
       "properties": {
-        "case": {
-          "$ref": "#/$defs/Case"
+        "case_id": {
+          "type": "string",
+          "pattern": "^case_"
         },
-        "latest_report": {
-          "$ref": "#/$defs/Report"
+        "case_number": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "awaiting_reply",
+            "recovering",
+            "watching",
+            "closed"
+          ]
+        },
+        "threat": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "takeover",
+                "coached",
+                "scam_text",
+                "bot",
+                "legit"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user": {
+          "$ref": "#/$defs/User"
+        },
+        "call": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CallSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        },
+        "risk": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RiskScore"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Signal"
+          }
+        },
+        "verification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Verification"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StepEvent"
+          }
         },
         "actions": {
           "type": "array",
@@ -621,46 +1691,283 @@
             "$ref": "#/$defs/Action"
           }
         },
-        "watches": {
+        "messages": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Watch"
+            "$ref": "#/$defs/Message"
           }
         },
-        "timeline": {
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IncidentSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "data_used": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/StepEvent"
-          },
-          "description": "every event across all channels, oldest first"
+            "type": "string"
+          }
         }
-      }
+      },
+      "required": [
+        "case_id",
+        "case_number",
+        "user_id",
+        "title",
+        "status",
+        "threat",
+        "confidence",
+        "created_at",
+        "updated_at",
+        "user",
+        "call",
+        "timeline",
+        "risk",
+        "signals",
+        "verification",
+        "steps",
+        "actions",
+        "messages",
+        "summary",
+        "data_used"
+      ],
+      "additionalProperties": false,
+      "description": "GET /cases/{id}. Everything the dashboard and the customer /case page need."
+    },
+    "CaseEventRequest": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": [
+            "imessage",
+            "sms",
+            "voice",
+            "web"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "in",
+            "out"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "transcript",
+            "reply",
+            "info",
+            "delivery"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "agent": {
+          "type": "string",
+          "enum": [
+            "voice",
+            "messaging",
+            "system"
+          ]
+        }
+      },
+      "required": [
+        "channel",
+        "direction",
+        "kind",
+        "text"
+      ],
+      "additionalProperties": false,
+      "description": "Doors -> brain POST /cases/{id}/events (transcript lines, replies, delivery receipts)."
     },
     "ApprovalRequest": {
       "type": "object",
-      "required": [
-        "decision",
-        "via"
-      ],
       "properties": {
-        "decision": {
-          "enum": [
-            "approve",
-            "reject"
-          ]
-        },
         "via": {
+          "type": "string",
           "enum": [
             "web",
             "sms",
-            "email",
             "voice"
           ]
         },
-        "edited_body": {
+        "note": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "via"
+      ],
+      "additionalProperties": false
+    },
+    "SendRequest": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "imessage",
+            "sms"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "heads_up",
+            "alert",
+            "question",
+            "summary",
+            "recovery_step",
+            "info"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "expects_reply": {
+          "type": "boolean"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "case_id",
+        "user_id",
+        "channel",
+        "kind",
+        "text",
+        "expects_reply"
+      ],
+      "additionalProperties": false,
+      "description": "Brain -> messaging POST /internal/send. Messaging resolves the phone number; text never has links."
+    },
+    "CallRequest": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "scam_intervention",
+            "verify_it_was_you"
+          ]
+        },
+        "opening_line": {
+          "type": "string"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pending_action_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "case_id",
+        "user_id",
+        "purpose",
+        "opening_line",
+        "facts",
+        "pending_action_ids"
+      ],
+      "additionalProperties": false,
+      "description": "Brain -> voice POST /internal/call."
+    },
+    "DatasetScenario": {
+      "type": "object",
+      "properties": {
+        "scenario_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string",
+          "enum": [
+            "takeover",
+            "coached",
+            "scam_text",
+            "bot",
+            "recovery_scam",
+            "legit"
+          ]
+        },
+        "hard_negative": {
+          "type": "boolean"
+        },
+        "trigger_event_id": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        },
+        "generator": {
+          "type": "object",
+          "properties": {
+            "seed": {
+              "type": "integer"
+            },
+            "variant": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "seed",
+            "variant"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "scenario_id",
+        "user_id",
+        "label",
+        "hard_negative",
+        "trigger_event_id",
+        "events",
+        "generator"
+      ],
+      "additionalProperties": false,
+      "description": "One labeled scenario. Lane 2a writes these; Lane 2b trains and evaluates on them."
     }
   }
 }

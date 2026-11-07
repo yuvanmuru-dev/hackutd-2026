@@ -1,0 +1,16 @@
+{
+  "event_id": "evt_t2_01",
+  "user_id": "usr_maya",
+  "type": "call.started",
+  "ts": "2026-11-07T20:14:00Z",
+  "source": "voice",
+  "call_id": "call_t2",
+  "data": {
+    "direction": "in",
+    "other_number_hash": "h_8f2c19",
+    "caller_name": "T-Mobile Support",
+    "attestation": "C",
+    "seen_before": false,
+    "scam_label": false
+  }
+}

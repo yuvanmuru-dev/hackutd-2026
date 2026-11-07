@@ -34,12 +34,13 @@ Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains ar
 - Email: `agentmail`, `agentmail-toolkit`
 - Browser testing/screenshots: `playwright-cli`
 
-## Commands (Lane 1 updates these as they become real)
-- Brain: `cd agent && uvicorn server:app --reload --port 8000` (`MOCK=1` for fixtures, `DEMO_MODE=1` for cached tools)
-- Offline tests: `cd agent && python test_loop_offline.py && python test_server_offline.py`
-- Contracts: `python scripts/validate_contracts.py` (CI runs this, gitleaks, and the offline tests on every PR)
-- Web: `cd web && npm run dev` (port 3000)
-- Voice: port 8100 · Email: port 8200 (commands TBD by lane owners)
+## Commands (verified)
+- Everything: `bash scripts/dev.sh` (brain in MOCK mode + any doors present; `TUNNEL=1` adds ngrok)
+- Brain only: `cd agent && MOCK=1 uv run --no-project --with-requirements requirements.txt uvicorn server:app --reload --port 8000` → http://localhost:8000/docs
+- Play the demo story: `curl -X POST localhost:8000/demo/play/t2` (also `t1`, `t3`), then `GET /cases`
+- Brain tests: `cd agent && python test_loop_offline.py && python test_mock_offline.py`
+- Contracts: `python scripts/validate_contracts.py`; after a contract change: `bash scripts/gen_types.sh`
+- Web: `cd web && npm run dev` (3000) · Voice: 8100 · Messaging: 8200
 
 ## Pre-event code
 `agent/` (agent loop + 4 public-data tools), `scripts/`, and `.claude/skills/` came from a starter kit prepared before the event. Disclose this in the Devpost.
