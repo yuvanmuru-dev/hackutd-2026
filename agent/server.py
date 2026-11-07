@@ -3,8 +3,8 @@
 Run:   cd agent && MOCK=1 uvicorn server:app --reload --port 8000
 Docs:  http://localhost:8000/docs      Contract: contracts/schema.json (v0.3), docs/CONTRACTS.md
 
-MOCK=1 (default for now): real gate rules + in-memory store, and workflow runs replay the fixture run
-step by step (MOCK_STEP_MS, default 400). The real Nemotron workflow replaces the replay, same StepEvents.
+MOCK=1 (default): real gate rules + in-memory store; workflow runs replay the fixture run (MOCK_STEP_MS, default 400).
+MOCK=0: the real Nemotron workflow (core/workflow.py: Context -> Risk -> Verifier -> Response). Needs NVIDIA_API_KEY.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from core import gate, mock_runs
+from core import gate, mock_runs, workflow
 from core.contracts import require
 from core.events import _case_for_call, ingest
 from core.store import iso, new_id, now, store
@@ -45,7 +45,14 @@ def _start(case_id: str, trigger: str):
     if trigger == "heads_up":
         mock_runs.heads_up(store, case)
         return
-    task = asyncio.create_task(mock_runs.replay(store, case, trigger))  # real workflow plugs in here when MOCK=0
+    if MOCK:
+        task = asyncio.create_task(mock_runs.replay(store, case, trigger))
+    else:  # real Nemotron workflow
+        trig = next((e for e in sorted(store.events.values(), key=lambda e: e["ts"], reverse=True)
+                     if e["user_id"] == case["user_id"] and (not case["call_id"] or e.get("call_id") == case["call_id"])), None)
+        trig = trig or {"event_id": new_id("evt"), "user_id": case["user_id"], "type": "transfer_pin.requested", "ts": iso(now()),
+                        "source": "brain", "call_id": case["call_id"], "data": {}}
+        task = asyncio.create_task(workflow.run(store, case, trigger, trig))
     _tasks.add(task)
     task.add_done_callback(_tasks.discard)
 
@@ -66,7 +73,9 @@ def _case(cid: str) -> dict:
 
 @app.get("/health")
 async def health():
-    return {"ok": True, "mock": MOCK, "version": "0.3", "users": len(store.users), "cases": len(store.cases)}
+    from core import llm
+    return {"ok": True, "mock": MOCK, "version": "0.3", "users": len(store.users), "cases": len(store.cases),
+            "models": {r: llm.model_for(r) for r in ("super", "nano", "safety")}, "recent_model_calls": llm.recent_calls()[-5:]}
 
 
 @app.get("/tools")
@@ -94,6 +103,8 @@ async def post_event(request: Request):
     result = ingest(store, ev)
     if result["trigger"]:
         _start(result["case_id"], result["trigger"])
+    if ev["type"] == "customer.reply" and result["case_id"] and not result["duplicate"]:
+        workflow.notify(result["case_id"], {"direction": "in", "text": ev["data"]["text"], "channel": ev["data"]["channel"]})
     return {"accepted": not result["duplicate"], "duplicate": result["duplicate"], "case_id": result["case_id"],
             "trigger": result["trigger"]}
 
@@ -207,6 +218,8 @@ async def case_event(cid: str, request: Request):
     c["messages"].append(msg)
     store.add_step(c, new_id("run"), body.get("agent", "system"), "reach", "transcript" if body["kind"] == "transcript" else "message",
                    body["text"][:140], {"message_id": msg["message_id"]})
+    if body["direction"] == "in":
+        workflow.notify(cid, {"direction": "in", "text": body["text"], "channel": channel})
     return msg
 
 
@@ -219,8 +232,8 @@ async def approve(aid: str, request: Request):
         raise HTTPException(404, {"error": f"unknown action {aid}"})
     if a["direction"] == "looser" and store.suspicious(store.active_call(c["user_id"])):
         raise HTTPException(409, {"error": "unsafe_now", "detail": ["Can't loosen protection while a suspicious call is active"]})
-    a.update(status="applied", approved_via=body["via"], applied_at=iso(now()))
-    store.add_step(c, new_id("run"), "system", "recover", "approved", f"Approved via {body['via']}: {a['description']}", {"action_id": aid})
+    workflow.apply_decision(store, c, a, True, body["via"])
+    workflow.notify(c["case_id"])
     return a
 
 
@@ -230,7 +243,8 @@ async def reject(aid: str, request: Request):
     c, a = store.find_action(aid)
     if not a:
         raise HTTPException(404, {"error": f"unknown action {aid}"})
-    a.update(status="rejected", approved_via=body["via"])
+    workflow.apply_decision(store, c, a, False, body["via"])
+    workflow.notify(c["case_id"])
     return a
 
 
