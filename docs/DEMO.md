@@ -59,6 +59,6 @@ Then the agent checks the claims against real data, asks you before it acts, fol
 | What about hallucinations? | Lane 1 | Every finding needs a source; a second Nemotron pass downgrades anything unsupported. Show a downgraded example |
 | What if a data source is down? | Lane 2 | Finding becomes `unverifiable` with the reason; cache; never guesses |
 | Is it safe to let an AI email or call people? | Lane 5 | Nothing goes out without your YES; Safety Guard screens drafts; full audit trail on the case |
-| Why these NVIDIA models? | Lane 4 | Super for planning/tool calls, Lightning/Nano for voice latency, ASR + Magpie for speech, VL for documents, Safety Guard for outbound. Voice stack self-hosted on Brev (if shipped): show `nvidia-smi` and latency numbers |
+| Why these NVIDIA models? | Lane 4 | Super for planning/tool calls, Lightning/Nano for voice latency, Nemotron ASR for speech-to-text (ElevenLabs voice, Magpie as fallback), VL for documents, Safety Guard for outbound. Voice models optionally self-hosted on Brev for the judging slot |
 | What's real vs mocked? | Lane 1 | Be exact. Name anything pre-staged or cached |
 | Who pays / what's next? | Yuvan | One sentence, from PACK_SPEC |

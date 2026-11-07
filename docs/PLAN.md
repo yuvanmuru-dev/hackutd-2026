@@ -60,7 +60,7 @@ Not agents: the **watcher** (24h watch for follow-up "recovery" scams, wakes the
 ## Requirements checklist
 - **Nemotron:** Super (Context, Risk, Verifier, Response), Nano (Messaging, Voice), VL (screenshots), ASR + Magpie (voice), Safety Guard, NeMo Retriever (policy lookup).
 - **Multi-step agent workflow:** trigger → context → risk → verify → act → reach → wait for reply → branch → recover → watch. Long-running, human in the loop, every step streamed live.
-- **External LLMs/APIs:** NVIDIA build.nvidia.com (Nemotron), Photon (iMessage, SMS, voice), NeMo Retriever, RDAP + URLhaus (scam links), ElevenLabs TTS (optional), Twilio (voice fallback), Supabase.
+- **External LLMs/APIs:** NVIDIA build.nvidia.com (Nemotron), Photon (iMessage, SMS, voice), NeMo Retriever, RDAP + URLhaus (scam links), ElevenLabs TTS (the voice agent's voice; optional), Twilio (voice fallback), Supabase.
 - **Photon:** every customer touchpoint: alerts, replies, recovery walk-through, the voice call.
 - **T-Mobile criteria:** creativity (catching the coached owner, not just impostors), impact, usability (one text or one call, plain words), security and privacy (no call content, minimal data, no new collection), detection quality (eval numbers), honest confidence (Verifier + calibration), before/during/after.
 
