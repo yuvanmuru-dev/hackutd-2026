@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scn_seed_code_relay_04",
+  "user_id": "usr_elena",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_code_relay_04_02",
+  "events": [
+    {
+      "event_id": "evt_seed_code_relay_04_01",
+      "user_id": "usr_elena",
+      "type": "call.started",
+      "ts": "2026-11-07T21:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_relay_caller_04",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": true
+      },
+      "call_id": "call_seed_code_relay_04"
+    },
+    {
+      "event_id": "evt_seed_code_relay_04_02",
+      "user_id": "usr_elena",
+      "type": "otp.sent",
+      "ts": "2026-11-07T21:11:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_seed_code_relay_04"
+    },
+    {
+      "event_id": "evt_seed_code_relay_04_03",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T21:14:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_new_device_04",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_seed_code_relay_04"
+    }
+  ],
+  "generator": {
+    "seed": 1204,
+    "variant": "code_relay"
+  }
+}

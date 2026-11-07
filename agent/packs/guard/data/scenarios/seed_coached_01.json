@@ -1,0 +1,102 @@
+{
+  "scenario_id": "scn_seed_coached_01",
+  "user_id": "usr_maya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_coached_01_06",
+  "events": [
+    {
+      "event_id": "evt_seed_coached_01_01",
+      "user_id": "usr_maya",
+      "type": "call.started",
+      "ts": "2026-11-07T20:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_seed_coached_01",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_coached_01"
+    },
+    {
+      "event_id": "evt_seed_coached_01_02",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T20:16:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_maya_laptop",
+        "region": "Dallas, TX",
+        "new_device": false,
+        "succeeded": true
+      },
+      "call_id": "call_seed_coached_01"
+    },
+    {
+      "event_id": "evt_seed_coached_01_03",
+      "user_id": "usr_maya",
+      "type": "portal.signals",
+      "ts": "2026-11-07T20:17:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_seed_coached_01",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/port-out"
+        ],
+        "ms_per_step": [
+          6800,
+          41000,
+          10500
+        ],
+        "hesitation_ms": 41000,
+        "paste_into_pin": false,
+        "tab_switches": 3,
+        "pointer_speed": 0.43,
+        "typing_rhythm_distance": 0.74
+      },
+      "call_id": "call_seed_coached_01"
+    },
+    {
+      "event_id": "evt_seed_coached_01_04",
+      "user_id": "usr_maya",
+      "type": "protection.changed",
+      "ts": "2026-11-07T20:19:00Z",
+      "source": "generator",
+      "data": {
+        "name": "port_out_protection",
+        "enabled": false,
+        "via": "portal"
+      },
+      "call_id": "call_seed_coached_01"
+    },
+    {
+      "event_id": "evt_seed_coached_01_05",
+      "user_id": "usr_maya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T20:20:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "transfer_pin"
+      },
+      "call_id": "call_seed_coached_01"
+    },
+    {
+      "event_id": "evt_seed_coached_01_06",
+      "user_id": "usr_maya",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T20:21:00Z",
+      "source": "generator",
+      "data": {},
+      "call_id": "call_seed_coached_01"
+    }
+  ],
+  "generator": {
+    "seed": 20261108,
+    "variant": "fake_support_port_out"
+  }
+}

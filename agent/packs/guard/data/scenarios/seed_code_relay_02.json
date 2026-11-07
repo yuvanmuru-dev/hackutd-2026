@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scn_seed_code_relay_02",
+  "user_id": "usr_dev",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_code_relay_02_02",
+  "events": [
+    {
+      "event_id": "evt_seed_code_relay_02_01",
+      "user_id": "usr_dev",
+      "type": "call.started",
+      "ts": "2026-11-07T19:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_relay_caller_02",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_code_relay_02"
+    },
+    {
+      "event_id": "evt_seed_code_relay_02_02",
+      "user_id": "usr_dev",
+      "type": "otp.sent",
+      "ts": "2026-11-07T19:09:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_seed_code_relay_02"
+    },
+    {
+      "event_id": "evt_seed_code_relay_02_03",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:12:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_new_device_02",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_seed_code_relay_02"
+    }
+  ],
+  "generator": {
+    "seed": 1202,
+    "variant": "code_relay"
+  }
+}

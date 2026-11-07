@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_seed_scam_text_04",
+  "user_id": "usr_elena",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_scam_text_04_01",
+  "events": [
+    {
+      "event_id": "evt_seed_scam_text_04_01",
+      "user_id": "usr_elena",
+      "type": "message.forwarded",
+      "ts": "2026-11-07T22:20:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "T-Mobile account support: reply with the one-time login code we just sent to keep your service active.",
+        "from_hash": "h_sender_04"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261124,
+    "variant": "code_request_no_link"
+  }
+}

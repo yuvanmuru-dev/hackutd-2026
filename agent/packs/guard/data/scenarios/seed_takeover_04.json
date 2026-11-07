@@ -1,0 +1,48 @@
+{
+  "scenario_id": "scn_seed_takeover_04",
+  "user_id": "usr_elena",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_takeover_04_03",
+  "events": [
+    {
+      "event_id": "evt_seed_takeover_04_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T16:00:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_takeover_device_04",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_seed_takeover_04_02",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T16:01:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "care"
+      }
+    },
+    {
+      "event_id": "evt_seed_takeover_04_03",
+      "user_id": "usr_elena",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T16:02:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_takeover_device_04",
+        "channel": "care"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 1104,
+    "variant": "remote_care_sim_swap"
+  }
+}
