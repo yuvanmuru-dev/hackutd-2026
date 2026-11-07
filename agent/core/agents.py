@@ -135,7 +135,7 @@ def read_reply(text: str, question: str = "") -> dict:
 # ---------------- outbound guard (rules + optional Safety Guard)
 _LINK = re.compile(r"https?://|www\.|\b[a-z0-9-]+\.(com|net|org|co|io|info|xyz|us)\b", re.I)
 # A request aimed at the customer: "send/tell/give/read/share/enter/reply with ... your/me/us ... PIN/code/password",
-# or "what is your PIN". Describing what the scammer asked ("he asked you to share a transfer PIN") is not a request.
+# or a question asking for her PIN. Describing what the scammer asked her to do is not a request.
 _ASKS_SECRET = re.compile(r"(?i)\b(send|tell|give|read|share|enter|reply with|text|confirm)\b(\s+(it|them))?\s+(me|us|titan)?\s*(your|the)\s+"
                           r"([a-z-]+\s+){0,2}(pin|passcode|password|code)\b|\bwhat(?:'s| is)\s+your\s+([a-z-]+\s+)?(pin|passcode|password|code)\b")
 
