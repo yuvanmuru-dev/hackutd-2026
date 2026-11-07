@@ -400,7 +400,7 @@ class Run:
 
 
 TEMPLATES = {
-    "alert": "Titan: {name}, {story} We stopped it and your number is safe. T-Mobile will never ask you to turn off protection "
+    "alert": "Titan: {name}, here's what we saw. {story} We stopped it and your number is safe. T-Mobile will never ask you to turn off protection "
              "or share a PIN. Was this your idea? Reply YES or NO.",
     "info": "Titan: We checked this for you. T-Mobile will never ask you for a PIN or code, or send you a link to verify your account.",
     "question": "Titan: Please hang up any call you're on, then reply YES or NO.",
