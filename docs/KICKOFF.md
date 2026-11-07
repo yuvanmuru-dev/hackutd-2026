@@ -6,6 +6,7 @@ Owner in brackets. Tick in the team chat, not here.
 - [ ] [Yuvan] build.nvidia.com API key works: `curl` one chat completion with `nvidia/nemotron-3-super-120b-a12b` and one with the nano model. Note any slug that 404s.
 - [ ] [Voice owner] Twilio trial account, one phone number, every teammate's phone verified as a caller ID
 - [ ] [Voice owner] NVCF access for Nemotron ASR + Magpie TTS confirmed with the same NVIDIA key
+- [ ] [Yuvan] ElevenLabs API key in `agent/.env` (`ELEVENLABS_API_KEY`). Pick the agent's voice ID in the Voice Library and note it
 - [ ] [Email owner] AgentMail: console.agentmail.to → API key → create 1 inbox, note the address
 - [ ] [Email owner] Supabase project created; URL + service key shared **via a password manager or DM, never in git or the group chat**
 - [ ] [Everyone] ngrok or cloudflared installed and logged in (Twilio + AgentMail need public webhooks)
@@ -16,7 +17,7 @@ Owner in brackets. Tick in the team chat, not here.
 - [ ] [Anyone] Read the idea bank in GAMEPLAN.md; come with one opinion each
 
 ## T0 → T+0:30 (tracks announced)
-1. Read every track prompt and prize. Paste them into `docs/TRACKS.md` (5 min).
+1. Read every track prompt and prize. Paste them into `docs/TRACKS.md` (5 min). Check two things: is there an ElevenLabs prize (MLH events often have one), and does the NVIDIA track text say anything about non-NVIDIA speech models? Those two answers set `TTS_PROVIDER`.
 2. Score the idea bank with the kickoff rubric in GAMEPLAN.md (15 min). Commit. No re-litigating after this.
 3. Fill `docs/PROJECT_BRIEF.md` for the chosen idea (5 min, Lane 1 with Claude).
 4. Everyone pastes their Phase 0 prompt from LANES.md. Lane 1 ships MOCK mode first.

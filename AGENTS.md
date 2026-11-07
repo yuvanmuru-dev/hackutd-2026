@@ -17,7 +17,8 @@ Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains ar
 - **Stay in your lane's folders.** Need a change elsewhere? Ask the owner or open a PR they approve.
 - **Contracts are law.** Don't change a request/response shape locally. Open a `contract:` PR (Lane 1 merges).
 - **Build against the mock** (`MOCK=1` brain) until the real endpoint exists. Don't block on other lanes.
-- **NVIDIA models only for AI** (Nemotron LLMs, Nemotron VL, Nemotron ASR, Magpie TTS, NeMo Retriever, Safety Guard) via build.nvidia.com / NVCF with `NVIDIA_API_KEY`. No other LLM providers.
+- **All reasoning runs on NVIDIA models** (Nemotron LLMs, Nemotron VL, NeMo Retriever, Safety Guard) via build.nvidia.com with `NVIDIA_API_KEY`. No other LLM providers.
+- **Speech:** Nemotron ASR + Magpie TTS by default. ElevenLabs is allowed for TTS only, behind `TTS_PROVIDER=magpie|elevenlabs`. Never use it as the LLM.
 - **Every fact shown to a user has a source URL.** No source → verdict `unverifiable`.
 - **Never commit secrets.** Keys live in `*/.env` (gitignored). Add new var names to that folder's `.env.example`.
 - `main` always runs. Pull with rebase hourly. Small commits. PR title: `[lane N] what changed`.

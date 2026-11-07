@@ -42,7 +42,7 @@ Verify every slug on build.nvidia.com at kickoff; swap in `.env` if one 404s.
 |---|---|
 | Planner / tool-calling brain | Nemotron Super (`nvidia/nemotron-3-super-120b-a12b`) |
 | Fast voice LLM | Nemotron Nano (`nvidia/nemotron-3-nano-30b-a3b`) |
-| Speech in / out | Nemotron ASR streaming + Magpie TTS (NVCF, Pipecat services) |
+| Speech in / out | Nemotron ASR streaming + Magpie TTS (NVCF, Pipecat services). ElevenLabs TTS is a switchable alternative (`TTS_PROVIDER`), decided at kickoff |
 | Read photos, PDFs, flyers, bills | Nemotron Nano VL (vision) |
 | Search our own docs (policies, manuals) | NeMo Retriever embed + rerank NIMs |
 | Guardrail on transcripts / outbound messages | Nemotron Safety Guard |

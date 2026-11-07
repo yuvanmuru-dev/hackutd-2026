@@ -23,6 +23,7 @@ Then the agent checks the claims against real data, asks you before it acts, fol
 - Record each beat as its own clip at 1440×900 (OBS or QuickTime) in DEMO_MODE, so takes are repeatable. Record the voiceover separately and lay it over.
 - Cut dead air between channels with a hard cut. Never cut inside a tool result.
 - Captions on: judges often watch muted.
+- Voiceover: record it with ElevenLabs (one consistent narrator voice, regenerate any line in seconds). This doesn't touch the product's model rules.
 - If DEMO_MODE served the tool results, the voiceover says "replaying a recorded run" or the frame says it. Stay honest.
 
 ## 5-minute live judging (about 2:30 talking, about 2:30 questions)
