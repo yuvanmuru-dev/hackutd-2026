@@ -85,7 +85,7 @@ Grounding: US law lets carriers use CPNI to protect customers from fraud (47 U.S
 | **Risk agent** | ML models + Nemotron Super | Anomaly + calibrated risk score + reasoning over the sequence |
 | **Verifier** | Nemotron Super (second pass) | Checks every Context/Risk claim against raw tool output; downgrades unsupported ones |
 | **Response agent** | Nemotron Super | Acts through T-Mobile's protections (re-lock, 24h hold, face step-up), picks the channel, builds the recovery plan |
-| **Voice agent** | Nemotron Nano/Lightning + ASR + Magpie | Calls the customer through Photon, talks her off the scam call, takes spoken YES/NO and recovery approvals |
+| **Voice agent** | Nemotron 3.5 Lightning + ASR + Magpie | Calls the customer through Photon, talks her off the scam call, takes spoken YES/NO and recovery approvals |
 | **Messaging agent** | Nemotron Nano + Nemotron VL | iMessage/SMS: checks forwarded texts and screenshots, understands free-form replies, walks through recovery one approval at a time |
 
 Not agents: the watcher (scheduled loop, wakes the Guardian), Safety Guard (screens every outbound message and script), the ML models (tools the Guardian calls).
