@@ -85,7 +85,7 @@ Nemotron Super (investigation agent + verification; Nemotron weighs the signals,
 
 ## Lane mapping (changes from LANES.md)
 - **Lane 2 (packs):** `agent/packs/guard/`: synthetic data generator, scoring math, all tools, evals.
-- **Lane 3 (web):** two surfaces in `web/`: (a) the demo carrier portal with the behavior SDK + WebAuthn Face ID step-up, (b) the guardian dashboard (live case view, risk timeline, signals, decisions).
+- **Lane 3 (web):** two surfaces in `web/`: (a) the demo carrier portal with the always-on behavior SDK + optional open-source face check, (b) the guardian dashboard (live case view, risk timeline, signals, decisions).
 - **Lane 4 (voice):** Photon voice line via SIP bridge → Pipecat (Nemotron). Outbound "is this you?" call and inbound call screening. Twilio is the fallback if the bridge fails by T+2.
 - **Lane 5 (messaging + memory):** `messaging/` in TypeScript with Photon `spectrum-ts`: inbound forwarded texts → brain, outbound alerts, YES/NO replies → approve/reject. Plus `db/` and `watcher/`. Email via Photon too if the 2.0 beta has it; otherwise AgentMail stays.
 
