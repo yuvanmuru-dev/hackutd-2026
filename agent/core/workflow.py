@@ -247,6 +247,19 @@ class Run:
         pending = [self.action(k, d, applied=False, approval=True) for k, d in plan]
         self.step("response", "recover", "approval_needed", "Recovery plan: " + " · ".join(a["description"] for a in pending),
                   {"action_ids": [a["action_id"] for a in pending]})
+        prompted: set[str] = set()
+
+        def prompt_next():
+            """Text the next unanswered step (one question at a time, D-039 / D-042). Answers may come by text or on the call."""
+            nxt = next((a for a in pending if a["status"] == "awaiting_approval"), None)
+            if nxt and nxt["action_id"] not in prompted:
+                prompted.add(nxt["action_id"])
+                n = pending.index(nxt) + 1
+                self.send("recovery_step", f"Titan: Step {n} of {len(pending)}. {nxt['description']}? Reply YES or NO.", True, nxt["action_id"])
+                self.step("messaging", "recover", "message", f"Recovery question {n}/{len(pending)} sent: {nxt['description']}",
+                          {"action_id": nxt["action_id"]})
+
+        prompt_next()
         deadline = asyncio.get_running_loop().time() + _t("RECOVERY_TIMEOUT_S", 240)
         while any(a["status"] == "awaiting_approval" for a in pending):
             left = deadline - asyncio.get_running_loop().time()
@@ -258,9 +271,11 @@ class Run:
                     nxt = next((a for a in pending if a["status"] == "awaiting_approval"), None)
                     if nxt and intent["intent"] in ("yes", "no"):
                         apply_decision(self.store, self.case, nxt, intent["intent"] == "yes", item.get("channel", "sms"))
+            prompt_next()  # also covers approvals that arrived on the call or the web
         for a in pending:
             if a["status"] == "awaiting_approval":
                 a["status"] = "rejected"
+                self.step("system", "recover", "action", f"No answer: {a['description']} (not done)", {"action_id": a["action_id"], "approved": False})
 
     async def summarize(self):
         st, name = self.store, self.store.users[self.uid]["name"]
