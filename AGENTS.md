@@ -3,7 +3,7 @@
 7 agents build this repo in parallel. These rules keep us from colliding.
 
 ## Read first
-0. docs/PLAN.md + docs/PACK_SPEC.md: what we are building (Titan). They win over older docs
+0. docs/PLAN.md + docs/DECISIONS.md + **your lane file in docs/handoff/**: what we're building, what's settled, your exact job. They win over older docs
 0b. docs/ARCHITECTURE.md (+ DATABASE.md, SECURITY.md): how it fits together
 1. docs/GAMEPLAN.md: architecture and why it beats ChatGPT
 2. docs/CONTRACTS.md + contracts/schema.json: the API every lane builds against
@@ -26,6 +26,23 @@ Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains ar
 - `main` always runs. Pull with rebase hourly. Small commits. PR title: `[lane N] what changed`.
 - Outbound email/calls only go to teammates' own addresses and numbers during the hackathon.
 - Before coding: plan in ≤5 bullets. After: say what you ran and what you didn't verify.
+
+## Stop rules (guardrails: when in doubt, stop and ask)
+**Stop, don't code, and write a `QUESTION FOR LANE 1` block** (format in docs/handoff/README.md) when you are about to:
+1. Edit any file outside your lane's folders (CI's lane check will fail the PR anyway).
+2. Change, add or rename a field or endpoint in a request/response, or need data that isn't in the contract.
+3. Add a framework, database, state library, hosted AI/voice platform, or paid API (D-020), or call any LLM that isn't NVIDIA (D-015).
+4. Use or generate data from the "cut on purpose" list (location history, contacts, message/call content, motion sensors, voiceprints) or anything real (D-005).
+5. Make Titan ask for a PIN, code or password, send a link, or loosen a protection without the customer's approval (D-011, D-012).
+6. Text or call a number that isn't a teammate's (D-023).
+7. Disable, skip or weaken a test, a CI check or the gitleaks hook.
+8. Fake in your lane something the brain or another lane is supposed to provide (use the MOCK brain and the fixtures instead).
+9. Start a refactor or redesign beyond your current milestone.
+10. Go past ~30 minutes stuck on the same problem.
+
+While waiting for an answer, keep working on another item in your lane if one is unblocked; say which.
+**Before saying "done":** name the exact commands you ran and what they printed, and list what you did **not** verify. Never claim a check passed without running it.
+**Settled decisions** are in docs/DECISIONS.md. Don't re-open them; if one blocks you, ask.
 
 ## Skills (in `.claude/skills/<name>/SKILL.md`; Codex should open and read them)
 - UI: `design-taste-frontend`, `web-design-guidelines`, `better-layout`, `better-typography`, `better-colors`, `better-ui`, `better-accessibility`, `better-writing`, `find-animation-opportunities`, `better-interface` (full review, once)

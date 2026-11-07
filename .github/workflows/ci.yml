@@ -15,6 +15,18 @@ jobs:
       - run: pip install jsonschema
       - run: python scripts/validate_contracts.py
 
+  lane-guardrails:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_lane.py "${{ github.head_ref }}" "origin/${{ github.base_ref }}"
+
   secrets:
     runs-on: ubuntu-latest
     steps:
