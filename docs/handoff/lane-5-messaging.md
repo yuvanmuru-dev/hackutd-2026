@@ -2,7 +2,7 @@
 
 **Owner:** Karthik · Codex · **Branch:** `lane/messaging` · **Issue:** #38 · **Label:** `lane:messaging`
 **You own:** `messaging/` (TypeScript), `db/`, `watcher/`, `DEVPOST.md`.
-**Skills / docs to read:** Photon docs (photon.codes/docs, `spectrum-ts`), docs/DATABASE.md, docs/SECURITY.md.
+**Skills / docs to read:** Photon 2.0 beta docs (photon.codes/docs/beta: API reference + WebSocket), docs/DATABASE.md, docs/SECURITY.md, and **D-024 to D-026** in docs/DECISIONS.md.
 
 ## Your piece of the story
 Every word Maya reads comes through you: the **heads-up text** when the fake "T-Mobile" call connects, the **alert** ("Was this your idea? Reply YES or NO"), recovery questions, and the **incident summary** at the end. You also turn her replies (YES, NO, REPORT, UNDO, or free-form like "I told him my PIN") into actions in the brain. The Photon track judges this lane directly.
@@ -16,7 +16,7 @@ Every word Maya reads comes through you: the **heads-up text** when the fake "T-
 | Direction | Endpoint | Type |
 |---|---|---|
 | brain → you | `POST /internal/send` (port 8200) | `SendRequest {case_id, user_id, channel, kind: heads_up\|alert\|question\|summary\|recovery_step\|info, text, expects_reply, action_id}` → 200 |
-| Photon → you | your webhook (via ngrok) | Photon payload; verify HMAC; dedupe on `message.id` |
+| Photon → you | **WebSocket you open to Photon** (D-024; no ngrok). Webhook only as fallback | Photon event; dedupe on message id |
 | you → brain | `POST /events` | `Event` type `message.forwarded` (a scam text/screenshot she forwards) or `customer.reply` (with `case_id`) |
 | you → brain | `POST /cases/{id}/events` | `CaseEventRequest {channel:"imessage", direction:"in", kind:"reply", text}` |
 | you → brain | `POST /actions/{id}/approve` or `/reject` | `ApprovalRequest {via:"sms"}`; **409** = can't loosen during a suspicious call: tell her to hang up first |
@@ -25,7 +25,7 @@ Every word Maya reads comes through you: the **heads-up text** when the fake "T-
 Phone numbers: map `user_id` → number in `messaging/.env` (`USER_PHONE_usr_maya=+1...`, teammates only, D-023).
 
 ## Build order
-1. **Hello Photon (first hour):** `spectrum-ts` project in `messaging/`, send yourself an iMessage, receive a reply via webhook + ngrok. Report to Yuvan: does Photon 2.0 give us an **SMS number** too? Check: you can text yourself and see the webhook log.
+1. **Hello Photon (first hour):** TypeScript project in `messaging/`; send yourself an iMessage through Photon's API, open the WebSocket and receive your reply as an event (D-024). Check: you can text yourself and see the reply event logged. Demo runs on iMessage (D-026).
 2. **`POST /internal/send`:** validate against `SendRequest`, map user → number, send. `summary` kind: render the summary text as-is (it's already one message). Check: `curl -X POST localhost:8200/internal/send -H 'content-type: application/json' -d @contracts/fixtures/send.alert.json` → iMessage arrives.
 3. **Inbound:** reply → find the open case for that user (`GET /cases?user_id=`) → `POST /cases/{id}/events` + `POST /events` (`customer.reply`). Forwarded scam text (no open case or starts with a link/screenshot) → `message.forwarded`. Check: `/demo/play/t2`, reply YES on your phone, see it on the case.
 4. **Reply understanding:** exact keywords first (YES/NO/REPORT/UNDO). Free-form → Nemotron Nano via `MESSAGING_LLM_BASE_URL` (OpenAI SDK, model from env) classifies into `{intent: yes|no|report|undo|question|info, shared: [pin, code, transfer_pin, bank]}`; act on it: approve/reject the pending action, or post the info to the case. Check: "no that wasn't me" → reject; "I told him my PIN" → shows on the case.
@@ -42,7 +42,9 @@ D-012 never ask for PINs/codes, never send links · D-017 Photon `spectrum-ts`, 
 - you're about to store message text anywhere other than the brain/case (privacy, D-005).
 
 ## Pitfalls
-- Photon webhooks are at-least-once: dedupe or you'll approve twice.
+- Events can repeat (webhook retries, WebSocket reconnects): dedupe on the message id or you'll approve twice.
+- Reconnect the WebSocket automatically with backoff; log when it drops.
+- Photon can't start phone calls through its API (D-025); that's Lane 4.
 - Never echo a link back, even from the scam text she forwarded (quote the domain without making it clickable).
 - Keep secrets in `messaging/.env`; add names to `messaging/.env.example`.
 

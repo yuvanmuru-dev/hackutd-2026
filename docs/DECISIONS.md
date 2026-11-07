@@ -37,3 +37,6 @@ Agents: read this before planning and after every `git pull`. New answers from L
 
 ## Answers log (appended by Lane 1)
 <!-- D-024 onward -->
+- **D-024 (Lane 5, asked by Karthik)** Messaging uses Photon's **outbound API to send** and a **WebSocket opened by us to receive** events (Photon 2.0: "connect, start a session, receive events"). No ngrok or public webhook for messaging. Keep the webhook handler only as a fallback. Still dedupe on the message id (events can repeat on reconnect). Authenticate per the WebSocket docs; keys in `messaging/.env` only.
+- **D-025 (Lanes 4 + 5)** Photon does **not** start phone calls through its API. Voice is SIP only (inbound and outbound to `sip.spectrum.photon.codes`, TLS 5061); SDK call control is on Photon's roadmap. Titan's outbound call stays in Lane 4 (Pipecat + SIP bridge, Twilio fallback at T+2). Messaging must not try to place calls.
+- **D-026 (Lane 5)** Demo texting runs on **iMessage**. Photon 2.0 lists SMS, but US A2P SMS needs 10DLC registration that may not clear in time. SMS is a stretch only if the dashboard shows it ready.

@@ -40,7 +40,7 @@ Edge: "it was me, I'm switching carriers" while the scam call is still active 鈫
 5. Polish: barge-in, short sentences, calm voice; measure latency for the NVIDIA Q&A.
 
 ## Decisions already made
-D-016 ElevenLabs TTS default, Nemotron ASR, Nano 路 D-012 never ask for secrets 路 D-005 never record the scammer call 路 D-023 teammates' numbers only 路 D-021 Brev optional (don't block on it).
+D-025 Photon voice is SIP only (no call-start API): your bridge is required for Titan's call 路 D-016 ElevenLabs TTS default, Nemotron ASR, Nano 路 D-012 never ask for secrets 路 D-005 never record the scammer call 路 D-023 teammates' numbers only 路 D-021 Brev optional (don't block on it).
 
 ## Stop and ask Lane 1 if...
 - the Photon SIP bridge fails (decide fallback together at T+2).
