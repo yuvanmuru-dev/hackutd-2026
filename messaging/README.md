@@ -64,7 +64,8 @@ uv run --no-project --with-requirements requirements.txt python ../messaging/scr
 ```
 
 The wrapper runs the unchanged brain assertions, disables dotenv reloading,
-blocks outbound requests.post, and asserts that no outbound HTTP was attempted.
+blocks external requests.Session HTTP and asserts that no live message/call
+delivery was dispatched. Blocked data-tool HTTP attempts are counted separately.
 This prevents the brain test's scripted approvals from texting a live line.
 
 This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it.
@@ -83,3 +84,10 @@ Photon 2.0 supports SMS as well as iMessage. SMS requires sender/recipient autho
 ## Real reply integration (D-039)
 
 `MOCK=1` replays a scripted fixture and intentionally ignores replies. To test acknowledgment and recovery, put the NVIDIA key in the gitignored agent/.env, use current model names from agent/.env.example, then start the brain with `MOCK=0`. Confirm GET /health reports mock=false before playing T2 and replying. Only the existing allowlisted teammate line should receive demo texts.
+
+Live recovery verified after D-039/D-042 and PR #49: the teammate's NO reached
+the real workflow, Step 1 of 4 was delivered unchanged, one YES applied only
+the synthetic reset_pin action, and Step 2 of 4 was delivered. The teammate
+confirmed Step 2 receipt; the other three actions remained awaiting approval.
+Messaging made no direct approval calls. The local run used 180-second alert
+and 600-second recovery windows to allow time for the interactive phone check.

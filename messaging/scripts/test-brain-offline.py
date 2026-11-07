@@ -18,9 +18,12 @@ os.environ.pop("VOICE_URL", None)
 # Older python-dotenv versions have no PYTHON_DOTENV_DISABLED support. The
 # workflow test supplies its own fake model and test configuration; reloading
 # the developer's live .env would re-enable the door URLs it explicitly removes.
-with patch.object(dotenv, "load_dotenv", return_value=False), patch("requests.post") as outbound:
-    outbound.side_effect = RuntimeError("Offline tests must not make outbound HTTP requests")
+with patch.object(dotenv, "load_dotenv", return_value=False), \
+     patch("requests.sessions.Session.request") as network, \
+     patch("core.outbound._post") as delivery:
+    network.side_effect = RuntimeError("External HTTP is blocked during offline tests")
+    delivery.side_effect = AssertionError("Offline tests must not dispatch to a live door")
     runpy.run_path(str(agent / "test_workflow_offline.py"), run_name="__main__")
-    assert outbound.call_count == 0, "Offline workflow attempted an outbound HTTP request"
+    assert delivery.call_count == 0, "Offline workflow attempted a live message/call delivery"
 
-print("PASS offline isolation: 0 outbound HTTP requests")
+print(f"PASS offline isolation: 0 live deliveries; {network.call_count} external HTTP attempts blocked")
