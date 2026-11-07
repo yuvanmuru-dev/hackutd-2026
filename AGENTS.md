@@ -6,7 +6,8 @@
 1. docs/GAMEPLAN.md: what we're building and why it beats ChatGPT
 2. docs/CONTRACTS.md + contracts/schema.json: the API every lane builds against
 3. docs/LANES.md: your lane, your folders, your branch
-4. docs/PACK_SPEC.md (once it exists): the chosen domain
+4. docs/DEMO.md: the 2-minute video and the 5-minute judging script. Build for those beats first
+5. docs/PACK_SPEC.md (once it exists): the chosen domain
 
 ## Architecture in one line
 One brain (`agent/`, FastAPI + Nemotron) with many doors (`web/`, `voice/`, `email/`) plus `watcher/`.
@@ -33,6 +34,7 @@ Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains ar
 ## Commands (Lane 1 updates these as they become real)
 - Brain: `cd agent && uvicorn server:app --reload --port 8000` (`MOCK=1` for fixtures, `DEMO_MODE=1` for cached tools)
 - Offline tests: `cd agent && python test_loop_offline.py && python test_server_offline.py`
+- Contracts: `python scripts/validate_contracts.py` (CI runs this, gitleaks, and the offline tests on every PR)
 - Web: `cd web && npm run dev` (port 3000)
 - Voice: port 8100 · Email: port 8200 (commands TBD by lane owners)
 

@@ -10,6 +10,7 @@ Owner in brackets. Tick in the team chat, not here.
 - [ ] [Email owner] Supabase project created; URL + service key shared **via a password manager or DM, never in git or the group chat**
 - [ ] [Everyone] ngrok or cloudflared installed and logged in (Twilio + AgentMail need public webhooks)
 - [ ] [Everyone] Python 3.11+, Node 20+, `uv`, Codex CLI working; open the repo once in Codex so it reads AGENTS.md
+- [ ] [Everyone] `brew install gitleaks && bash scripts/install-hooks.sh` (blocks commits that contain keys)
 - [ ] [Everyone] Copy `agent/.env.example` → `agent/.env` and fill in your own keys
 - [ ] [Web owner] Pick 2–3 visual references (Dribbble, Mobbin, awesome-design-md) for the design-taste skill
 - [ ] [Anyone] Read the idea bank in GAMEPLAN.md; come with one opinion each

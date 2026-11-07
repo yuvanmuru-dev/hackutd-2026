@@ -1,8 +1,15 @@
 {
   "run_id": "r_demo001",
+  "case_id": "c_demo001",
   "pack": "example",
   "channel": "web",
-  "subject": {"label": "Example subject (replace with the chosen domain at kickoff)", "location": {"lat": 32.9858, "lon": -96.7501}},
+  "subject": {
+    "label": "Example subject (replace with the chosen domain at kickoff)",
+    "location": {
+      "lat": 32.9858,
+      "lon": -96.7501
+    }
+  },
   "findings": [
     {
       "id": "f1",
@@ -10,8 +17,25 @@
       "verdict": "supported",
       "severity": "low",
       "evidence": "Authoritative dataset agrees: value X at this location.",
-      "sources": [{"label": "Public dataset A", "url": "https://example.gov/a", "retrieved_at": "2026-11-07T18:02:11Z"}],
-      "evidence_view": {"kind": "map", "data": {"lat": 32.9858, "lon": -96.7501, "layer": "dataset-a"}}
+      "sources": [
+        {
+          "label": "Public dataset A",
+          "url": "https://example.gov/a",
+          "retrieved_at": "2026-11-07T18:02:11Z"
+        }
+      ],
+      "evidence_view": {
+        "kind": "map",
+        "data": {
+          "lat": 32.9858,
+          "lon": -96.7501,
+          "layer": "dataset-a"
+        }
+      },
+      "verification": {
+        "status": "verified",
+        "note": "Tool output matches the evidence text."
+      }
     },
     {
       "id": "f2",
@@ -19,8 +43,21 @@
       "verdict": "contradicted",
       "severity": "high",
       "evidence": "Dataset B shows Y, not what was claimed.",
-      "sources": [{"label": "Public dataset B", "url": "https://example.gov/b", "retrieved_at": "2026-11-07T18:02:14Z"}],
-      "evidence_view": {"kind": "none", "data": {}}
+      "sources": [
+        {
+          "label": "Public dataset B",
+          "url": "https://example.gov/b",
+          "retrieved_at": "2026-11-07T18:02:14Z"
+        }
+      ],
+      "evidence_view": {
+        "kind": "none",
+        "data": {}
+      },
+      "verification": {
+        "status": "verified",
+        "note": "Dataset B value Y confirmed in raw tool output."
+      }
     },
     {
       "id": "f3",
@@ -29,15 +66,39 @@
       "severity": "medium",
       "evidence": "No public dataset covers this. Ask the counterparty for documentation.",
       "sources": [],
-      "evidence_view": {"kind": "none", "data": {}}
+      "evidence_view": {
+        "kind": "none",
+        "data": {}
+      },
+      "verification": {
+        "status": "unchecked",
+        "note": "No source to check against."
+      }
     }
   ],
-  "score": {"value": 58, "label": "Verify before you commit", "rationale": "1 of 3 claims contradicted by public data."},
+  "score": {
+    "value": 58,
+    "label": "Verify before you commit",
+    "rationale": "1 of 3 claims contradicted by public data."
+  },
   "summary": "Two of three claims check out or can't be checked, but one important claim is contradicted by public data. I'd ask them about it before going further.",
   "suggested_actions": [
-    {"id": "a1", "kind": "email_counterparty", "label": "Ask them about the contradicted claim", "draft": "Hi, public data shows Y where your materials say X. Can you clarify or share documentation?"},
-    {"id": "a2", "kind": "watch", "label": "Watch for changes"},
-    {"id": "a3", "kind": "share", "label": "Share this receipt"}
+    {
+      "id": "a1",
+      "kind": "email_counterparty",
+      "label": "Ask them about the contradicted claim",
+      "draft": "Hi, public data shows Y where your materials say X. Can you clarify or share documentation?"
+    },
+    {
+      "id": "a2",
+      "kind": "watch",
+      "label": "Watch for changes"
+    },
+    {
+      "id": "a3",
+      "kind": "share",
+      "label": "Share this receipt"
+    }
   ],
   "created_at": "2026-11-07T18:02:20Z"
 }

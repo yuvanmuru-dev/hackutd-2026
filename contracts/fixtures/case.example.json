@@ -1,0 +1,234 @@
+{
+  "case": {
+    "case_id": "c_demo001",
+    "subject_label": "Example subject",
+    "owner": {
+      "phone": "+15555550100",
+      "email": "teammate@example.com",
+      "name": "Demo user"
+    },
+    "latest_score": 58,
+    "open_actions": 1,
+    "created_at": "2026-11-07T18:00:00Z",
+    "updated_at": "2026-11-07T18:20:00Z"
+  },
+  "latest_report": {
+    "run_id": "r_demo001",
+    "case_id": "c_demo001",
+    "pack": "example",
+    "channel": "web",
+    "subject": {
+      "label": "Example subject (replace with the chosen domain at kickoff)",
+      "location": {
+        "lat": 32.9858,
+        "lon": -96.7501
+      }
+    },
+    "findings": [
+      {
+        "id": "f1",
+        "claim": "Claim the counterparty made that our data supports",
+        "verdict": "supported",
+        "severity": "low",
+        "evidence": "Authoritative dataset agrees: value X at this location.",
+        "sources": [
+          {
+            "label": "Public dataset A",
+            "url": "https://example.gov/a",
+            "retrieved_at": "2026-11-07T18:02:11Z"
+          }
+        ],
+        "evidence_view": {
+          "kind": "map",
+          "data": {
+            "lat": 32.9858,
+            "lon": -96.7501,
+            "layer": "dataset-a"
+          }
+        },
+        "verification": {
+          "status": "verified",
+          "note": "Tool output matches the evidence text."
+        }
+      },
+      {
+        "id": "f2",
+        "claim": "Claim our data contradicts",
+        "verdict": "contradicted",
+        "severity": "high",
+        "evidence": "Dataset B shows Y, not what was claimed.",
+        "sources": [
+          {
+            "label": "Public dataset B",
+            "url": "https://example.gov/b",
+            "retrieved_at": "2026-11-07T18:02:14Z"
+          }
+        ],
+        "evidence_view": {
+          "kind": "none",
+          "data": {}
+        },
+        "verification": {
+          "status": "verified",
+          "note": "Dataset B value Y confirmed in raw tool output."
+        }
+      },
+      {
+        "id": "f3",
+        "claim": "Claim no available source can check",
+        "verdict": "unverifiable",
+        "severity": "medium",
+        "evidence": "No public dataset covers this. Ask the counterparty for documentation.",
+        "sources": [],
+        "evidence_view": {
+          "kind": "none",
+          "data": {}
+        },
+        "verification": {
+          "status": "unchecked",
+          "note": "No source to check against."
+        }
+      }
+    ],
+    "score": {
+      "value": 58,
+      "label": "Verify before you commit",
+      "rationale": "1 of 3 claims contradicted by public data."
+    },
+    "summary": "Two of three claims check out or can't be checked, but one important claim is contradicted by public data. I'd ask them about it before going further.",
+    "suggested_actions": [
+      {
+        "id": "a1",
+        "kind": "email_counterparty",
+        "label": "Ask them about the contradicted claim",
+        "draft": "Hi, public data shows Y where your materials say X. Can you clarify or share documentation?"
+      },
+      {
+        "id": "a2",
+        "kind": "watch",
+        "label": "Watch for changes"
+      },
+      {
+        "id": "a3",
+        "kind": "share",
+        "label": "Share this receipt"
+      }
+    ],
+    "created_at": "2026-11-07T18:02:20Z"
+  },
+  "actions": [
+    {
+      "action_id": "act_1",
+      "case_id": "c_demo001",
+      "run_id": "r_demo001",
+      "kind": "email_counterparty",
+      "status": "replied",
+      "draft": {
+        "to": "counterparty@example.com",
+        "subject": "Question about claim 2",
+        "body": "Hi, public data shows Y where your materials say X. Can you clarify?"
+      },
+      "safety": {
+        "ok": true,
+        "categories": [],
+        "model": "nemotron-safety-guard"
+      },
+      "approved_via": "sms",
+      "thread_id": "th_1",
+      "reply": "You're right, that was outdated. We'll update the listing."
+    }
+  ],
+  "watches": [
+    {
+      "watch_id": "w_1",
+      "case_id": "c_demo001",
+      "run_id": "r_demo001",
+      "every": "demo-30s",
+      "last_checked_at": "2026-11-07T18:19:30Z"
+    }
+  ],
+  "timeline": [
+    {
+      "case_id": "c_demo001",
+      "seq": 1,
+      "ts": "2026-11-07T18:00:00Z",
+      "channel": "web",
+      "type": "channel_event",
+      "label": "Case opened from the web",
+      "data": {
+        "kind": "case_opened"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "run_id": "r_demo001",
+      "seq": 2,
+      "ts": "2026-11-07T18:02:20Z",
+      "channel": "web",
+      "type": "done",
+      "label": "Report ready: 58/100",
+      "data": {
+        "report_ref": "r_demo001"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "seq": 3,
+      "ts": "2026-11-07T18:03:00Z",
+      "channel": "web",
+      "type": "approval_needed",
+      "label": "Approve email to counterparty?",
+      "data": {
+        "action_id": "act_1"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "seq": 4,
+      "ts": "2026-11-07T18:03:40Z",
+      "channel": "sms",
+      "type": "channel_event",
+      "label": "Approved by text",
+      "data": {
+        "kind": "approved",
+        "action_id": "act_1"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "seq": 5,
+      "ts": "2026-11-07T18:15:10Z",
+      "channel": "email",
+      "type": "channel_event",
+      "label": "Counterparty replied",
+      "data": {
+        "kind": "email_received",
+        "action_id": "act_1"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "seq": 6,
+      "ts": "2026-11-07T18:20:00Z",
+      "channel": "voice",
+      "type": "transcript",
+      "label": "Caller",
+      "data": {
+        "speaker": "caller",
+        "text": "Hey, any update on that place?"
+      }
+    },
+    {
+      "case_id": "c_demo001",
+      "seq": 7,
+      "ts": "2026-11-07T18:20:04Z",
+      "channel": "voice",
+      "type": "transcript",
+      "label": "Agent",
+      "data": {
+        "speaker": "agent",
+        "text": "Welcome back. They replied and admitted claim 2 was outdated. Want me to keep watching it?"
+      }
+    }
+  ]
+}

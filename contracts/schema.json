@@ -1,163 +1,665 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "contracts/schema.json",
-  "title": "Brain API contracts v0 (see docs/CONTRACTS.md)",
+  "title": "Brain API contracts v0.2 (see docs/CONTRACTS.md)",
   "$defs": {
     "Source": {
       "type": "object",
-      "required": ["label", "url"],
+      "required": [
+        "label",
+        "url"
+      ],
       "properties": {
-        "label": {"type": "string"},
-        "url": {"type": "string"},
-        "retrieved_at": {"type": "string", "format": "date-time"}
+        "label": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "Attachment": {
       "type": "object",
-      "required": ["mime"],
+      "required": [
+        "mime"
+      ],
       "properties": {
-        "url": {"type": "string"},
-        "base64": {"type": "string"},
-        "mime": {"type": "string"},
-        "filename": {"type": "string"}
+        "url": {
+          "type": "string"
+        },
+        "base64": {
+          "type": "string"
+        },
+        "mime": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        }
       }
     },
     "RunRequest": {
       "type": "object",
-      "required": ["input", "channel"],
+      "required": [
+        "input",
+        "channel"
+      ],
       "properties": {
         "input": {
           "type": "object",
-          "required": ["text"],
+          "required": [
+            "text"
+          ],
           "properties": {
-            "text": {"type": "string", "maxLength": 20000},
-            "subject": {"type": "string"},
-            "attachments": {"type": "array", "items": {"$ref": "#/$defs/Attachment"}, "maxItems": 5}
+            "text": {
+              "type": "string",
+              "maxLength": 20000
+            },
+            "subject": {
+              "type": "string"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Attachment"
+              },
+              "maxItems": 5
+            }
           }
         },
-        "channel": {"enum": ["web", "voice", "email", "watch"]},
-        "pack": {"type": "string"},
+        "channel": {
+          "enum": [
+            "web",
+            "voice",
+            "email",
+            "sms",
+            "watch",
+            "mcp"
+          ]
+        },
+        "pack": {
+          "type": "string"
+        },
         "reply_to": {
           "type": "object",
-          "properties": {"email": {"type": "string"}, "phone": {"type": "string"}}
+          "properties": {
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            }
+          }
+        },
+        "case_id": {
+          "type": "string",
+          "description": "optional; brain resolves/creates a case from reply_to + subject if absent"
         }
       }
     },
     "Finding": {
       "type": "object",
-      "required": ["id", "claim", "verdict", "evidence", "sources"],
+      "required": [
+        "id",
+        "claim",
+        "verdict",
+        "evidence",
+        "sources"
+      ],
       "properties": {
-        "id": {"type": "string"},
-        "claim": {"type": "string"},
-        "verdict": {"enum": ["supported", "contradicted", "unverifiable", "info"]},
-        "severity": {"enum": ["low", "medium", "high"]},
-        "evidence": {"type": "string"},
-        "sources": {"type": "array", "items": {"$ref": "#/$defs/Source"}},
+        "id": {
+          "type": "string"
+        },
+        "claim": {
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "supported",
+            "contradicted",
+            "unverifiable",
+            "info"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Source"
+          }
+        },
         "evidence_view": {
           "type": "object",
-          "properties": {"kind": {"enum": ["map", "doc", "none"]}, "data": {"type": "object"}}
+          "properties": {
+            "kind": {
+              "enum": [
+                "map",
+                "doc",
+                "none"
+              ]
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "verified",
+                "downgraded",
+                "unchecked"
+              ]
+            },
+            "note": {
+              "type": "string",
+              "description": "why the verifier agreed or downgraded"
+            },
+            "original_verdict": {
+              "type": "string"
+            }
+          }
         }
       }
     },
     "SuggestedAction": {
       "type": "object",
-      "required": ["id", "kind", "label"],
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
       "properties": {
-        "id": {"type": "string"},
-        "kind": {"enum": ["email_counterparty", "call", "watch", "share"]},
-        "label": {"type": "string"},
-        "draft": {"type": "string"}
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "email_counterparty",
+            "call",
+            "watch",
+            "share"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "draft": {
+          "type": "string"
+        }
       }
     },
     "Report": {
       "type": "object",
-      "required": ["run_id", "pack", "channel", "subject", "findings", "score", "summary", "suggested_actions", "created_at"],
+      "required": [
+        "run_id",
+        "pack",
+        "channel",
+        "subject",
+        "findings",
+        "score",
+        "summary",
+        "suggested_actions",
+        "created_at",
+        "case_id"
+      ],
       "properties": {
-        "run_id": {"type": "string"},
-        "pack": {"type": "string"},
-        "channel": {"enum": ["web", "voice", "email", "watch"]},
+        "run_id": {
+          "type": "string"
+        },
+        "pack": {
+          "type": "string"
+        },
+        "channel": {
+          "enum": [
+            "web",
+            "voice",
+            "email",
+            "sms",
+            "watch",
+            "mcp"
+          ]
+        },
         "subject": {
           "type": "object",
-          "required": ["label"],
+          "required": [
+            "label"
+          ],
           "properties": {
-            "label": {"type": "string"},
-            "location": {"type": "object", "properties": {"lat": {"type": "number"}, "lon": {"type": "number"}}}
+            "label": {
+              "type": "string"
+            },
+            "location": {
+              "type": "object",
+              "properties": {
+                "lat": {
+                  "type": "number"
+                },
+                "lon": {
+                  "type": "number"
+                }
+              }
+            }
           }
         },
-        "findings": {"type": "array", "items": {"$ref": "#/$defs/Finding"}},
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Finding"
+          }
+        },
         "score": {
           "type": "object",
-          "required": ["value", "label"],
+          "required": [
+            "value",
+            "label"
+          ],
           "properties": {
-            "value": {"type": "integer", "minimum": 0, "maximum": 100},
-            "label": {"type": "string"},
-            "rationale": {"type": "string"}
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "label": {
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            }
           }
         },
-        "summary": {"type": "string"},
-        "suggested_actions": {"type": "array", "items": {"$ref": "#/$defs/SuggestedAction"}},
-        "created_at": {"type": "string", "format": "date-time"}
+        "summary": {
+          "type": "string"
+        },
+        "suggested_actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SuggestedAction"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "case_id": {
+          "type": "string"
+        }
       }
     },
     "StepEvent": {
       "type": "object",
-      "required": ["run_id", "seq", "ts", "type", "label", "data"],
+      "required": [
+        "seq",
+        "ts",
+        "type",
+        "label",
+        "data"
+      ],
       "properties": {
-        "run_id": {"type": "string"},
-        "seq": {"type": "integer"},
-        "ts": {"type": "string", "format": "date-time"},
-        "type": {"enum": ["plan", "tool_call", "tool_result", "finding", "action_proposed", "error", "done"]},
-        "label": {"type": "string"},
-        "data": {"type": "object"}
-      }
+        "run_id": {
+          "type": "string"
+        },
+        "seq": {
+          "type": "integer"
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "enum": [
+            "plan",
+            "tool_call",
+            "tool_result",
+            "finding",
+            "verify",
+            "action_proposed",
+            "approval_needed",
+            "transcript",
+            "channel_event",
+            "error",
+            "done"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "channel": {
+          "enum": [
+            "web",
+            "voice",
+            "email",
+            "sms",
+            "watch",
+            "mcp"
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "run_id"
+          ]
+        },
+        {
+          "required": [
+            "case_id"
+          ]
+        }
+      ]
     },
     "ActionRequest": {
       "type": "object",
-      "required": ["run_id", "kind"],
+      "required": [
+        "run_id",
+        "kind"
+      ],
       "properties": {
-        "run_id": {"type": "string"},
-        "kind": {"enum": ["email_counterparty", "call", "share"]},
-        "params": {"type": "object"}
+        "run_id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "email_counterparty",
+            "call",
+            "share"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
       }
     },
     "Action": {
       "type": "object",
-      "required": ["action_id", "run_id", "kind", "status"],
+      "required": [
+        "action_id",
+        "run_id",
+        "kind",
+        "status"
+      ],
       "properties": {
-        "action_id": {"type": "string"},
-        "run_id": {"type": "string"},
-        "kind": {"type": "string"},
-        "status": {"enum": ["queued", "sent", "replied", "failed"]},
-        "detail": {"type": "string"},
-        "thread_id": {"type": "string"},
-        "reply": {"type": "string"}
+        "action_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "awaiting_approval",
+            "approved",
+            "rejected",
+            "queued",
+            "sent",
+            "replied",
+            "failed"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "thread_id": {
+          "type": "string"
+        },
+        "reply": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "draft": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            }
+          }
+        },
+        "safety": {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "model": {
+              "type": "string"
+            }
+          }
+        },
+        "approved_via": {
+          "enum": [
+            "web",
+            "sms",
+            "email",
+            "voice"
+          ]
+        }
       }
     },
     "WatchRequest": {
       "type": "object",
-      "required": ["run_id", "every"],
+      "required": [
+        "run_id",
+        "every"
+      ],
       "properties": {
-        "run_id": {"type": "string"},
-        "every": {"enum": ["demo-30s", "1h", "1d"]},
-        "notify": {"type": "object", "properties": {"email": {"type": "string"}, "phone": {"type": "string"}}}
+        "run_id": {
+          "type": "string"
+        },
+        "every": {
+          "enum": [
+            "demo-30s",
+            "1h",
+            "1d"
+          ]
+        },
+        "notify": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            }
+          }
+        }
       }
     },
     "Watch": {
       "type": "object",
-      "required": ["watch_id", "run_id", "every"],
+      "required": [
+        "watch_id",
+        "run_id",
+        "every"
+      ],
       "properties": {
-        "watch_id": {"type": "string"},
-        "run_id": {"type": "string"},
-        "every": {"type": "string"},
-        "last_checked_at": {"type": "string", "format": "date-time"},
-        "last_change": {"type": "string"}
+        "watch_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "every": {
+          "type": "string"
+        },
+        "last_checked_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_change": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        }
       }
     },
     "Error": {
       "type": "object",
-      "required": ["error"],
+      "required": [
+        "error"
+      ],
       "properties": {
-        "error": {"type": "object", "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}
+        "error": {
+          "type": "object",
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Case": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "subject_label",
+        "created_at"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "subject_label": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "latest_score": {
+          "type": "integer"
+        },
+        "open_actions": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CaseDetail": {
+      "type": "object",
+      "required": [
+        "case",
+        "timeline"
+      ],
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "latest_report": {
+          "$ref": "#/$defs/Report"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Action"
+          }
+        },
+        "watches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Watch"
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StepEvent"
+          },
+          "description": "every event across all channels, oldest first"
+        }
+      }
+    },
+    "ApprovalRequest": {
+      "type": "object",
+      "required": [
+        "decision",
+        "via"
+      ],
+      "properties": {
+        "decision": {
+          "enum": [
+            "approve",
+            "reject"
+          ]
+        },
+        "via": {
+          "enum": [
+            "web",
+            "sms",
+            "email",
+            "voice"
+          ]
+        },
+        "edited_body": {
+          "type": "string"
+        }
       }
     }
   }

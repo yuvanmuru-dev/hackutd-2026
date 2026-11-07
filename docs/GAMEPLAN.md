@@ -19,11 +19,22 @@ The domain (real estate, insurance, cars, health bills, energy ops...) is a swap
 
 Judges should see all five in the demo. Each is a feature, not a slide.
 
-## The 4 "not ChatGPT" features (domain-agnostic; every idea must support them)
-1. **Ask-the-other-party email**: agent drafts + sends an email (AgentMail) to the counterparty about the contradictions it found, then reads the reply in the same thread and updates the report.
-2. **Watchlist + alerts**: save a subject; a scheduler re-runs the check and notifies by email or phone call on change.
-3. **On-the-spot voice**: phone the agent mid-situation (touring a property, at a dealership, after an accident). It answers with tools and tells you what to ask.
-4. **Evidence view**: map/visual layer next to each finding (map if the domain is location-based, document highlight if doc-based).
+## Core features (domain-agnostic; every idea must support them)
+Approved: 1–5 must ship. 6–9 are what turns the brain into an ecosystem.
+
+| # | Feature | Why judges care | Owner |
+|---|---|---|---|
+| 1 | **One case across every channel.** Every run, call, email, text and watch about one subject shares a `case_id`. Caller ID / sender email finds your case. | "Welcome back, they replied to your email." Memory + continuity ChatGPT doesn't have | L1 (model), L4/L5 (lookup) |
+| 2 | **Live call on the web.** The voice bot streams its transcript + tool calls to the case page while you talk. | Judges *see* the agent think while it speaks | L4 (emit), L3 (case page) |
+| 3 | **Second-pass verification.** A second Nemotron call checks each finding against raw tool output; unsupported findings get downgraded. "Checked twice" badge. | Direct answer to "why trust an AI?" + more NVIDIA surface | L1 |
+| 4 | **Accuracy number.** 10–15 golden cases with known verdicts; `evals/` script prints % correct. Number goes in the pitch. | Almost no team shows a measured number | L2 |
+| 5 | **Approve-before-act.** Every outbound email/call to a third party waits for YES (web button, SMS/email reply, or "go ahead" on the call). Safety Guard screens drafts. | Trust + safety story; also stops stray test emails | L1 (flow), L5 (SMS/email YES), L3 (button) |
+| 6 | **Ask-the-other-party email** that tracks the reply in-thread and updates the case | It acts, not just talks | L5 |
+| 7 | **Watchlist + alerts** by email or outbound call | It keeps working after you leave | L5 (watcher), L4 (alert call) |
+| 8 | **On-the-spot voice** (call mid-situation, get what to ask) | Meets the user where they are | L4 |
+| 9 | **Evidence view** (map or document highlight beside each finding) | Visual proof on the projector | L3 |
+
+Stretch only if ahead at T+14: MCP server door (brain usable inside ChatGPT/Claude), SMS photo door (Nemotron VL on MMS).
 
 ## NVIDIA model stack (more NVIDIA surface area = stronger NVIDIA judging)
 Verify every slug on build.nvidia.com at kickoff; swap in `.env` if one 404s.
@@ -60,13 +71,14 @@ demo wow on stage ×2, all 4 features fit ×1, a teammate knows the domain ×1. 
 | T+0:30 → T+1:15 | Lane 1 freezes contracts v1 + mock server. All other lanes build against the mock. |
 | T+4 | Integration 1: web shows a real streamed run from the brain. |
 | T+8 | Integration 2: all three doors end-to-end on the real brain. |
-| T+14 | All 4 "not ChatGPT" features working on the happy path. |
+| T+10 | Lane 2 switches to QA: runs the demo script hourly with playwright-cli, files bugs as GitHub Issues for the owning lane. |
+| T+14 | Features 1–9 working on the happy path. Demo inputs locked. |
 | T+18 | **Feature freeze.** Only bug fixes, polish, demo mode. |
-| T+20 | Record backup demo video (offline DEMO_MODE). |
+| T+20 | Record the 2-minute video (see docs/DEMO.md). |
 | T+21 | Devpost written, repo cleaned, pitch rehearsed 3×. |
 
 ## Rules that win hackathons
 - **The demo path never breaks.** Every lane keeps `main` runnable. DEMO_MODE replays cached tool results when Wi-Fi dies.
-- **Cut order if behind at T+14:** map view → watchlist scheduler (fake it with a "re-check now" button) → outbound call. Never cut: web live run, voice inbound, email reply.
+- **Cut order if behind at T+14:** evidence map → watchlist scheduler (keep the "re-check now" button) → outbound alert call → accuracy evals. Never cut: web live run, voice inbound with case memory, live call on web, verification, approve-before-act.
 - **Disclose** the starter kit (agent loop + tools + vendored skills) as pre-event boilerplate in the Devpost.
-- 3-minute pitch: problem (20s) → live phone call on speaker (45s) → email receipt + counterparty email (40s) → web run with streaming steps + evidence view (45s) → why-not-ChatGPT table + NVIDIA stack (30s).
+- Demo and judging scripts, timing and Q&A prep: docs/DEMO.md.
