@@ -68,6 +68,28 @@ Grounding: US law lets carriers use CPNI to protect customers from fraud (47 U.S
 - **Hard negatives labeled legit:** Marcus logs in from a new state, Priya changes her PIN at 3am, Dev activates his new phone at a store, Maya is on a long call with a number she *has* called before (her daughter) while updating her email.
 - Seeded and reproducible. Nemotron writes scam scripts and texts for variety; Python generates the events.
 
+## Machine learning (measures) + Nemotron (reasons and acts)
+| Model | Type | Trained on | Output | Why |
+|---|---|---|---|---|
+| Personal anomaly model | Isolation Forest, one per persona | That person's own normal sessions only | "How unlike Maya is this session" (0–1) | Real learned behavioral biometrics; a traveler isn't flagged for traveling |
+| Risk classifier | Gradient-boosted trees (XGBoost; GPU on Brev optional) | Labeled synthetic scenarios | `takeover / coached / legit` probability, **calibrated** (isotonic), plus top reasons (SHAP) | "Honest confidence" is measured, not claimed; Nemotron's explanation uses the model's real reasons |
+| Scam text classifier | NeMo Retriever embeddings + logistic regression | Labeled scam/legit texts | Scam probability; Nemotron double-checks borderline cases | T3, more NVIDIA surface |
+| Hard rules (guardrails) | Deterministic | n/a | e.g. "protection turned off during an unverified call" always triggers | The model can't talk itself out of an obvious case |
+
+**Against "it just learned your generator":** test on held-out scenarios made with generator settings and attack styles the model never saw, keep hard negatives, report the false-positive rate, and show the ablation (rules only → + anomaly → + classifier).
+
+## The four product agents (one guardian, four roles, shared case memory)
+| Agent | Model | Job |
+|---|---|---|
+| **Guardian** | Nemotron Super | Event-triggered. Plans, calls tools (data, protections, ML), decides, acts through T-Mobile's protections, builds the recovery plan |
+| **Verifier** | Nemotron Super (second pass) | Checks every Guardian claim against raw tool output; downgrades unsupported ones |
+| **Voice agent** | Nemotron Nano/Lightning + ASR + Magpie | Calls the customer through Photon, talks her off the scam call, takes spoken YES/NO and recovery approvals |
+| **Messaging agent** | Nemotron Nano + Nemotron VL | iMessage/SMS: checks forwarded texts and screenshots, understands free-form replies, walks through recovery one approval at a time |
+
+Not agents: the watcher (scheduled loop, wakes the Guardian), Safety Guard (screens every outbound message and script), the ML models (tools the Guardian calls).
+
+**The multi-step workflow (NVIDIA track):** trigger → plan → gather in parallel → ML scoring → decide → verify → act through protections → reach her (text, then call after 60s) → pause until her reply webhook → branch (YES: release + learn; NO: recovery plan with approvals) → 24h watch that can start a new run. Every step streams to `/guardian`.
+
 ## How it works (fits the existing brain + doors)
 1. **Events in:** synthetic history preloaded; live events from the voice line (call context), Photon (forwarded texts, YES/NO), the portal (portal behavior, account actions), and the **demo console** that injects scripted events on cue.
 2. **Baselines + scoring (deterministic):** per person: device familiarity, login-region familiarity, hour likelihood, change frequency, care-channel match, portal-path likelihood, plus the call-context answers. Output: signals with numbers and the baseline they're compared against. Nemotron never makes up numbers.
@@ -122,12 +144,8 @@ Nemotron Super (investigation + verification), Nemotron Nano (voice agent, fast 
 | 1:45–1:55 | Detection numbers (incl. false-positive rate) + privacy + NVIDIA stack |
 | 1:55–2:00 | End card |
 
-## Lane mapping (prompts in LANES.md)
-- **Lane 1:** contracts v0.3 (`AccountEvent`, `CallContext`, `PortalSignals`, `Signal`, `RiskDecision`, face result), event ingest + timeline, pack loader.
-- **Lane 2:** synthetic account/device/call-context generator, baselines + scoring, tools, evals.
-- **Lane 3:** portal with behavior SDK + optional face check, guardian dashboard, demo console.
-- **Lane 4:** Photon voice (SIP bridge) or Twilio fallback; emits live call-context events; Tell's outbound calls.
-- **Lane 5:** `messaging/` (TypeScript, Photon): forwarded texts, alerts, YES/NO; `db/`, `watcher/`.
+## Who builds what
+7 agents in parallel: see docs/LANES.md.
 
 ## Open questions (decide by T+1)
 - Name.
