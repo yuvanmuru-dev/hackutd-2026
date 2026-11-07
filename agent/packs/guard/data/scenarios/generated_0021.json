@@ -13,7 +13,7 @@
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0021",
-        "region": "Dallas, TX",
+        "region": "Phoenix, AZ",
         "new_device": true,
         "succeeded": true
       }
@@ -53,6 +53,6 @@
   ],
   "generator": {
     "seed": 20261128,
-    "variant": "local_new_device_swap"
+    "variant": "pin_failure_before_swap"
   }
 }

@@ -13,7 +13,7 @@
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0025",
-        "region": "Houston, TX",
+        "region": "Denver, CO",
         "new_device": true,
         "succeeded": true
       }
@@ -53,6 +53,6 @@
   ],
   "generator": {
     "seed": 20261132,
-    "variant": "local_new_device_swap"
+    "variant": "pin_failure_before_swap"
   }
 }

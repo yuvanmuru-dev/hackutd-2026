@@ -40,7 +40,7 @@ OTHER_REGIONS = ("Phoenix, AZ", "Denver, CO", "Miami, FL", "Seattle, WA", "Bosto
 # label and variant spelling. Every other threat has multiple distinct groups.
 GROUPS = (
     ("takeover", "remote_new_device_swap", 12),
-    ("takeover", "local_new_device_swap", 13),
+    ("takeover", "pin_failure_before_swap", 13),
     ("takeover", "rapid_portal_swap", 12),
     ("takeover", "protection_off_swap", 13),
     ("coached", "code_relay", 40),
@@ -215,7 +215,7 @@ def _build(index: int, label: str, variant: str, seed: int) -> dict:
 
     if label == "takeover":
         new_device = f"h_new_device_gen_{index:04d}"
-        region = p["region"] if variant == "local_new_device_swap" else _remote_region(rng, p["region"])
+        region = _remote_region(rng, p["region"])
         add("login", 0, {"device_hash": new_device, "region": region,
                          "new_device": True, "succeeded": True})
         if variant == "rapid_portal_swap":
@@ -223,7 +223,7 @@ def _build(index: int, label: str, variant: str, seed: int) -> dict:
         elif variant == "protection_off_swap":
             add("protection.changed", 1, {"name": "sim_protection", "enabled": False,
                                            "via": "app"})
-        elif variant == "local_new_device_swap":
+        elif variant == "pin_failure_before_swap":
             add("pin.attempt", 1, {"ok": False, "channel": "portal"})
         add("sim_swap.requested", 3, {"new_device_hash": new_device,
                                       "channel": "app" if index % 2 else "portal"})
@@ -390,6 +390,13 @@ def _validate_snapshot(scenario: dict) -> None:
         raise ValueError(f"{scenario['scenario_id']}: expected one snapshot immediately before trigger")
     if snapshots[0]["ts"] >= events[trigger_index]["ts"]:
         raise ValueError(f"{scenario['scenario_id']}: snapshot must precede trigger")
+    logins = [event for event in events[:trigger_index + 1] if event["type"] == "login"]
+    if logins:
+        matches = logins[-1]["data"]["region"] == snapshots[0]["data"]["region"]
+        if scenario["label"] == "takeover" and matches:
+            raise ValueError(f"{scenario['scenario_id']}: takeover request must differ from line region")
+        if scenario["label"] == "legit" and not matches:
+            raise ValueError(f"{scenario['scenario_id']}: legitimate requester and line must match")
 
 
 def write_or_check(seed: int = DEFAULT_SEED, output_dir: Path = SCENARIO_DIR,
