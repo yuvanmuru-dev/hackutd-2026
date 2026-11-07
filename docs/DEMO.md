@@ -1,5 +1,7 @@
 # Demo plan: a 2-minute video and 5-minute judging
 
+> **Domain locked.** The video beats for Tell are in docs/PACK_SPEC.md and replace the generic table below. Editing rules, judging format, pre-stage checklist and Q&A prep here still apply.
+
 Two formats, one story. Every beat shows a core feature (GAMEPLAN #1–9), never a slide about one.
 Fill the domain-specific lines at T+1 in PACK_SPEC.md. Timing is fixed now.
 

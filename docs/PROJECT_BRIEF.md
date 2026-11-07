@@ -1,5 +1,7 @@
 # Project brief
 
+> **Superseded: we chose Tell (NVIDIA + T-Mobile + Photon). See docs/PACK_SPEC.md.** The text below is the old example.
+>
 > **Status: example only.** This is idea A (Groundtruth) from docs/GAMEPLAN.md. At kickoff, rewrite it for the idea we choose.
 > Then Lane 1 turns it into docs/PACK_SPEC.md. Don't build against this until it's confirmed.
 

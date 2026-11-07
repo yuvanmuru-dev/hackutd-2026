@@ -7,6 +7,16 @@ Working name: **Tell** (a "tell" is the habit that gives someone away). PROPOSAL
 Face ID proves it's you. It can't prove you're not being scammed. Tell can. It sits on top of the protections T-Mobile already has (Scam Shield, SIM Protection, Port Out Protection, account PIN, 2-step codes), uses only data T-Mobile already has, checked at the moment someone tries to move your number or change your account. When the pattern breaks, Nemotron investigates, explains with honest confidence, and reaches you on iMessage or a call through Photon.
 **Behavior is always on. The face check is optional. Tell adds no new data collection.**
 
+## What Tell adds (the 30-second version)
+1. **One brain across the protections.** Scam Shield, SIM Protection, Port Out Protection, the account PIN and 2-step codes each work alone. Tell sees them together at the moment it matters ("on a 20-minute call with an unverified 'support' number, she just turned off SIM Protection and made a transfer PIN").
+2. **Behavioral biometrics on the account.** Existing locks check what you know or have (PIN, code, phone). Tell also checks whether this session *behaves like you*: usual devices, login region and hours, how often you change things, how you move through the site. It catches an attacker who has your password and code, and notices when the real you is being coached.
+3. **An agent that acts and explains.** Nemotron investigates, decides, and acts through T-Mobile's own protections (re-lock, cool-off on the transfer PIN, face step-up), tells you why in plain words with honest confidence, and turns "that wasn't me" into a recovery plan.
+4. **Reaches you mid-scam, and closes the loop.** iMessage and a phone call through Photon while it's happening; a watch for follow-up scams afterward; confirmed scam numbers reported to Scam ID so every customer is protected next time.
+
+**One line:** T-Mobile's protections are locks. Tell knows when you're being talked into opening them, steps in, and makes the locks smarter for everyone.
+
+> **Teammates: feedback wanted.** Comment on the feedback issue on GitHub, or edit this file in a PR. Biggest open questions: the name, which threats to demo, and whether the face check is worth the time.
+
 ## Built on T-Mobile's existing protections (Tell is a layer, not a replacement)
 T-Mobile already has strong locks. **Scammers don't pick the locks; they talk the owner into opening them.** Each protection works alone and can't see the others. Tell connects them: it reads what they already produce as signals, and when it acts, it acts *through* them.
 
