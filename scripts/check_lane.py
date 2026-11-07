@@ -35,12 +35,12 @@ FORBIDDEN = [  # (regex on added lines, message). Docs are exempt.
 
 
 def changed_files(base: str) -> list[str]:
-    out = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], capture_output=True, text=True, check=True)
+    out = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], capture_output=True, text=True, encoding="utf-8", errors="replace", check=True)
     return [f for f in out.stdout.splitlines() if f]
 
 
 def added_lines(base: str) -> list[tuple[str, str]]:
-    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], capture_output=True, text=True, check=True).stdout
+    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
     current, lines = None, []
     for line in out.splitlines():
         if line.startswith("+++ b/"):
