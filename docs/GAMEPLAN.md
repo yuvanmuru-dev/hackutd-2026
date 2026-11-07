@@ -40,7 +40,7 @@ Stretch only if ahead at T+14: MCP server door (brain usable inside ChatGPT/Clau
 Verify every slug on build.nvidia.com at kickoff; swap in `.env` if one 404s.
 | Job | Model family |
 |---|---|
-| Planner / tool-calling brain | Nemotron Super (`nvidia/nemotron-3-super-120b-a12b`) |
+| Planner / tool-calling brain | Nemotron 3 Ultra (`nvidia/nemotron-3-ultra-550b-a55b`) + 3.5 Lightning, see D-035 |
 | Fast voice LLM | Nemotron Nano (`nvidia/nemotron-3.5-lightning-30b-a3b`) |
 | Speech in / out | Nemotron ASR streaming (speech-to-text) + **ElevenLabs TTS by default** (Yuvan's Starter plan); Magpie TTS kept as the NVIDIA fallback via `TTS_PROVIDER`. Decided at kickoff |
 | Read photos, PDFs, flyers, bills | Nemotron Nano VL (vision) |
