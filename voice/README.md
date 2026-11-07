@@ -29,6 +29,18 @@ Fill in `.env` locally; never put keys or phone numbers in chat or git. Process
 environment variables override `.env`. `bot.py` loads this folder's `.env` even
 when launched elsewhere. Do not copy `agent/.env` into the voice directory.
 
+If your configured file is at the outer workspace root (`HackUTD2026/.env`),
+keep it there and run these commands from `voice/` after installing dependencies:
+
+```powershell
+.venv/Scripts/python.exe -m dotenv -f ../../.env run -- .venv/Scripts/python.exe smoke.py --live
+.venv/Scripts/python.exe -m dotenv -f ../../.env run -- .venv/Scripts/python.exe bot.py
+```
+
+Use the application's `python-dotenv` parser for this file. In the current setup,
+`uv --env-file` rejected an unquoted allowlist containing spaces. Neither command
+above prints configuration values, and the preflight does not place a call.
+
 - `VOICE_PUBLIC_URL`: exact public HTTPS origin from an ngrok tunnel to 8100.
 - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`: account serving the SIP Domain.
 - `TWILIO_PHONE_NUMBER`: owned/verified Twilio caller ID for forwarding.
