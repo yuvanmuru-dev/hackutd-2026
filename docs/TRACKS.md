@@ -50,4 +50,4 @@ Product sketch (name TBD; don't use "Scam Shield", that's T-Mobile's existing pr
 - **Trusted circle:** grandma's case can alert her grandson, only with her approval.
 - Photon Voice Call prize: the call screener is the entry.
 
-Check with organizers: can one project enter T-Mobile + Photon + NVIDIA at once (Photon may count as a sponsor prize rather than a company track)? If Photon doesn't count toward the 3, add **Capital One** (Nessie money hold) as the third.
+Confirmed: Photon is a company track, so NVIDIA + T-Mobile + Photon uses all 3 slots. Capital One is out (no Nessie work).
