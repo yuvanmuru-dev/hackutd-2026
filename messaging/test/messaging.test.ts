@@ -44,6 +44,11 @@ test('SendRequest fixture matches schema; unsafe text cannot leave the service',
   assert.equal(safeOutbound('Open https://example.com'), false);
   assert.equal(safeOutbound('Open help.exa\u200bmple.com'), false);
   assert.equal(safeOutbound('Reset your account PIN? Reply YES or NO'), true);
+  assert.equal(safeOutbound('Someone on the call asked you to share your account PIN.'), true);
+  assert.equal(safeOutbound('Don’t give your PIN to a caller.'), true);
+  assert.equal(safeOutbound('A caller asked you to share your PIN, please send your code now.'), false);
+  assert.equal(safeOutbound('A real agent will never ask you to turn off protection or give a PIN on the phone.'), true);
+  assert.equal(safeOutbound('A real agent will never ask you to share a PIN, please send your code now.'), false);
 });
 
 test('Photon routing rejects outgoing messages, group messages, foreign lines and unknown senders', async () => {
