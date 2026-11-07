@@ -117,14 +117,15 @@ class Run:
         mins = f"{cc['minutes']}-minute " if cc.get("minutes") else ""
         return f"While you were on a {mins}call with a number{caller} that we couldn't verify, someone asked you to{asks}."
 
-    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None, model_written: bool = False) -> dict:
+    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None, model_written: bool = False,
+             fallback: str | None = None) -> dict:
         """Every message gets the rule checks (no links, never asks for a secret). Safety Guard also screens text a model wrote;
         Titan's fixed templates and fact-built sentences skip it (it flags plain PIN-reset questions as PII)."""
         text = defang(text)
         ok, why = agents.outbound_ok(text, use_model=model_written)
         if not ok:
             self.step("verifier", "reach", "error", f"Blocked an outbound message ({why}); using the safe template", {"reason": why})
-            text = defang(TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"], story=self.story()))
+            text = defang(fallback or TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"], story=self.story()))
         msg = {"message_id": new_id("msg"), "case_id": self.case["case_id"], "channel": "imessage", "direction": "out",
                "kind": kind, "text": text, "ts": iso(now())}
         self.case["messages"].append(msg)
@@ -303,7 +304,10 @@ class Run:
             if nxt and nxt["action_id"] not in prompted:
                 prompted.add(nxt["action_id"])
                 n = pending.index(nxt) + 1
-                self.send("recovery_step", f"Titan: Step {n} of {len(pending)}. {nxt['description']}? Reply YES or NO.", True, nxt["action_id"])
+                question = f"Titan: Step {n} of {len(pending)}. {nxt['description']}? Reply YES or NO."
+                # the fallback still asks THIS step's question, so the text and the action stay in sync (D-042)
+                self.send("recovery_step", question, True, nxt["action_id"],
+                          fallback=f"Titan: Step {n} of {len(pending)}. Should we do this for you: {nxt['description'].lower()}? Reply YES or NO.")
                 self.step("messaging", "recover", "message", f"Recovery question {n}/{len(pending)} sent: {nxt['description']}",
                           {"action_id": nxt["action_id"]})
 
