@@ -1,0 +1,12 @@
+{
+  "case_id": "case_t2",
+  "user_id": "usr_maya",
+  "purpose": "scam_intervention",
+  "opening_line": "Hi Maya, this is Titan, your account security. I'll never ask you for a PIN or a code.",
+  "facts": [
+    "She is on a 19-minute call with an unverified number claiming to be T-Mobile Support",
+    "Port Out Protection was turned off during the call; Titan turned it back on",
+    "The transfer PIN is on a 24-hour hold"
+  ],
+  "pending_action_ids": []
+}

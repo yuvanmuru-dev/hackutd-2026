@@ -1,0 +1,14 @@
+{
+  "check_id": "chk_ok_01",
+  "decision": "allow",
+  "reasons": [
+    "No active call",
+    "Usual device and area"
+  ],
+  "during_call": false,
+  "call": null,
+  "risk": null,
+  "case_id": null,
+  "hold_until": null,
+  "pause_screen": null
+}

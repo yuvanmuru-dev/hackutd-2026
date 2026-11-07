@@ -1,0 +1,12 @@
+{
+  "event_id": "evt_t1_02",
+  "user_id": "usr_maya",
+  "type": "sim_swap.requested",
+  "ts": "2026-11-07T19:15:40Z",
+  "source": "portal",
+  "call_id": null,
+  "data": {
+    "new_device_hash": "h_unknown_esim",
+    "channel": "portal"
+  }
+}

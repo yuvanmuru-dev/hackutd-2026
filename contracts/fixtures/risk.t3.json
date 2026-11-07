@@ -1,0 +1,20 @@
+{
+  "threat": "scam_text",
+  "probability": 0.96,
+  "calibrated": true,
+  "confidence": "high",
+  "anomaly": null,
+  "top_reasons": [
+    {
+      "feature": "lookalike_domain",
+      "contribution": 0.4,
+      "text": "t-mobile-secure-help.co imitates T-Mobile"
+    },
+    {
+      "feature": "domain_age_days",
+      "contribution": 0.3,
+      "text": "Domain registered 3 days ago"
+    }
+  ],
+  "model": "ml+rules"
+}

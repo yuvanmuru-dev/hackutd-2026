@@ -1,0 +1,14 @@
+{
+  "event_id": "evt_face_01",
+  "user_id": "usr_maya",
+  "type": "face.result",
+  "ts": "2026-11-07T20:32:20Z",
+  "source": "portal",
+  "call_id": "call_t2",
+  "data": {
+    "match": true,
+    "similarity": 0.91,
+    "liveness": 0.97,
+    "antispoof": 0.95
+  }
+}

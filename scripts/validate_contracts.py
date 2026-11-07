@@ -1,8 +1,9 @@
-"""Validate every fixture in contracts/fixtures against contracts/schema.json.
+"""Validate every fixture in contracts/fixtures against contracts/schema.json (v0.3, Titan).
 
 Run: python scripts/validate_contracts.py   (needs: pip install jsonschema)
-CI runs this on every PR. Fixture name -> schema:
-  report*.json -> Report, case*.json -> CaseDetail, *.sse -> StepEvent per data line.
+CI runs this on every PR. The part of the file name before the first dot picks the schema:
+  case -> CaseDetail, event -> Event, check -> CheckResponse, checkreq -> CheckRequest, ...
+  *.sse -> StepEvent per `data:` line.
 """
 import json
 import pathlib
@@ -14,11 +15,19 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 schema = json.loads((ROOT / "contracts/schema.json").read_text())
 defs = schema["$defs"]
 
+PREFIX = {
+    "case": "CaseDetail", "event": "Event", "check": "CheckResponse", "checkreq": "CheckRequest",
+    "protections": "ProtectionState", "risk": "RiskScore", "scenario": "DatasetScenario", "send": "SendRequest",
+    "callreq": "CallRequest", "summary": "IncidentSummary", "timeline": "Timeline", "user": "User", "caseevent": "CaseEventRequest",
+}
+
 
 def check(name, obj, where):
-    try:
-        jsonschema.validate(obj, {"$ref": f"#/$defs/{name}", "$defs": defs})
-    except jsonschema.ValidationError as e:
+    validator = jsonschema.Draft202012Validator({"$ref": f"#/$defs/{name}", "$defs": defs},
+                                                format_checker=jsonschema.FormatChecker())
+    errors = sorted(validator.iter_errors(obj), key=lambda e: list(e.absolute_path))
+    if errors:
+        e = errors[0]
         path = "/".join(str(p) for p in e.absolute_path)
         sys.exit(f"FAIL {where} ({name}) at '{path}': {e.message}")
 
@@ -27,9 +36,9 @@ jsonschema.Draft202012Validator.check_schema(schema)
 count = 0
 for f in sorted((ROOT / "contracts/fixtures").iterdir()):
     if f.suffix == ".json":
-        kind = "Report" if f.name.startswith("report") else "CaseDetail" if f.name.startswith("case") else None
+        kind = PREFIX.get(f.name.split(".")[0])
         if not kind:
-            sys.exit(f"FAIL {f.name}: name must start with report or case")
+            sys.exit(f"FAIL {f.name}: unknown prefix; add it to PREFIX in scripts/validate_contracts.py")
         check(kind, json.loads(f.read_text()), f.name)
         count += 1
     elif f.suffix == ".sse":

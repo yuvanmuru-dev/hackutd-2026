@@ -1,0 +1,56 @@
+{
+  "scenario_id": "scn_hn_0001",
+  "user_id": "usr_maya",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_hn_03",
+  "events": [
+    {
+      "event_id": "evt_hn_01",
+      "user_id": "usr_maya",
+      "type": "call.started",
+      "ts": "2026-11-07T20:14:00Z",
+      "source": "generator",
+      "call_id": "call_hn",
+      "data": {
+        "direction": "out",
+        "other_number_hash": "h_daughter",
+        "caller_name": null,
+        "attestation": "A",
+        "seen_before": true,
+        "scam_label": false
+      }
+    },
+    {
+      "event_id": "evt_hn_02",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T20:24:00Z",
+      "source": "generator",
+      "call_id": "call_hn",
+      "data": {
+        "device_hash": "h_maya_laptop",
+        "region": "Dallas, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_hn_03",
+      "user_id": "usr_maya",
+      "type": "protection.changed",
+      "ts": "2026-11-07T20:25:40Z",
+      "source": "generator",
+      "call_id": "call_hn",
+      "data": {
+        "name": "scam_block",
+        "enabled": true,
+        "via": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 42,
+    "variant": "long_call_with_daughter_turns_protection_on"
+  }
+}

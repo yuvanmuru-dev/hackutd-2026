@@ -1,0 +1,866 @@
+{
+  "case_id": "case_t2",
+  "case_number": "TTN-4821",
+  "user_id": "usr_maya",
+  "title": "Coached to turn off Port Out Protection during a fake support call",
+  "status": "watching",
+  "threat": "coached",
+  "confidence": "high",
+  "created_at": "2026-11-07T20:33:05Z",
+  "updated_at": "2026-11-07T20:35:11Z",
+  "user": {
+    "user_id": "usr_maya",
+    "name": "Maya",
+    "persona": "68, retired teacher. One laptop + one phone for 4 years, pays her bill monthly, never changed her SIM, uses the store for help.",
+    "face_enabled": false
+  },
+  "call": {
+    "call_id": "call_t2",
+    "caller_name": "T-Mobile Support",
+    "attestation": "C",
+    "seen_before": false,
+    "scam_label": false,
+    "started_at": "2026-11-07T20:14:00Z",
+    "ended_at": "2026-11-07T20:35:02Z",
+    "duration_s": 1262
+  },
+  "timeline": [
+    {
+      "event_id": "evt_t2_01",
+      "user_id": "usr_maya",
+      "type": "call.started",
+      "ts": "2026-11-07T20:14:00Z",
+      "source": "voice",
+      "call_id": "call_t2",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_8f2c19",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      }
+    },
+    {
+      "event_id": "evt_t2_02",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T20:29:40Z",
+      "source": "portal",
+      "call_id": "call_t2",
+      "data": {
+        "device_hash": "h_maya_laptop",
+        "region": "Dallas, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_t2_03",
+      "user_id": "usr_maya",
+      "type": "portal.signals",
+      "ts": "2026-11-07T20:31:10Z",
+      "source": "portal",
+      "call_id": "call_t2",
+      "data": {
+        "session_id": "ses_t2",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/port-out"
+        ],
+        "ms_per_step": [
+          6200,
+          41000,
+          9800
+        ],
+        "hesitation_ms": 41000,
+        "paste_into_pin": false,
+        "tab_switches": 3,
+        "pointer_speed": 0.42,
+        "typing_rhythm_distance": 1.1
+      }
+    },
+    {
+      "event_id": "evt_t2_04",
+      "user_id": "usr_maya",
+      "type": "protection.changed",
+      "ts": "2026-11-07T20:31:50Z",
+      "source": "portal",
+      "call_id": "call_t2",
+      "data": {
+        "name": "port_out_protection",
+        "enabled": false,
+        "via": "portal"
+      }
+    },
+    {
+      "event_id": "evt_t2_05",
+      "user_id": "usr_maya",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T20:33:05Z",
+      "source": "portal",
+      "call_id": "call_t2",
+      "data": {}
+    }
+  ],
+  "risk": {
+    "threat": "coached",
+    "probability": 0.87,
+    "calibrated": true,
+    "confidence": "high",
+    "anomaly": 0.34,
+    "top_reasons": [
+      {
+        "feature": "protection_off_during_unverified_call",
+        "contribution": 0.31,
+        "text": "Port Out Protection was turned off during a call from an unverified number"
+      },
+      {
+        "feature": "transfer_pin_during_call",
+        "contribution": 0.22,
+        "text": "Transfer PIN requested 19 minutes into that call"
+      },
+      {
+        "feature": "first_transfer_pin_ever",
+        "contribution": 0.12,
+        "text": "Maya has never requested a transfer PIN before"
+      },
+      {
+        "feature": "tab_switches",
+        "contribution": 0.07,
+        "text": "Left the page 3 times mid-flow"
+      },
+      {
+        "feature": "known_device_home_region",
+        "contribution": -0.05,
+        "text": "Her own laptop, her usual region: it is really her"
+      }
+    ],
+    "model": "ml+rules"
+  },
+  "signals": [
+    {
+      "group": "call",
+      "name": "active_call_minutes",
+      "value": 19,
+      "baseline": null,
+      "note": "Unverified (STIR/SHAKEN C), never contacted her before",
+      "source": {
+        "name": "Call record (simulated carrier signal)",
+        "record": "calls/call_t2"
+      }
+    },
+    {
+      "group": "call",
+      "name": "caller_name_claims_tmobile",
+      "value": true,
+      "baseline": null,
+      "source": {
+        "name": "Caller ID name",
+        "record": "calls/call_t2"
+      }
+    },
+    {
+      "group": "protection",
+      "name": "port_out_protection_turned_off_s_ago",
+      "value": 75,
+      "baseline": null,
+      "note": "During the call",
+      "source": {
+        "name": "Protection log",
+        "record": "events/evt_t2_04"
+      }
+    },
+    {
+      "group": "account",
+      "name": "transfer_pins_last_4y",
+      "value": 0,
+      "baseline": 0,
+      "source": {
+        "name": "Account history",
+        "record": "events/evt_t2_05"
+      }
+    },
+    {
+      "group": "device",
+      "name": "known_device",
+      "value": true,
+      "baseline": true,
+      "source": {
+        "name": "Device registry",
+        "record": "events/evt_t2_02"
+      }
+    },
+    {
+      "group": "location",
+      "name": "same_region_as_line",
+      "value": true,
+      "baseline": true,
+      "source": {
+        "name": "Login region vs line region",
+        "record": "events/evt_t2_02"
+      }
+    },
+    {
+      "group": "portal",
+      "name": "hesitation_s",
+      "value": 41,
+      "baseline": 6,
+      "source": {
+        "name": "Portal behavior (derived)",
+        "record": "events/evt_t2_03"
+      }
+    },
+    {
+      "group": "portal",
+      "name": "tab_switches",
+      "value": 3,
+      "baseline": 0,
+      "source": {
+        "name": "Portal behavior (derived)",
+        "record": "events/evt_t2_03"
+      }
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "claims_checked": 7,
+    "claims_dropped": 0,
+    "notes": [
+      "Every claim matched a tool result.",
+      "Confidence kept at high."
+    ]
+  },
+  "steps": [
+    {
+      "seq": 0,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:05Z",
+      "agent": "system",
+      "stage": "trigger",
+      "type": "plan",
+      "title": "Transfer PIN requested during an unverified call",
+      "data": {
+        "event_id": "evt_t2_05"
+      }
+    },
+    {
+      "seq": 1,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:06Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "plan",
+      "title": "Checking her account, protections, the call and how she used the portal",
+      "data": {}
+    },
+    {
+      "seq": 2,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:06Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_call",
+      "title": "call_context(usr_maya)",
+      "data": {
+        "tool": "call_context"
+      }
+    },
+    {
+      "seq": 3,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:06Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_call",
+      "title": "protection_status(usr_maya)",
+      "data": {
+        "tool": "protection_status"
+      }
+    },
+    {
+      "seq": 4,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:06Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_call",
+      "title": "account_history(usr_maya, 4y)",
+      "data": {
+        "tool": "account_history"
+      }
+    },
+    {
+      "seq": 5,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:07Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_result",
+      "title": "On a call for 19 min \u00b7 unverified (C) \u00b7 never contacted her",
+      "data": {
+        "tool": "call_context",
+        "result": {
+          "active": true,
+          "minutes": 19,
+          "attestation": "C",
+          "seen_before": false
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:07Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_result",
+      "title": "Port Out Protection turned off 75 s ago, during the call",
+      "data": {
+        "tool": "protection_status"
+      }
+    },
+    {
+      "seq": 7,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:07Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "tool_result",
+      "title": "First transfer PIN in 4 years \u00b7 her usual laptop \u00b7 her usual area",
+      "data": {
+        "tool": "account_history"
+      }
+    },
+    {
+      "seq": 8,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:08Z",
+      "agent": "context",
+      "stage": "context",
+      "type": "signal",
+      "title": "Portal: 41 s hesitation on Security, left the page 3 times",
+      "data": {
+        "signals": [
+          "hesitation_s",
+          "tab_switches"
+        ]
+      }
+    },
+    {
+      "seq": 9,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:08Z",
+      "agent": "risk",
+      "stage": "risk",
+      "type": "tool_call",
+      "title": "ml.score(usr_maya, evt_t2_05)",
+      "data": {
+        "tool": "ml.score"
+      }
+    },
+    {
+      "seq": 10,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:09Z",
+      "agent": "risk",
+      "stage": "risk",
+      "type": "score",
+      "title": "Coached victim \u00b7 87% (calibrated) \u00b7 it's really her",
+      "data": {
+        "risk": {
+          "threat": "coached",
+          "probability": 0.87,
+          "calibrated": true,
+          "confidence": "high",
+          "anomaly": 0.34,
+          "top_reasons": [
+            {
+              "feature": "protection_off_during_unverified_call",
+              "contribution": 0.31,
+              "text": "Port Out Protection was turned off during a call from an unverified number"
+            },
+            {
+              "feature": "transfer_pin_during_call",
+              "contribution": 0.22,
+              "text": "Transfer PIN requested 19 minutes into that call"
+            },
+            {
+              "feature": "first_transfer_pin_ever",
+              "contribution": 0.12,
+              "text": "Maya has never requested a transfer PIN before"
+            },
+            {
+              "feature": "tab_switches",
+              "contribution": 0.07,
+              "text": "Left the page 3 times mid-flow"
+            },
+            {
+              "feature": "known_device_home_region",
+              "contribution": -0.05,
+              "text": "Her own laptop, her usual region: it is really her"
+            }
+          ],
+          "model": "ml+rules"
+        }
+      }
+    },
+    {
+      "seq": 11,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:10Z",
+      "agent": "verifier",
+      "stage": "verify",
+      "type": "verify",
+      "title": "7 claims checked against the data \u00b7 0 dropped",
+      "data": {
+        "verification": {
+          "status": "verified",
+          "claims_checked": 7,
+          "claims_dropped": 0,
+          "notes": [
+            "Every claim matched a tool result.",
+            "Confidence kept at high."
+          ]
+        }
+      }
+    },
+    {
+      "seq": 12,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:10Z",
+      "agent": "response",
+      "stage": "respond",
+      "type": "action",
+      "title": "Port Out Protection turned back on",
+      "data": {
+        "action_id": "act_t2_relock"
+      }
+    },
+    {
+      "seq": 13,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:10Z",
+      "agent": "response",
+      "stage": "respond",
+      "type": "action",
+      "title": "Transfer PIN held for 24 hours",
+      "data": {
+        "action_id": "act_t2_hold"
+      }
+    },
+    {
+      "seq": 14,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:12Z",
+      "agent": "messaging",
+      "stage": "reach",
+      "type": "message",
+      "title": "iMessage sent: \"Was this your idea? Reply YES or NO\"",
+      "data": {
+        "message_id": "msg_t2_alert"
+      }
+    },
+    {
+      "seq": 15,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:33:13Z",
+      "agent": "system",
+      "stage": "await",
+      "type": "plan",
+      "title": "Waiting for Maya's reply (60 s)",
+      "data": {
+        "timeout_s": 60
+      }
+    },
+    {
+      "seq": 16,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:13Z",
+      "agent": "response",
+      "stage": "reach",
+      "type": "call",
+      "title": "No reply in 60 s \u00b7 Titan is calling Maya",
+      "data": {
+        "purpose": "scam_intervention"
+      }
+    },
+    {
+      "seq": 17,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:14Z",
+      "agent": "voice",
+      "stage": "reach",
+      "type": "transcript",
+      "title": "Titan: \"The person you're talking to isn't T-Mobile. Please hang up. I'll stay on the line.\"",
+      "data": {
+        "message_id": "msg_t2_tr1"
+      }
+    },
+    {
+      "seq": 18,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:36Z",
+      "agent": "voice",
+      "stage": "reach",
+      "type": "transcript",
+      "title": "Maya: \"He said my account was being hacked. I told him my PIN.\"",
+      "data": {
+        "message_id": "msg_t2_tr2"
+      }
+    },
+    {
+      "seq": 19,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:40Z",
+      "agent": "response",
+      "stage": "recover",
+      "type": "approval_needed",
+      "title": "Recovery plan: reset PIN \u00b7 cancel transfer PIN \u00b7 sign out devices \u00b7 report number \u00b7 tell her daughter",
+      "data": {
+        "action_ids": [
+          "act_t2_reset_pin",
+          "act_t2_revoke",
+          "act_t2_signout",
+          "act_t2_report",
+          "act_t2_notify"
+        ]
+      }
+    },
+    {
+      "seq": 20,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:50Z",
+      "agent": "voice",
+      "stage": "recover",
+      "type": "approved",
+      "title": "Approved by voice: reset account PIN",
+      "data": {
+        "action_id": "act_t2_reset_pin"
+      }
+    },
+    {
+      "seq": 21,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:53Z",
+      "agent": "voice",
+      "stage": "recover",
+      "type": "approved",
+      "title": "Approved by voice: cancel transfer PIN",
+      "data": {
+        "action_id": "act_t2_revoke"
+      }
+    },
+    {
+      "seq": 22,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:56Z",
+      "agent": "voice",
+      "stage": "recover",
+      "type": "approved",
+      "title": "Approved by voice: sign out other devices",
+      "data": {
+        "action_id": "act_t2_signout"
+      }
+    },
+    {
+      "seq": 23,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:34:59Z",
+      "agent": "voice",
+      "stage": "recover",
+      "type": "approved",
+      "title": "Approved by voice: report the number",
+      "data": {
+        "action_id": "act_t2_report"
+      }
+    },
+    {
+      "seq": 24,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:35:05Z",
+      "agent": "response",
+      "stage": "summary",
+      "type": "summary",
+      "title": "Incident summary written and checked",
+      "data": {
+        "summary": {
+          "case_number": "TTN-4821",
+          "what_happened": "While you were on a 19-minute call with a number calling itself \"T-Mobile Support\", someone asked you to turn off Port Out Protection and create a transfer PIN.",
+          "why_we_stepped_in": "That number couldn't be verified and had never contacted you before, and turning off protection during a call like this is a common scam pattern.",
+          "confidence_text": "We're fairly confident this was a scam, but not certain.",
+          "what_we_did": [
+            "Turned Port Out Protection back on",
+            "Held your transfer PIN for 24 hours so it can't be used"
+          ],
+          "you_approved": [
+            "Reset your account PIN",
+            "Cancelled the pending transfer PIN",
+            "Signed out other devices",
+            "Reported the number"
+          ],
+          "next_steps": [
+            "Nothing else is needed. Your number is safe.",
+            "If you shared bank details on that call, call your bank using the number on your card.",
+            "Reply REPORT and we'll fill in an FTC report for you."
+          ],
+          "spot_it_next_time": "T-Mobile will never call and ask you to turn off protection or read out a PIN or code.",
+          "data_we_looked_at": [
+            "When your call started and whether the number was verified",
+            "Account changes made during that call",
+            "Whether this was your usual device and area"
+          ],
+          "replies": [
+            {
+              "keyword": "REPORT",
+              "meaning": "Draft an FTC report"
+            },
+            {
+              "keyword": "UNDO",
+              "meaning": "Safely release the hold (after the call, with a check)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 25,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:35:10Z",
+      "agent": "messaging",
+      "stage": "summary",
+      "type": "message",
+      "title": "Incident summary sent by iMessage (no links)",
+      "data": {
+        "message_id": "msg_t2_summary"
+      }
+    },
+    {
+      "seq": 26,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:35:11Z",
+      "agent": "system",
+      "stage": "watch",
+      "type": "plan",
+      "title": "Watching her line for 24 hours for follow-up scams",
+      "data": {
+        "until": "2026-11-08T20:35:11Z"
+      }
+    },
+    {
+      "seq": 27,
+      "case_id": "case_t2",
+      "run_id": "run_t2",
+      "ts": "2026-11-07T20:35:11Z",
+      "agent": "system",
+      "stage": "watch",
+      "type": "done",
+      "title": "Run complete",
+      "data": {}
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "act_t2_relock",
+      "case_id": "case_t2",
+      "kind": "relock",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": false,
+      "approved_via": null,
+      "description": "Turned Port Out Protection back on",
+      "created_at": "2026-11-07T20:33:10Z",
+      "applied_at": "2026-11-07T20:33:10Z"
+    },
+    {
+      "action_id": "act_t2_hold",
+      "case_id": "case_t2",
+      "kind": "hold_transfer_pin",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": false,
+      "approved_via": null,
+      "description": "Held the transfer PIN for 24 hours so it can't be used",
+      "created_at": "2026-11-07T20:33:10Z",
+      "applied_at": "2026-11-07T20:33:10Z"
+    },
+    {
+      "action_id": "act_t2_reset_pin",
+      "case_id": "case_t2",
+      "kind": "reset_pin",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": true,
+      "approved_via": "voice",
+      "description": "Reset your account PIN",
+      "created_at": "2026-11-07T20:34:40Z",
+      "applied_at": "2026-11-07T20:34:50Z"
+    },
+    {
+      "action_id": "act_t2_revoke",
+      "case_id": "case_t2",
+      "kind": "revoke_transfer_pin",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": true,
+      "approved_via": "voice",
+      "description": "Cancel the pending transfer PIN",
+      "created_at": "2026-11-07T20:34:40Z",
+      "applied_at": "2026-11-07T20:34:53Z"
+    },
+    {
+      "action_id": "act_t2_signout",
+      "case_id": "case_t2",
+      "kind": "sign_out_sessions",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": true,
+      "approved_via": "voice",
+      "description": "Sign out all other devices",
+      "created_at": "2026-11-07T20:34:40Z",
+      "applied_at": "2026-11-07T20:34:56Z"
+    },
+    {
+      "action_id": "act_t2_report",
+      "case_id": "case_t2",
+      "kind": "report_number",
+      "direction": "safer",
+      "status": "applied",
+      "requires_approval": true,
+      "approved_via": "voice",
+      "description": "Report the caller's number so other customers get warned",
+      "created_at": "2026-11-07T20:34:40Z",
+      "applied_at": "2026-11-07T20:34:59Z"
+    },
+    {
+      "action_id": "act_t2_notify",
+      "case_id": "case_t2",
+      "kind": "notify_trusted_contact",
+      "direction": "safer",
+      "status": "rejected",
+      "requires_approval": true,
+      "approved_via": "voice",
+      "description": "Let your daughter know",
+      "created_at": "2026-11-07T20:34:40Z",
+      "applied_at": null
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "msg_t2_heads_up",
+      "case_id": "case_t2",
+      "channel": "imessage",
+      "direction": "out",
+      "kind": "heads_up",
+      "ts": "2026-11-07T20:14:05Z",
+      "text": "Titan: Heads up. The call you just answered says it's T-Mobile, but we can't verify it. We'll never ask for your PIN or ask you to turn off protection."
+    },
+    {
+      "message_id": "msg_t2_alert",
+      "case_id": "case_t2",
+      "channel": "imessage",
+      "direction": "out",
+      "kind": "alert",
+      "ts": "2026-11-07T20:33:12Z",
+      "text": "Titan: Maya, you're on a call with a number we can't verify that says it's T-Mobile. We never ask you to turn off protection or share a transfer PIN on a call. Your number is safe and locked again. Was this your idea? Reply YES or NO."
+    },
+    {
+      "message_id": "msg_t2_tr1",
+      "case_id": "case_t2",
+      "channel": "voice",
+      "direction": "out",
+      "kind": "transcript",
+      "ts": "2026-11-07T20:34:14Z",
+      "text": "Hi Maya, this is Titan, your account security. I'll never ask you for a PIN or a code. The person you're talking to isn't T-Mobile. Please hang up on them. I'll stay on the line."
+    },
+    {
+      "message_id": "msg_t2_tr2",
+      "case_id": "case_t2",
+      "channel": "voice",
+      "direction": "in",
+      "kind": "transcript",
+      "ts": "2026-11-07T20:34:36Z",
+      "text": "He said my account was being hacked. I told him my PIN."
+    },
+    {
+      "message_id": "msg_t2_summary",
+      "case_id": "case_t2",
+      "channel": "imessage",
+      "direction": "out",
+      "kind": "summary",
+      "ts": "2026-11-07T20:35:10Z",
+      "text": "Titan \u00b7 Case TTN-4821. What happened: someone on an unverified call asked you to turn off Port Out Protection and create a transfer PIN. What we did: re-locked it and held the PIN. You approved: PIN reset, PIN cancelled, devices signed out, number reported. T-Mobile will never ask you to turn off protection or read out a PIN. Reply REPORT for an FTC report."
+    }
+  ],
+  "summary": {
+    "case_number": "TTN-4821",
+    "what_happened": "While you were on a 19-minute call with a number calling itself \"T-Mobile Support\", someone asked you to turn off Port Out Protection and create a transfer PIN.",
+    "why_we_stepped_in": "That number couldn't be verified and had never contacted you before, and turning off protection during a call like this is a common scam pattern.",
+    "confidence_text": "We're fairly confident this was a scam, but not certain.",
+    "what_we_did": [
+      "Turned Port Out Protection back on",
+      "Held your transfer PIN for 24 hours so it can't be used"
+    ],
+    "you_approved": [
+      "Reset your account PIN",
+      "Cancelled the pending transfer PIN",
+      "Signed out other devices",
+      "Reported the number"
+    ],
+    "next_steps": [
+      "Nothing else is needed. Your number is safe.",
+      "If you shared bank details on that call, call your bank using the number on your card.",
+      "Reply REPORT and we'll fill in an FTC report for you."
+    ],
+    "spot_it_next_time": "T-Mobile will never call and ask you to turn off protection or read out a PIN or code.",
+    "data_we_looked_at": [
+      "When your call started and whether the number was verified",
+      "Account changes made during that call",
+      "Whether this was your usual device and area"
+    ],
+    "replies": [
+      {
+        "keyword": "REPORT",
+        "meaning": "Draft an FTC report"
+      },
+      {
+        "keyword": "UNDO",
+        "meaning": "Safely release the hold (after the call, with a check)"
+      }
+    ]
+  },
+  "data_used": [
+    "Call start time, duration, caller-ID name and verification (no audio, no content)",
+    "Protection changes and transfer PIN request during the call",
+    "Whether the device and area were her usual ones",
+    "Portal behavior as derived numbers (no keystrokes)"
+  ]
+}

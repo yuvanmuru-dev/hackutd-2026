@@ -1,0 +1,25 @@
+{
+  "user_id": "usr_maya",
+  "protections": [
+    {
+      "name": "sim_protection",
+      "enabled": true,
+      "updated_at": "2026-01-11T20:14:00Z"
+    },
+    {
+      "name": "port_out_protection",
+      "enabled": true,
+      "updated_at": "2026-11-07T20:33:10Z"
+    },
+    {
+      "name": "scam_block",
+      "enabled": false,
+      "updated_at": "2026-01-11T20:14:00Z"
+    }
+  ],
+  "shield_mode": false,
+  "transfer_pin": {
+    "status": "revoked",
+    "hold_until": null
+  }
+}

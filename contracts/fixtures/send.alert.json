@@ -1,0 +1,9 @@
+{
+  "case_id": "case_t2",
+  "user_id": "usr_maya",
+  "channel": "imessage",
+  "kind": "alert",
+  "text": "Titan: Maya, you're on a call with a number we can't verify that says it's T-Mobile. We never ask you to turn off protection or share a transfer PIN on a call. Your number is safe and locked again. Was this your idea? Reply YES or NO.",
+  "expects_reply": true,
+  "action_id": null
+}

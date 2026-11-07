@@ -1,0 +1,84 @@
+event: step
+data: {"seq": 0, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:05Z", "agent": "system", "stage": "trigger", "type": "plan", "title": "Transfer PIN requested during an unverified call", "data": {"event_id": "evt_t2_05"}}
+
+event: step
+data: {"seq": 1, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:06Z", "agent": "context", "stage": "context", "type": "plan", "title": "Checking her account, protections, the call and how she used the portal", "data": {}}
+
+event: step
+data: {"seq": 2, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:06Z", "agent": "context", "stage": "context", "type": "tool_call", "title": "call_context(usr_maya)", "data": {"tool": "call_context"}}
+
+event: step
+data: {"seq": 3, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:06Z", "agent": "context", "stage": "context", "type": "tool_call", "title": "protection_status(usr_maya)", "data": {"tool": "protection_status"}}
+
+event: step
+data: {"seq": 4, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:06Z", "agent": "context", "stage": "context", "type": "tool_call", "title": "account_history(usr_maya, 4y)", "data": {"tool": "account_history"}}
+
+event: step
+data: {"seq": 5, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:07Z", "agent": "context", "stage": "context", "type": "tool_result", "title": "On a call for 19 min \u00b7 unverified (C) \u00b7 never contacted her", "data": {"tool": "call_context", "result": {"active": true, "minutes": 19, "attestation": "C", "seen_before": false}}}
+
+event: step
+data: {"seq": 6, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:07Z", "agent": "context", "stage": "context", "type": "tool_result", "title": "Port Out Protection turned off 75 s ago, during the call", "data": {"tool": "protection_status"}}
+
+event: step
+data: {"seq": 7, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:07Z", "agent": "context", "stage": "context", "type": "tool_result", "title": "First transfer PIN in 4 years \u00b7 her usual laptop \u00b7 her usual area", "data": {"tool": "account_history"}}
+
+event: step
+data: {"seq": 8, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:08Z", "agent": "context", "stage": "context", "type": "signal", "title": "Portal: 41 s hesitation on Security, left the page 3 times", "data": {"signals": ["hesitation_s", "tab_switches"]}}
+
+event: step
+data: {"seq": 9, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:08Z", "agent": "risk", "stage": "risk", "type": "tool_call", "title": "ml.score(usr_maya, evt_t2_05)", "data": {"tool": "ml.score"}}
+
+event: step
+data: {"seq": 10, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:09Z", "agent": "risk", "stage": "risk", "type": "score", "title": "Coached victim \u00b7 87% (calibrated) \u00b7 it's really her", "data": {"risk": {"threat": "coached", "probability": 0.87, "calibrated": true, "confidence": "high", "anomaly": 0.34, "top_reasons": [{"feature": "protection_off_during_unverified_call", "contribution": 0.31, "text": "Port Out Protection was turned off during a call from an unverified number"}, {"feature": "transfer_pin_during_call", "contribution": 0.22, "text": "Transfer PIN requested 19 minutes into that call"}, {"feature": "first_transfer_pin_ever", "contribution": 0.12, "text": "Maya has never requested a transfer PIN before"}, {"feature": "tab_switches", "contribution": 0.07, "text": "Left the page 3 times mid-flow"}, {"feature": "known_device_home_region", "contribution": -0.05, "text": "Her own laptop, her usual region: it is really her"}], "model": "ml+rules"}}}
+
+event: step
+data: {"seq": 11, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:10Z", "agent": "verifier", "stage": "verify", "type": "verify", "title": "7 claims checked against the data \u00b7 0 dropped", "data": {"verification": {"status": "verified", "claims_checked": 7, "claims_dropped": 0, "notes": ["Every claim matched a tool result.", "Confidence kept at high."]}}}
+
+event: step
+data: {"seq": 12, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:10Z", "agent": "response", "stage": "respond", "type": "action", "title": "Port Out Protection turned back on", "data": {"action_id": "act_t2_relock"}}
+
+event: step
+data: {"seq": 13, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:10Z", "agent": "response", "stage": "respond", "type": "action", "title": "Transfer PIN held for 24 hours", "data": {"action_id": "act_t2_hold"}}
+
+event: step
+data: {"seq": 14, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:12Z", "agent": "messaging", "stage": "reach", "type": "message", "title": "iMessage sent: \"Was this your idea? Reply YES or NO\"", "data": {"message_id": "msg_t2_alert"}}
+
+event: step
+data: {"seq": 15, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:13Z", "agent": "system", "stage": "await", "type": "plan", "title": "Waiting for Maya's reply (60 s)", "data": {"timeout_s": 60}}
+
+event: step
+data: {"seq": 16, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:13Z", "agent": "response", "stage": "reach", "type": "call", "title": "No reply in 60 s \u00b7 Titan is calling Maya", "data": {"purpose": "scam_intervention"}}
+
+event: step
+data: {"seq": 17, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:14Z", "agent": "voice", "stage": "reach", "type": "transcript", "title": "Titan: \"The person you're talking to isn't T-Mobile. Please hang up. I'll stay on the line.\"", "data": {"message_id": "msg_t2_tr1"}}
+
+event: step
+data: {"seq": 18, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:36Z", "agent": "voice", "stage": "reach", "type": "transcript", "title": "Maya: \"He said my account was being hacked. I told him my PIN.\"", "data": {"message_id": "msg_t2_tr2"}}
+
+event: step
+data: {"seq": 19, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:40Z", "agent": "response", "stage": "recover", "type": "approval_needed", "title": "Recovery plan: reset PIN \u00b7 cancel transfer PIN \u00b7 sign out devices \u00b7 report number \u00b7 tell her daughter", "data": {"action_ids": ["act_t2_reset_pin", "act_t2_revoke", "act_t2_signout", "act_t2_report", "act_t2_notify"]}}
+
+event: step
+data: {"seq": 20, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:50Z", "agent": "voice", "stage": "recover", "type": "approved", "title": "Approved by voice: reset account PIN", "data": {"action_id": "act_t2_reset_pin"}}
+
+event: step
+data: {"seq": 21, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:53Z", "agent": "voice", "stage": "recover", "type": "approved", "title": "Approved by voice: cancel transfer PIN", "data": {"action_id": "act_t2_revoke"}}
+
+event: step
+data: {"seq": 22, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:56Z", "agent": "voice", "stage": "recover", "type": "approved", "title": "Approved by voice: sign out other devices", "data": {"action_id": "act_t2_signout"}}
+
+event: step
+data: {"seq": 23, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:34:59Z", "agent": "voice", "stage": "recover", "type": "approved", "title": "Approved by voice: report the number", "data": {"action_id": "act_t2_report"}}
+
+event: step
+data: {"seq": 24, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:35:05Z", "agent": "response", "stage": "summary", "type": "summary", "title": "Incident summary written and checked", "data": {"summary": {"case_number": "TTN-4821", "what_happened": "While you were on a 19-minute call with a number calling itself \"T-Mobile Support\", someone asked you to turn off Port Out Protection and create a transfer PIN.", "why_we_stepped_in": "That number couldn't be verified and had never contacted you before, and turning off protection during a call like this is a common scam pattern.", "confidence_text": "We're fairly confident this was a scam, but not certain.", "what_we_did": ["Turned Port Out Protection back on", "Held your transfer PIN for 24 hours so it can't be used"], "you_approved": ["Reset your account PIN", "Cancelled the pending transfer PIN", "Signed out other devices", "Reported the number"], "next_steps": ["Nothing else is needed. Your number is safe.", "If you shared bank details on that call, call your bank using the number on your card.", "Reply REPORT and we'll fill in an FTC report for you."], "spot_it_next_time": "T-Mobile will never call and ask you to turn off protection or read out a PIN or code.", "data_we_looked_at": ["When your call started and whether the number was verified", "Account changes made during that call", "Whether this was your usual device and area"], "replies": [{"keyword": "REPORT", "meaning": "Draft an FTC report"}, {"keyword": "UNDO", "meaning": "Safely release the hold (after the call, with a check)"}]}}}
+
+event: step
+data: {"seq": 25, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:35:10Z", "agent": "messaging", "stage": "summary", "type": "message", "title": "Incident summary sent by iMessage (no links)", "data": {"message_id": "msg_t2_summary"}}
+
+event: step
+data: {"seq": 26, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:35:11Z", "agent": "system", "stage": "watch", "type": "plan", "title": "Watching her line for 24 hours for follow-up scams", "data": {"until": "2026-11-08T20:35:11Z"}}
+
+event: step
+data: {"seq": 27, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:35:11Z", "agent": "system", "stage": "watch", "type": "done", "title": "Run complete", "data": {}}
+

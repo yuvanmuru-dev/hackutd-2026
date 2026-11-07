@@ -1,0 +1,13 @@
+{
+  "event_id": "evt_t3_01",
+  "user_id": "usr_maya",
+  "type": "message.forwarded",
+  "ts": "2026-11-07T18:14:00Z",
+  "source": "messaging",
+  "call_id": null,
+  "data": {
+    "channel": "imessage",
+    "text": "T-Mobile: your account is locked. Verify now at t-mobile-secure-help.co to avoid suspension.",
+    "from_hash": "h_31aa02"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "event_id": "evt_t2_06",
+  "user_id": "usr_maya",
+  "type": "customer.reply",
+  "ts": "2026-11-07T20:34:40Z",
+  "source": "voice",
+  "call_id": null,
+  "data": {
+    "channel": "voice",
+    "text": "I told him my PIN.",
+    "case_id": "case_t2"
+  }
+}

@@ -1,103 +1,77 @@
-# Contracts v0.2 (domain-agnostic, owned by Lane 1)
+# Contracts v0.3 (Titan)
 
-Every lane builds against these shapes. Lane 1 freezes **v1** by T+1:15 and then changes them only
-with a PR titled `contract:` that every lane owner acks. JSON Schemas live in `contracts/`,
-example payloads in `contracts/fixtures/`. The mock server (Lane 1, first task at T0) serves the fixtures.
+**Source of truth:** `contracts/schema.json` (JSON Schema 2020-12, 35 types in `$defs`). This page is the map.
+TypeScript types: `contracts/generated/types.ts` (copy into your app with `scripts/gen_types.sh`).
+Python: validate with `core.contracts.errors("TypeName", obj)` in the brain, or `jsonschema` against the same file.
+Examples for every type: `contracts/fixtures/` (the T2 coached-victim story, plus T1, T1b, T3 events). CI validates them all.
 
-Brain base URL: `http://localhost:8000` locally, `BRAIN_URL` env var everywhere else.
+**Change a contract:** edit `scripts/schema/build_schema.py` → `python scripts/schema/build_schema.py contracts/schema.json` → `bash scripts/gen_types.sh` → `python scripts/validate_contracts.py` → PR titled `contract: ...`. Lane 1 merges.
 
-## Endpoints
-| Method | Path | Body → Response | Used by |
-|---|---|---|---|
-| GET | `/health` | → `{ok, pack, tools[]}` | everyone |
-| POST | `/runs` | `RunRequest` → `Report` (blocking) | email, voice "full check" |
-| POST | `/runs/stream` | `RunRequest` → SSE of `StepEvent`, last event `type:"done"` carries the `Report` | web |
-| GET | `/runs/{run_id}` | → `Report` | share page, email links |
-| GET | `/runs` | `?subject=&limit=` → `Report[]` (summaries) | web history |
-| GET | `/tools` | → OpenAI tool schemas for the active pack | voice bot registers these |
-| POST | `/tools/{name}` | `{...args}` → tool result (always has `source`) | voice quick answers |
-| POST | `/actions` | `ActionRequest` → `Action` | web buttons, voice ("email them"), email |
-| GET | `/actions/{action_id}` | → `Action` (status, counterparty reply if any) | web |
-| PATCH | `/actions/{action_id}` | `{status, reply?, thread_id?}` → `Action` | email service when a reply arrives |
-| POST | `/watches` | `WatchRequest` → `Watch` | web, voice, email |
-| GET | `/watches` | → `Watch[]` | web |
-| POST | `/watches/{watch_id}/tick` | → `Report` (forces a re-check now; demo button) | web, demo |
-| POST | `/actions/{action_id}/approve` | `ApprovalRequest` → `Action` | web button, SMS/email "YES" reply, voice "go ahead" |
-| GET | `/cases` | `?phone=&email=` → `Case[]` | voice (caller ID lookup), email (sender lookup), web |
-| GET | `/cases/{case_id}` | → `CaseDetail` (case, latest report, actions, watches, full cross-channel timeline) | web case page |
-| GET | `/cases/{case_id}/stream` | → SSE of every new `StepEvent` in the case, from any channel | web case page (live call view) |
-| POST | `/cases/{case_id}/events` | `StepEvent` (no run_id) → `{ok}` | voice posts `transcript` + `channel_event`; email posts `channel_event` |
-
-## Core shapes (see `contracts/*.schema.json` for the exact JSON Schema)
-
-**Case**: one subject (a property, a car, a claim...) and everything that happened about it on any channel.
-The brain resolves `case_id` when a request doesn't send one: match `reply_to.phone` / `reply_to.email` + subject, else create a new case.
-This is what lets a returning caller hear "welcome back, they replied to your email."
-`Case { case_id, subject_label, owner{email?, phone?, name?}, latest_score?, open_actions?, created_at, updated_at }`
-
-**RunRequest**
-```json
-{ "input": { "text": "...", "subject": "optional label/address/VIN", "attachments": [{ "url": "...", "mime": "application/pdf" }] },
-  "channel": "web | voice | email | sms | watch | mcp",
-  "case_id": "optional",
-  "pack": "optional; defaults to ACTIVE_PACK",
-  "reply_to": { "email": "optional", "phone": "optional" } }
+## Run the brain against the contract today
 ```
-
-**StepEvent** (one per SSE `data:` line; `event:` name equals `type`)
-```json
-{ "run_id": "r_... (optional if case_id is set)", "case_id": "c_...", "channel": "web", "seq": 3, "ts": "ISO-8601",
-  "type": "plan | tool_call | tool_result | finding | verify | action_proposed | approval_needed | transcript | channel_event | error | done",
-  "label": "Human-readable one-liner for the timeline",
-  "data": { } }
+cd agent && MOCK=1 uv run --no-project --with-requirements requirements.txt uvicorn server:app --reload --port 8000
+curl -X POST localhost:8000/demo/play/t2      # plays the whole coached-victim story
+open http://localhost:8000/docs               # every endpoint, try it live
 ```
-`data` by type: `plan` → `{steps:[str]}` · `tool_call` → `{tool, args}` · `tool_result` → `{tool, ok, summary, source}` ·
-`finding` → `Finding` · `verify` → `{verified:[id], downgraded:[id]}` · `action_proposed` → `SuggestedAction` ·
-`approval_needed` → `{action_id}` · `transcript` → `{speaker: "caller"|"agent", text}` ·
-`channel_event` → `{kind: "call_started"|"call_ended"|"email_sent"|"email_received"|"sms_received"|"approved"|"alert"|"case_opened", ...}` ·
-`error` → `{message, recoverable}` · `done` → `Report`.
+`MOCK=1`: real gate rules + real in-memory store; workflow runs **replay the fixture run** step by step (`MOCK_STEP_MS`, default 400 ms). When the Nemotron workflow lands, the StepEvents look identical. Set `MESSAGING_URL` / `VOICE_URL` and the brain also POSTs outbound messages and calls to your door; otherwise see them at `GET /demo/outbox`.
 
-**Report**
-```json
-{ "run_id": "r_...", "case_id": "c_...", "pack": "string", "channel": "web",
-  "subject": { "label": "string", "location": { "lat": 0, "lon": 0 } },
-  "findings": [ { "id": "f1", "claim": "string", "verdict": "supported | contradicted | unverifiable | info",
-                  "severity": "low | medium | high", "evidence": "string",
-                  "sources": [ { "label": "FEMA NFHL", "url": "https://...", "retrieved_at": "ISO" } ],
-                  "evidence_view": { "kind": "map | doc | none", "data": {} },
-                  "verification": { "status": "verified | downgraded | unchecked", "note": "string", "original_verdict": "if downgraded" } } ],
-  "score": { "value": 0, "label": "string", "rationale": "string" },
-  "summary": "string (2-3 sentences, also used as the voice answer)",
-  "suggested_actions": [ { "id": "a1", "kind": "email_counterparty | call | watch | share", "label": "string", "draft": "optional text" } ],
-  "created_at": "ISO" }
-```
+## Endpoints (brain, port 8000)
+| Method + path | Who calls | Body → Response |
+|---|---|---|
+| `GET /health` | anyone | `{ok, mock, version}` |
+| `GET /tools` | voice, docs | tool names + descriptions |
+| `GET /users` · `GET /users/{id}/timeline` | web | `User[]` · `Timeline` (events, calls, active_call) |
+| `POST /events` | voice, messaging, portal, console, watcher | `Event` → `{accepted, duplicate, case_id, trigger}`. Idempotent on `event_id`. 422 if it breaks the contract |
+| `POST /check` | portal, before any sensitive action | `CheckRequest` → `CheckResponse` (`allow \| pause \| hold \| block`, reasons, pause_screen). Rules only, < 300 ms |
+| `GET /protections/{user}` | portal | `ProtectionState` (protections, shield_mode, transfer_pin) |
+| `POST /protections/{user}/{name}` | portal | `ProtectionChangeRequest` → `ProtectionState`. Turning one **off** during an unverified call → **409** unless `check_id` is from an `allow` check |
+| `POST /transfer-pin/{user}` | portal | → `{check: CheckResponse, protections: ProtectionState}`; `hold` during a suspicious call (starts a run) |
+| `GET /cases?user_id=` · `GET /cases/{id}` | web | `Case[]` · `CaseDetail` (everything the dashboard and `/case` page need) |
+| `GET /cases/{id}/stream` | web | SSE: `event: step` (`StepEvent`) then `event: case` (`Case`) per step; history first; ends after `type: done` |
+| `POST /cases/{id}/events` | voice, messaging | `CaseEventRequest` (transcript lines, replies) → `Message` |
+| `POST /actions/{id}/approve` · `/reject` | portal, voice, messaging | `ApprovalRequest {via}` → `Action`. **409** if it loosens protection during a suspicious call |
+| `GET /demo/outbox` · `POST /demo/reset` · `POST /demo/play/{t1\|t2\|t3}` | console, testing | demo helpers |
 
-**ActionRequest** `{ run_id, kind, params }` → **Action**
-`{ action_id, case_id, run_id, kind, status, draft{to, subject, body}, safety{ok, categories[], model}, approved_via?, detail?, thread_id?, reply? }`
-Status flow: `awaiting_approval → approved | rejected → queued → sent → replied | failed`.
-**Every outbound action to a third party starts in `awaiting_approval`.** The brain runs Nemotron Safety Guard on the draft first.
-The user approves on the web, by replying YES to the SMS/email, or by saying "go ahead" on a call (`ApprovalRequest { decision, via, edited_body? }`).
+## Doors expose (the brain calls these)
+| Door | Endpoint | Body |
+|---|---|---|
+| messaging (8200) | `POST /internal/send` | `SendRequest` (case_id, user_id, channel, kind, text, expects_reply). Never links. Resolve the phone number yourself |
+| voice (8100) | `POST /internal/call` | `CallRequest` (purpose, opening_line, facts, pending_action_ids) |
 
-**Verification pass**: after findings are drafted, the brain makes a second Nemotron call that sees only each finding plus the raw tool outputs.
-It marks each finding `verified` or `downgraded` (verdict becomes `unverifiable`, `original_verdict` kept), then emits one `verify` event.
+## Events (`POST /events`, `Event.type` → `data` shape)
+| type | data | Sent by |
+|---|---|---|
+| `call.started` | `CallData` (direction, other_number_hash, caller_name, attestation A/B/C/none, seen_before, scam_label) | voice (from the Photon/Twilio webhook) |
+| `call.ended` | `{duration_s}` | voice |
+| `login` | `{device_hash, region, new_device, succeeded}` | portal |
+| `otp.sent` / `otp.entered` | `{purpose}` | portal / brain |
+| `pin.attempt` | `{ok, channel}` | portal |
+| `protection.changed` | `{name, enabled, via}` | portal (the brain emits it for you on `POST /protections/...`) |
+| `transfer_pin.requested` | `{}` | portal (via `POST /transfer-pin/{user}`) |
+| `sim_swap.requested` | `{new_device_hash, channel}` | portal |
+| `portal.signals` | `PortalSignals` (derived numbers only) | portal behavior script |
+| `message.forwarded` | `{channel, text?, image_url?, from_hash?}` | messaging |
+| `customer.reply` | `{channel, text, case_id?}` | messaging, voice |
+| `face.result` | `{match, similarity, liveness, antispoof}` | portal (computed on the device) |
+The brain stamps `call_id` on any event that happens during an active call: that's how "actions taken during the call" works.
 
-**WatchRequest** `{ run_id, every: "1h|1d|demo-30s", notify: { email?, phone? } }` → **Watch** `{ watch_id, run_id, every, last_checked_at, last_change? }`
+## Triggers (what starts a run)
+- `call.started`, unverified, caller ID says T-Mobile → **heads-up** text; opens the case for that call.
+- `transfer_pin.requested` or `otp.sent` during a suspicious call → **coached** run (same case as the call).
+- Pause screen "I'm on a call: help me" (`POST /check` with `customer_choice: on_call_help`) → `block` + coached run now.
+- `sim_swap.requested` right after a new-device login → **takeover** run.
+- `message.forwarded` → **scam_text** run.
+"Suspicious call" = active, not seen before, and attestation not A (or labeled scam).
 
-## Internal channel endpoints (brain → channel, for outbound actions)
-Channels never call data APIs, but the brain does call channels to *act*:
-| Service | Port | Endpoint | Body |
-|---|---|---|---|
-| email/ | 8200 | `POST /internal/send` | `{to, subject, html, run_id, thread_id?}` → `{thread_id, message_id}` |
-| email/ | 8200 | `POST /webhooks/agentmail` | AgentMail inbound webhook (replies update the Action via `PATCH /actions/{id}` on the brain) |
-| voice/ | 8100 | `POST /internal/call` | `{to, run_id, purpose: "alert" \| "counterparty"}` → `{call_sid}` |
-| watcher/ | n/a | loop process | reads due watches from DB → `POST /runs` with `channel:"watch"` → diff vs last report → notify via email/voice internal endpoints |
-
-Ports: brain 8000 · web 3000 · voice 8100 · email 8200. Public webhooks go through one ngrok/cloudflared tunnel per service.
+## Key shapes (see schema for every field)
+- **StepEvent** `{seq, case_id, run_id, ts, agent: system|context|risk|verifier|response|messaging|voice, stage: trigger|context|risk|verify|respond|reach|await|recover|summary|watch, type: plan|tool_call|tool_result|signal|score|verify|action|message|call|transcript|approval_needed|approved|summary|error|done, title, data}`. `title` is the dashboard line.
+- **RiskScore** `{threat, probability, calibrated, confidence: low|medium|high, anomaly, top_reasons[{feature, contribution, text}], model}`. Lane 2b's `score()` returns exactly this.
+- **Action** `{action_id, kind, direction: safer|looser, status, requires_approval, approved_via, description}`.
+- **IncidentSummary** `{case_number, what_happened, why_we_stepped_in, confidence_text, what_we_did[], you_approved[], next_steps[], spot_it_next_time, data_we_looked_at[], replies[]}`.
+- **DatasetScenario** (Lane 2a → 2b) `{scenario_id, user_id, label, hard_negative, trigger_event_id, events[], generator{seed, variant}}`.
 
 ## Rules
-- Channels never call data APIs directly. Only the brain does.
-- Every tool result includes `source` (URL). A finding without a source is `unverifiable`.
-- `summary` must be speakable in under 15 seconds (voice reads it verbatim).
-- Every StepEvent that happens on a case is also stored on that case's timeline and pushed to `/cases/{id}/stream`.
-- Speed budget (demo-critical): first StepEvent < 1.5s, full web run < 25s, voice first words < 2s. Run independent tool calls in parallel.
-- Errors: HTTP 4xx/5xx with `{ "error": { "code": "string", "message": "string" } }`.
+- Every fact shown to a customer or on the dashboard comes with a `Source` (`Signal.source`).
+- Agents may only make things **safer** on their own. Looser actions need approval and no suspicious call (enforced by the brain, 409).
+- Titan never asks for a PIN, code or password and never sends a link.
+- Speed: `/check` < 300 ms · first StepEvent < 1.5 s · first customer message < 15 s live.

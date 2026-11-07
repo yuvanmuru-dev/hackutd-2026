@@ -1,0 +1,14 @@
+{
+  "event_id": "evt_t1_01",
+  "user_id": "usr_maya",
+  "type": "login",
+  "ts": "2026-11-07T19:14:00Z",
+  "source": "portal",
+  "call_id": null,
+  "data": {
+    "device_hash": "h_unknown_win11",
+    "region": "Lagos, NG",
+    "new_device": true,
+    "succeeded": true
+  }
+}
