@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contracts/schema.json",
+  "title": "Brain API contracts v0 (see docs/CONTRACTS.md)",
+  "$defs": {
+    "Source": {
+      "type": "object",
+      "required": ["label", "url"],
+      "properties": {
+        "label": {"type": "string"},
+        "url": {"type": "string"},
+        "retrieved_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "Attachment": {
+      "type": "object",
+      "required": ["mime"],
+      "properties": {
+        "url": {"type": "string"},
+        "base64": {"type": "string"},
+        "mime": {"type": "string"},
+        "filename": {"type": "string"}
+      }
+    },
+    "RunRequest": {
+      "type": "object",
+      "required": ["input", "channel"],
+      "properties": {
+        "input": {
+          "type": "object",
+          "required": ["text"],
+          "properties": {
+            "text": {"type": "string", "maxLength": 20000},
+            "subject": {"type": "string"},
+            "attachments": {"type": "array", "items": {"$ref": "#/$defs/Attachment"}, "maxItems": 5}
+          }
+        },
+        "channel": {"enum": ["web", "voice", "email", "watch"]},
+        "pack": {"type": "string"},
+        "reply_to": {
+          "type": "object",
+          "properties": {"email": {"type": "string"}, "phone": {"type": "string"}}
+        }
+      }
+    },
+    "Finding": {
+      "type": "object",
+      "required": ["id", "claim", "verdict", "evidence", "sources"],
+      "properties": {
+        "id": {"type": "string"},
+        "claim": {"type": "string"},
+        "verdict": {"enum": ["supported", "contradicted", "unverifiable", "info"]},
+        "severity": {"enum": ["low", "medium", "high"]},
+        "evidence": {"type": "string"},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/Source"}},
+        "evidence_view": {
+          "type": "object",
+          "properties": {"kind": {"enum": ["map", "doc", "none"]}, "data": {"type": "object"}}
+        }
+      }
+    },
+    "SuggestedAction": {
+      "type": "object",
+      "required": ["id", "kind", "label"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"enum": ["email_counterparty", "call", "watch", "share"]},
+        "label": {"type": "string"},
+        "draft": {"type": "string"}
+      }
+    },
+    "Report": {
+      "type": "object",
+      "required": ["run_id", "pack", "channel", "subject", "findings", "score", "summary", "suggested_actions", "created_at"],
+      "properties": {
+        "run_id": {"type": "string"},
+        "pack": {"type": "string"},
+        "channel": {"enum": ["web", "voice", "email", "watch"]},
+        "subject": {
+          "type": "object",
+          "required": ["label"],
+          "properties": {
+            "label": {"type": "string"},
+            "location": {"type": "object", "properties": {"lat": {"type": "number"}, "lon": {"type": "number"}}}
+          }
+        },
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/Finding"}},
+        "score": {
+          "type": "object",
+          "required": ["value", "label"],
+          "properties": {
+            "value": {"type": "integer", "minimum": 0, "maximum": 100},
+            "label": {"type": "string"},
+            "rationale": {"type": "string"}
+          }
+        },
+        "summary": {"type": "string"},
+        "suggested_actions": {"type": "array", "items": {"$ref": "#/$defs/SuggestedAction"}},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "StepEvent": {
+      "type": "object",
+      "required": ["run_id", "seq", "ts", "type", "label", "data"],
+      "properties": {
+        "run_id": {"type": "string"},
+        "seq": {"type": "integer"},
+        "ts": {"type": "string", "format": "date-time"},
+        "type": {"enum": ["plan", "tool_call", "tool_result", "finding", "action_proposed", "error", "done"]},
+        "label": {"type": "string"},
+        "data": {"type": "object"}
+      }
+    },
+    "ActionRequest": {
+      "type": "object",
+      "required": ["run_id", "kind"],
+      "properties": {
+        "run_id": {"type": "string"},
+        "kind": {"enum": ["email_counterparty", "call", "share"]},
+        "params": {"type": "object"}
+      }
+    },
+    "Action": {
+      "type": "object",
+      "required": ["action_id", "run_id", "kind", "status"],
+      "properties": {
+        "action_id": {"type": "string"},
+        "run_id": {"type": "string"},
+        "kind": {"type": "string"},
+        "status": {"enum": ["queued", "sent", "replied", "failed"]},
+        "detail": {"type": "string"},
+        "thread_id": {"type": "string"},
+        "reply": {"type": "string"}
+      }
+    },
+    "WatchRequest": {
+      "type": "object",
+      "required": ["run_id", "every"],
+      "properties": {
+        "run_id": {"type": "string"},
+        "every": {"enum": ["demo-30s", "1h", "1d"]},
+        "notify": {"type": "object", "properties": {"email": {"type": "string"}, "phone": {"type": "string"}}}
+      }
+    },
+    "Watch": {
+      "type": "object",
+      "required": ["watch_id", "run_id", "every"],
+      "properties": {
+        "watch_id": {"type": "string"},
+        "run_id": {"type": "string"},
+        "every": {"type": "string"},
+        "last_checked_at": {"type": "string", "format": "date-time"},
+        "last_change": {"type": "string"}
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "error": {"type": "object", "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}
+      }
+    }
+  }
+}
