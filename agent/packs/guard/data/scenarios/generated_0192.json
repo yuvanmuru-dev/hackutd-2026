@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0192_01",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-10-01T22:18:00Z",
+      "ts": "2026-11-07T22:18:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0192_0",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0192_02",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-10-01T22:19:00Z",
+      "ts": "2026-11-07T22:19:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0192_1",
@@ -35,7 +35,7 @@
       "event_id": "evt_gen_0192_03",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-10-01T22:20:00Z",
+      "ts": "2026-11-07T22:20:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0192_2",
@@ -45,10 +45,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0192_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T22:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0192_04",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-10-01T22:21:00Z",
+      "ts": "2026-11-07T22:21:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0192_3",

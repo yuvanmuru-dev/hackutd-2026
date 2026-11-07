@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0054_01",
       "user_id": "usr_marcus",
       "type": "call.started",
-      "ts": "2026-08-28T16:10:00Z",
+      "ts": "2026-11-07T16:10:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -22,10 +22,21 @@
       "call_id": "call_gen_0054"
     },
     {
+      "event_id": "evt_gen_0054_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T16:16:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0054"
+    },
+    {
       "event_id": "evt_gen_0054_02",
       "user_id": "usr_marcus",
       "type": "otp.sent",
-      "ts": "2026-08-28T16:17:00Z",
+      "ts": "2026-11-07T16:17:00Z",
       "source": "generator",
       "data": {
         "purpose": "login"

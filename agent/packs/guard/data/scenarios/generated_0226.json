@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0226_01",
       "user_id": "usr_dev",
       "type": "call.started",
-      "ts": "2026-10-10T16:27:00Z",
+      "ts": "2026-11-07T16:27:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -22,10 +22,21 @@
       "call_id": "call_gen_0226"
     },
     {
+      "event_id": "evt_gen_0226_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:39:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_gen_0226"
+    },
+    {
       "event_id": "evt_gen_0226_02",
       "user_id": "usr_dev",
       "type": "otp.sent",
-      "ts": "2026-10-10T16:40:00Z",
+      "ts": "2026-11-07T16:40:00Z",
       "source": "generator",
       "data": {
         "purpose": "account_change"

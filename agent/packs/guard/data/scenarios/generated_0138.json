@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0138_01",
       "user_id": "usr_marcus",
       "type": "call.started",
-      "ts": "2026-09-18T16:22:00Z",
+      "ts": "2026-11-07T16:22:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0138_02",
       "user_id": "usr_marcus",
       "type": "login",
-      "ts": "2026-09-18T16:34:00Z",
+      "ts": "2026-11-07T16:34:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_marcus_phone",
@@ -39,7 +39,7 @@
       "event_id": "evt_gen_0138_03",
       "user_id": "usr_marcus",
       "type": "portal.signals",
-      "ts": "2026-09-18T16:38:00Z",
+      "ts": "2026-11-07T16:38:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0138",
@@ -65,7 +65,7 @@
       "event_id": "evt_gen_0138_04",
       "user_id": "usr_marcus",
       "type": "protection.changed",
-      "ts": "2026-09-18T16:40:00Z",
+      "ts": "2026-11-07T16:40:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -75,10 +75,21 @@
       "call_id": "call_gen_0138"
     },
     {
+      "event_id": "evt_gen_0138_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T16:41:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0138"
+    },
+    {
       "event_id": "evt_gen_0138_05",
       "user_id": "usr_marcus",
       "type": "transfer_pin.requested",
-      "ts": "2026-09-18T16:42:00Z",
+      "ts": "2026-11-07T16:42:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0138"

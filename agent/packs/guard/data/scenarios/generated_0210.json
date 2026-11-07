@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0210_01",
       "user_id": "usr_marcus",
       "type": "pin.attempt",
-      "ts": "2026-10-06T16:06:00Z",
+      "ts": "2026-11-07T16:06:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -20,7 +20,7 @@
       "event_id": "evt_gen_0210_02",
       "user_id": "usr_marcus",
       "type": "pin.attempt",
-      "ts": "2026-10-06T16:07:00Z",
+      "ts": "2026-11-07T16:07:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -31,7 +31,7 @@
       "event_id": "evt_gen_0210_03",
       "user_id": "usr_marcus",
       "type": "pin.attempt",
-      "ts": "2026-10-06T16:08:00Z",
+      "ts": "2026-11-07T16:08:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -42,7 +42,7 @@
       "event_id": "evt_gen_0210_04",
       "user_id": "usr_marcus",
       "type": "pin.attempt",
-      "ts": "2026-10-06T16:09:00Z",
+      "ts": "2026-11-07T16:09:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -50,10 +50,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0210_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T16:10:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0210_05",
       "user_id": "usr_marcus",
       "type": "login",
-      "ts": "2026-10-06T16:11:00Z",
+      "ts": "2026-11-07T16:11:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0210",

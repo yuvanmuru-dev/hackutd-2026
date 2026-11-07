@@ -22,6 +22,17 @@
       "call_id": "call_seed_code_relay_02"
     },
     {
+      "event_id": "evt_seed_code_relay_02_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T19:08:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_seed_code_relay_02"
+    },
+    {
       "event_id": "evt_seed_code_relay_02_02",
       "user_id": "usr_dev",
       "type": "otp.sent",

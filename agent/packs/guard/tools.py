@@ -17,6 +17,7 @@ from pathlib import Path
 from packs.guard.external import check_message, policy_lookup
 
 HISTORY_DIR = Path(__file__).parent / "data" / "history"
+PERSONAS_PATH = Path(__file__).parent / "data" / "personas.json"
 UNVERIFIED = {"B", "C", "none"}
 
 
@@ -38,13 +39,20 @@ def _history_events(user_id: str) -> list[dict]:
         return [json.loads(line) for line in stream if line.strip()]
 
 
+def _baseline(user_id: str) -> dict:
+    if not PERSONAS_PATH.exists():
+        return {}
+    data = json.loads(PERSONAS_PATH.read_text(encoding="utf-8"))
+    return data.get("baselines", {}).get(user_id, {})
+
+
 def _events(store, user_id: str, days: int | None = None) -> list[dict]:
     # A live event takes precedence when a seeded event has the same ID.
     events = {event["event_id"]: event for event in _history_events(user_id)}
     with _lock(store):
         live = [copy.deepcopy(event) for event in store.events.values() if event["user_id"] == user_id]
     events.update((event["event_id"], event) for event in live)
-    selected = sorted(events.values(), key=lambda event: event["ts"])
+    selected = sorted(events.values(), key=lambda event: _parse(event["ts"]))
     if days is not None:
         cutoff = datetime.now(timezone.utc) - timedelta(days=int(days))
         selected = [event for event in selected if _parse(event["ts"]) >= cutoff]
@@ -67,18 +75,29 @@ def account_history(store, user_id: str, days: int = 90, **_) -> dict:
     events = _events(store, user_id, days)
     logins = [event for event in events if event["type"] == "login" and event["data"].get("succeeded")]
     pins = [event for event in events if event["type"] == "transfer_pin.requested"]
+    baseline = _baseline(user_id)
     historical_logins = [event for event in _history_events(user_id) if event["type"] == "login"
                          and event["data"].get("succeeded")]
     region_counts = Counter(event["data"].get("region") for event in historical_logins)
-    usual_regions = [region for region, _ in region_counts.most_common(3) if region]
-    devices = {event["data"]["device_hash"] for event in logins}
+    usual_regions = baseline.get("usual_login_regions") or [
+        region for region, _ in region_counts.most_common(3) if region
+    ]
+    baseline_devices = baseline.get("known_device_hashes")
+    known_device_count = (len(baseline_devices) if baseline_devices is not None
+                          else len({event["data"]["device_hash"] for event in historical_logins}))
     current_is_pin = bool(events and events[-1]["type"] == "transfer_pin.requested")
     result = {
         "days": days,
         "logins": len(logins),
-        "known_device_count": len(devices),
+        "known_device_count": known_device_count,
         "usual_regions": usual_regions,
         "home_region": usual_regions[0] if usual_regions else None,
+        "login_region_pattern": baseline.get("login_region_pattern"),
+        "usual_login_hour_bucket": baseline.get("usual_login_hour_bucket"),
+        "login_frequency_bucket": baseline.get("login_frequency_bucket"),
+        "account_changes_90d": baseline.get("account_changes_90d"),
+        "usual_care_channel": baseline.get("usual_care_channel"),
+        "care_contacts_90d": baseline.get("care_contacts_90d"),
         "transfer_pins_before": max(0, len(pins) - int(current_is_pin)),
     }
     summary = (f"{result['transfer_pins_before']} prior transfer PIN request(s) in {days} days"
@@ -92,11 +111,19 @@ def device_sim_status(store, user_id: str, **_) -> dict:
     events = _events(store, user_id, 90)
     logins = [event for event in events if event["type"] == "login"]
     swaps = [event for event in events if event["type"] == "sim_swap.requested"]
+    baseline = _baseline(user_id)
     last = logins[-1] if logins else None
+    known_devices = baseline.get("known_device_hashes")
     result = {
         "last_login_new_device": bool(last and last["data"].get("new_device")),
         "sim_swap_requests": len(swaps),
-        "known_device_count": len({event["data"].get("device_hash") for event in logins}),
+        "known_device_count": (len(known_devices) if known_devices is not None
+                               else len({event["data"].get("device_hash") for event in logins})),
+        "last_login_device_known": (last["data"].get("device_hash") in known_devices
+                                    if last and known_devices is not None else None),
+        "device_age_bucket": baseline.get("device_age_bucket"),
+        "sim_age_bucket": baseline.get("sim_age_bucket"),
+        "sim_changes_90d": baseline.get("sim_changes_90d"),
     }
     summary = ("Last sign-in used a new device" if result["last_login_new_device"]
                else "Last sign-in used a known device" if last else "No sign-in recorded")
@@ -182,14 +209,27 @@ def call_context(store, user_id: str, **_) -> dict:
 def location_match(store, user_id: str, event_id: str | None = None, **_) -> dict:
     events = _events(store, user_id)
     target = next((event for event in events if event["event_id"] == event_id), None) if event_id else None
-    before = [event for event in events if event["type"] == "login"
-              and (target is None or event["ts"] <= target["ts"])]
-    login = target if target and target["type"] == "login" else before[-1] if before else None
+    if event_id and target is None:
+        return _answer("Line location unknown (unverifiable)",
+                       {"request_region": None, "line_region": None, "match": None},
+                       "Login region vs line serving region (simulated carrier signal)")
+    as_of = _parse(target["ts"]) if target else None
+    eligible = [event for event in events if as_of is None or _parse(event["ts"]) <= as_of]
+    logins = [event for event in eligible if event["type"] == "login"]
+    lines = [event for event in eligible if event["type"] == "line.region"]
+    login = logins[-1] if logins else None
+    line = lines[-1] if lines else None
     region = login["data"].get("region") if login else None
-    result = {"request_region": region, "line_region": None, "match": None}
-    record = f"events/{login['event_id']}" if login else None
-    return _answer("Line region unavailable; location comparison unverifiable", result,
-                   "Login region and line region", record)
+    line_region = line["data"].get("region") if line else None
+    result = {"request_region": region, "line_region": line_region,
+              "match": region == line_region if region and line_region else None}
+    source_name = "Login region vs line serving region (simulated carrier signal)"
+    if result["match"] is None:
+        return _answer("Line location unknown (unverifiable)", result, source_name,
+                       f"events/{line['event_id']}" if line else None)
+    summary = (f"Request from {region} · phone is in {line_region}"
+               f" · {'match' if result['match'] else 'MISMATCH'}")
+    return _answer(summary, result, source_name, f"events/{line['event_id']}")
 
 
 def portal_signals(store, user_id: str, session_id: str | None = None, **_) -> dict:

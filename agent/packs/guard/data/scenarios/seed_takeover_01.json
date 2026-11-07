@@ -44,6 +44,16 @@
       }
     },
     {
+      "event_id": "evt_seed_takeover_01_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T13:01:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_seed_takeover_01_03",
       "user_id": "usr_maya",
       "type": "sim_swap.requested",

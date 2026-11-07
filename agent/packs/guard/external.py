@@ -23,6 +23,8 @@ import requests
 AGENT_DIR = Path(__file__).resolve().parents[2]
 CACHE_DIR = AGENT_DIR / "cache"
 POLICY_DIR = Path(__file__).resolve().parent / "data" / "policy"
+SYNTHETIC_REGISTRY = Path(__file__).resolve().parent / "data" / "synthetic_registry.json"
+SYNTHETIC_SOURCE = "Synthetic demo registry (simulated RDAP)"
 IANA_RDAP_BOOTSTRAP = "https://data.iana.org/rdap/dns.json"
 URLHAUS_URL = "https://urlhaus-api.abuse.ch/v1/url/"
 URLHAUS_HOST = "https://urlhaus-api.abuse.ch/v1/host/"
@@ -47,19 +49,23 @@ def _cache_path(kind: str, value: str) -> Path:
 def _cache_get(kind: str, value: str, ttl_s: int) -> dict | None:
     try:
         cached = json.loads(_cache_path(kind, value).read_text())
-        if time.time() - cached["stored_at"] <= ttl_s and isinstance(cached["result"], dict):
+        lifetime = min(ttl_s, cached.get("ttl_s", ttl_s))
+        if time.time() - cached["stored_at"] <= lifetime and isinstance(cached["result"], dict):
             return cached["result"]
     except (OSError, ValueError, KeyError, TypeError):
         pass
     return None
 
 
-def _cache_set(kind: str, value: str, result: dict) -> None:
+def _cache_set(kind: str, value: str, result: dict, ttl_s: int | None = None) -> None:
     """Write atomically; cache failures must never change a verdict."""
     try:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=CACHE_DIR, delete=False) as handle:
-            json.dump({"stored_at": time.time(), "result": result}, handle, separators=(",", ":"))
+            entry = {"stored_at": time.time(), "result": result}
+            if ttl_s is not None:
+                entry["ttl_s"] = ttl_s
+            json.dump(entry, handle, separators=(",", ":"))
             temp = Path(handle.name)
         temp.replace(_cache_path(kind, value))
     except OSError:
@@ -125,6 +131,24 @@ def _lookalike(host: str) -> bool:
     return "tmobile" in normalized
 
 
+def _synthetic_record(host: str) -> dict | None:
+    """Listed demo names always bypass live providers, including subdomains."""
+    entries = json.loads(SYNTHETIC_REGISTRY.read_text(encoding="utf-8"))["entries"]
+    matches = [entry for entry in entries
+               if host == entry["domain"] or host.endswith("." + entry["domain"])]
+    if not matches:
+        return None
+    entry = max(matches, key=lambda item: len(item["domain"]))
+    source = {"name": SYNTHETIC_SOURCE,
+              "record": f"packs/guard/data/synthetic_registry.json#{entry['domain']}"}
+    return {"domain": host, "synthetic": True, "source": source,
+            "rdap": {"status": "synthetic", "age_days": entry["registered_days_ago"],
+                     "registrar": entry["registrar"], "lookalike_of": entry["lookalike_of"],
+                     "source": source},
+            "urlhaus": {"status": "not_queried_synthetic", "known_malicious": None,
+                        "note": "Demo registry names are never sent to live providers."}}
+
+
 def _registry_rdap_url(domain: str) -> tuple[str | None, str]:
     """Select the longest matching registry URL from IANA's RDAP bootstrap."""
     cached = _cache_get("rdap-bootstrap", "dns-v1", 7 * 86400)
@@ -132,13 +156,16 @@ def _registry_rdap_url(domain: str) -> tuple[str | None, str]:
         try:
             response = requests.get(IANA_RDAP_BOOTSTRAP, timeout=TIMEOUT_S)
             if response.status_code != 200:
+                _cache_set("rdap-bootstrap", "dns-v1", {"status": "unverifiable_bootstrap"}, 60)
                 return None, "unverifiable_bootstrap"
             services = response.json().get("services")
             if not isinstance(services, list):
+                _cache_set("rdap-bootstrap", "dns-v1", {"status": "unverifiable_bootstrap"}, 60)
                 return None, "unverifiable_bootstrap"
             cached = {"services": services}
             _cache_set("rdap-bootstrap", "dns-v1", cached)
         except (requests.RequestException, ValueError, TypeError, AttributeError):
+            _cache_set("rdap-bootstrap", "dns-v1", {"status": "unverifiable_bootstrap"}, 60)
             return None, "unverifiable_bootstrap"
     if not isinstance(cached.get("services"), list):
         return None, "unverifiable_bootstrap"
@@ -202,29 +229,33 @@ def _rdap(domain: str) -> dict:
         if age < 0:
             return result
         result = {"status": "checked", "age_days": age, "registered_at": registration, "source_url": url}
-        _cache_set("rdap-registry", domain, result)
     except (requests.RequestException, ValueError, TypeError, AttributeError):
         pass
+    finally:
+        _cache_set("rdap-registry", domain, result, None if result["status"] == "checked" else 60)
     return result
 
 
 def _urlhaus(host: str, url: str | None) -> dict:
     api_key = os.getenv("URLHAUS_AUTH_KEY")
     if not api_key:
-        return {"status": "unverifiable_no_key", "known_malicious": None, "source_url": "https://urlhaus-api.abuse.ch/"}
+        return {"status": "unverifiable", "known_malicious": None,
+                "note": "URLHAUS_AUTH_KEY is missing", "source_url": "https://urlhaus-api.abuse.ch/"}
     target = url or host
     kind = "urlhaus-url" if url else "urlhaus-host"
     cached = _cache_get(kind, target, 3600)
     if cached is not None:
         return cached
     endpoint = URLHAUS_URL if url else URLHAUS_HOST
-    result = {"status": "unverifiable", "known_malicious": None, "source_url": "https://urlhaus-api.abuse.ch/"}
+    result = {"status": "unverifiable", "known_malicious": None,
+              "note": "URLhaus lookup failed", "source_url": "https://urlhaus-api.abuse.ch/"}
     try:
         response = requests.post(
             endpoint, data={"url" if url else "host": target},
             headers={"Auth-Key": api_key, "Accept": "application/json"}, timeout=TIMEOUT_S,
         )
         if response.status_code != 200:
+            result["note"] = f"URLhaus HTTP {response.status_code}"
             return result
         payload = response.json()
         status = payload.get("query_status")
@@ -239,9 +270,10 @@ def _urlhaus(host: str, url: str | None) -> dict:
             result = {"status": "no_report", "known_malicious": None, "source_url": "https://urlhaus.abuse.ch/"}
         else:
             return result
-        _cache_set(kind, target, result)
     except (requests.RequestException, ValueError, TypeError, AttributeError):
         pass
+    finally:
+        _cache_set(kind, target, result, 60 if result["status"] == "unverifiable" else None)
     return result
 
 
@@ -253,6 +285,10 @@ def check_message(store, text: str = "", **_args) -> dict:
     lookalikes = [host for host in hosts if _lookalike(host)]
     checks = []
     for host, url in items:
+        synthetic = _synthetic_record(host)
+        if synthetic is not None:
+            checks.append(synthetic)
+            continue
         domain = _registered_domain(host)
         checks.append({
             "domain": host,
@@ -267,10 +303,11 @@ def check_message(store, text: str = "", **_args) -> dict:
     reported = any(c["urlhaus"]["known_malicious"] is True for c in checks)
     summary = f"Lookalike domain {lookalikes[0]}" if lookalikes else "No T-Mobile lookalike domain found"
     if age is not None:
-        summary += f" · RDAP age {age} days"
+        summary += (f" · registered {age} days ago (simulated RDAP)" if preferred.get("synthetic")
+                    else f" · RDAP age {age} days")
     if reported:
         summary += " · URLhaus malware report"
-    elif checks:
+    elif any(not c.get("synthetic") for c in checks):
         summary += " · URLhaus does not establish safety"
     result = {
         "domains": hosts, "lookalike_domains": lookalikes,
@@ -283,7 +320,11 @@ def check_message(store, text: str = "", **_args) -> dict:
     rdap_checked = next((c["rdap"] for c in checks if c["rdap"]["status"] == "checked"), None)
     urlhaus_checked = next((c["urlhaus"] for c in checks if c["urlhaus"]["status"] in
                             {"reported_malware", "no_report"}), None)
-    if rdap_checked:
+    if preferred and preferred.get("synthetic"):
+        source = preferred["source"]
+        result["source"] = source
+        result["verification_status"] = "synthetic" if all(c.get("synthetic") for c in checks) else "partial"
+    elif rdap_checked:
         source = {"name": "Forwarded text and RDAP registration record", "url": rdap_checked["source_url"]}
     elif urlhaus_checked:
         source = {"name": "Forwarded text and URLhaus lookup", "url": urlhaus_checked["source_url"]}

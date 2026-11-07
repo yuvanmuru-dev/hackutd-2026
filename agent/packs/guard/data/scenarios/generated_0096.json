@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0096_01",
       "user_id": "usr_dev",
       "type": "call.started",
-      "ts": "2026-09-07T22:02:00Z",
+      "ts": "2026-11-07T22:02:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0096_02",
       "user_id": "usr_dev",
       "type": "login",
-      "ts": "2026-09-07T22:14:00Z",
+      "ts": "2026-11-07T22:14:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_dev_phone",
@@ -39,7 +39,7 @@
       "event_id": "evt_gen_0096_03",
       "user_id": "usr_dev",
       "type": "portal.signals",
-      "ts": "2026-09-07T22:18:00Z",
+      "ts": "2026-11-07T22:18:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0096",
@@ -65,7 +65,7 @@
       "event_id": "evt_gen_0096_04",
       "user_id": "usr_dev",
       "type": "protection.changed",
-      "ts": "2026-09-07T22:20:00Z",
+      "ts": "2026-11-07T22:20:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -75,10 +75,21 @@
       "call_id": "call_gen_0096"
     },
     {
+      "event_id": "evt_gen_0096_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T22:21:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_gen_0096"
+    },
+    {
       "event_id": "evt_gen_0096_05",
       "user_id": "usr_dev",
       "type": "transfer_pin.requested",
-      "ts": "2026-09-07T22:22:00Z",
+      "ts": "2026-11-07T22:22:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0096"

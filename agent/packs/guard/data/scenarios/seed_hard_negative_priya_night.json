@@ -24,7 +24,20 @@
       "type": "pin.attempt",
       "ts": "2026-11-07T09:05:00Z",
       "source": "generator",
-      "data": {"ok": true, "channel": "app"}
+      "data": {
+        "ok": true,
+        "channel": "app"
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_priya_night_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T09:05:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
     },
     {
       "event_id": "evt_seed_hn_priya_03",
@@ -32,8 +45,13 @@
       "type": "otp.sent",
       "ts": "2026-11-07T09:06:00Z",
       "source": "generator",
-      "data": {"purpose": "account_change"}
+      "data": {
+        "purpose": "account_change"
+      }
     }
   ],
-  "generator": {"seed": 3402, "variant": "priya_normal_night_shift_pin"}
+  "generator": {
+    "seed": 3402,
+    "variant": "priya_normal_night_shift_pin"
+  }
 }

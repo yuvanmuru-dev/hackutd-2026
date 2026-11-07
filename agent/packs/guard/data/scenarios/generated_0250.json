@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0250_01",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-10-16T08:16:00Z",
+      "ts": "2026-11-07T08:16:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_priya_phone",
@@ -19,10 +19,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0250_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T08:19:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0250_02",
       "user_id": "usr_priya",
       "type": "pin.attempt",
-      "ts": "2026-10-16T08:20:00Z",
+      "ts": "2026-11-07T08:20:00Z",
       "source": "generator",
       "data": {
         "ok": true,

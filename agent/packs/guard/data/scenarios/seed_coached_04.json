@@ -86,6 +86,17 @@
       "call_id": "call_seed_coached_04"
     },
     {
+      "event_id": "evt_seed_coached_04_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T19:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
       "event_id": "evt_seed_coached_04_06",
       "user_id": "usr_elena",
       "type": "transfer_pin.requested",

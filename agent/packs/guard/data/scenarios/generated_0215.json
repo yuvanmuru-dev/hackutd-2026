@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0215_01",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-10-07T19:24:00Z",
+      "ts": "2026-11-07T19:24:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0215",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0215_02",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-10-07T19:25:00Z",
+      "ts": "2026-11-07T19:25:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0215",
@@ -35,7 +35,7 @@
       "event_id": "evt_gen_0215_03",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-10-07T19:26:00Z",
+      "ts": "2026-11-07T19:26:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0215",
@@ -45,10 +45,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0215_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T19:26:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0215_04",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-10-07T19:27:00Z",
+      "ts": "2026-11-07T19:27:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0215",

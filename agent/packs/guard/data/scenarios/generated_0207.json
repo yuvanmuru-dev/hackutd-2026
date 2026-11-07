@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0207_01",
       "user_id": "usr_priya",
       "type": "pin.attempt",
-      "ts": "2026-10-05T19:32:00Z",
+      "ts": "2026-11-07T19:32:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -20,7 +20,7 @@
       "event_id": "evt_gen_0207_02",
       "user_id": "usr_priya",
       "type": "pin.attempt",
-      "ts": "2026-10-05T19:33:00Z",
+      "ts": "2026-11-07T19:33:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -31,7 +31,7 @@
       "event_id": "evt_gen_0207_03",
       "user_id": "usr_priya",
       "type": "pin.attempt",
-      "ts": "2026-10-05T19:34:00Z",
+      "ts": "2026-11-07T19:34:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -42,7 +42,7 @@
       "event_id": "evt_gen_0207_04",
       "user_id": "usr_priya",
       "type": "pin.attempt",
-      "ts": "2026-10-05T19:35:00Z",
+      "ts": "2026-11-07T19:35:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -50,10 +50,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0207_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T19:36:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0207_05",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-10-05T19:37:00Z",
+      "ts": "2026-11-07T19:37:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0207",

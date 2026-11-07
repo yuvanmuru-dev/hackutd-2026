@@ -6,10 +6,20 @@
   "trigger_event_id": "evt_gen_0274_01",
   "events": [
     {
+      "event_id": "evt_gen_0274_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T16:19:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0274_01",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-10-22T16:20:00Z",
+      "ts": "2026-11-07T16:20:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_priya_phone",

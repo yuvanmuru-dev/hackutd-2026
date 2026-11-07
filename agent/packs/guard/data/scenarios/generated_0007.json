@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0007_01",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-08-16T19:15:00Z",
+      "ts": "2026-11-07T19:15:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0007",
@@ -19,10 +19,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0007_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T19:17:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0007_02",
       "user_id": "usr_maya",
       "type": "sim_swap.requested",
-      "ts": "2026-08-16T19:18:00Z",
+      "ts": "2026-11-07T19:18:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0007",

@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0062_01",
       "user_id": "usr_elena",
       "type": "call.started",
-      "ts": "2026-08-30T16:06:00Z",
+      "ts": "2026-11-07T16:06:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -22,10 +22,21 @@
       "call_id": "call_gen_0062"
     },
     {
+      "event_id": "evt_gen_0062_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T16:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_gen_0062"
+    },
+    {
       "event_id": "evt_gen_0062_02",
       "user_id": "usr_elena",
       "type": "otp.sent",
-      "ts": "2026-08-30T16:14:00Z",
+      "ts": "2026-11-07T16:14:00Z",
       "source": "generator",
       "data": {
         "purpose": "login"
@@ -36,7 +47,7 @@
       "event_id": "evt_gen_0062_03",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-08-30T16:24:00Z",
+      "ts": "2026-11-07T16:24:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_relay_device_gen_0062",

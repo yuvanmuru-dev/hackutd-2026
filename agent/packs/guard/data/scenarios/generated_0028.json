@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0028_01",
       "user_id": "usr_marcus",
       "type": "login",
-      "ts": "2026-08-21T22:12:00Z",
+      "ts": "2026-11-07T22:12:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0028",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0028_02",
       "user_id": "usr_marcus",
       "type": "portal.signals",
-      "ts": "2026-08-21T22:13:00Z",
+      "ts": "2026-11-07T22:13:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0028",
@@ -44,10 +44,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0028_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T22:14:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0028_03",
       "user_id": "usr_marcus",
       "type": "sim_swap.requested",
-      "ts": "2026-08-21T22:15:00Z",
+      "ts": "2026-11-07T22:15:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0028",

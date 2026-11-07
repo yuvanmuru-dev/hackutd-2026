@@ -6,10 +6,20 @@
   "trigger_event_id": "evt_gen_0241_01",
   "events": [
     {
+      "event_id": "evt_gen_0241_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T13:05:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Phoenix, AZ"
+      }
+    },
+    {
       "event_id": "evt_gen_0241_01",
       "user_id": "usr_marcus",
       "type": "login",
-      "ts": "2026-10-14T13:06:00Z",
+      "ts": "2026-11-07T13:06:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_marcus_phone",
@@ -22,7 +32,7 @@
       "event_id": "evt_gen_0241_02",
       "user_id": "usr_marcus",
       "type": "protection.changed",
-      "ts": "2026-10-14T13:11:00Z",
+      "ts": "2026-11-07T13:11:00Z",
       "source": "generator",
       "data": {
         "name": "scam_block",

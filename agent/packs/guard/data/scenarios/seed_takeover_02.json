@@ -31,6 +31,16 @@
       }
     },
     {
+      "event_id": "evt_seed_takeover_02_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T14:01:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
       "event_id": "evt_seed_takeover_02_03",
       "user_id": "usr_dev",
       "type": "sim_swap.requested",

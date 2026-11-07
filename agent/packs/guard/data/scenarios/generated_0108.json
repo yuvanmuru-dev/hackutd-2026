@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0108_01",
       "user_id": "usr_priya",
       "type": "call.started",
-      "ts": "2026-09-10T22:07:00Z",
+      "ts": "2026-11-07T22:07:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0108_02",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-09-10T22:19:00Z",
+      "ts": "2026-11-07T22:19:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_priya_phone",
@@ -39,7 +39,7 @@
       "event_id": "evt_gen_0108_03",
       "user_id": "usr_priya",
       "type": "portal.signals",
-      "ts": "2026-09-10T22:23:00Z",
+      "ts": "2026-11-07T22:23:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0108",
@@ -65,7 +65,7 @@
       "event_id": "evt_gen_0108_04",
       "user_id": "usr_priya",
       "type": "protection.changed",
-      "ts": "2026-09-10T22:25:00Z",
+      "ts": "2026-11-07T22:25:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -75,10 +75,21 @@
       "call_id": "call_gen_0108"
     },
     {
+      "event_id": "evt_gen_0108_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:26:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      },
+      "call_id": "call_gen_0108"
+    },
+    {
       "event_id": "evt_gen_0108_05",
       "user_id": "usr_priya",
       "type": "transfer_pin.requested",
-      "ts": "2026-09-10T22:27:00Z",
+      "ts": "2026-11-07T22:27:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0108"

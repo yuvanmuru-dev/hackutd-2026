@@ -26,13 +26,31 @@
       "source": "generator",
       "data": {
         "session_id": "ses_seed_hn_marcus",
-        "page_path": ["/portal", "/portal/security", "/portal/transfer-pin"],
-        "ms_per_step": [4600, 5100, 7200],
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/transfer-pin"
+        ],
+        "ms_per_step": [
+          4600,
+          5100,
+          7200
+        ],
         "hesitation_ms": 2400,
         "paste_into_pin": false,
         "tab_switches": 0,
         "pointer_speed": 0.53,
         "typing_rhythm_distance": 0.19
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_marcus_travel_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T18:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Seattle, WA"
       }
     },
     {
@@ -44,5 +62,8 @@
       "data": {}
     }
   ],
-  "generator": {"seed": 3401, "variant": "marcus_usual_device_new_state"}
+  "generator": {
+    "seed": 3401,
+    "variant": "marcus_usual_device_new_state"
+  }
 }

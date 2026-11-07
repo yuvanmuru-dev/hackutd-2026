@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0052_01",
       "user_id": "usr_priya",
       "type": "call.started",
-      "ts": "2026-08-27T22:23:00Z",
+      "ts": "2026-11-07T22:23:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -22,10 +22,21 @@
       "call_id": "call_gen_0052"
     },
     {
+      "event_id": "evt_gen_0052_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:31:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      },
+      "call_id": "call_gen_0052"
+    },
+    {
       "event_id": "evt_gen_0052_02",
       "user_id": "usr_priya",
       "type": "otp.sent",
-      "ts": "2026-08-27T22:32:00Z",
+      "ts": "2026-11-07T22:32:00Z",
       "source": "generator",
       "data": {
         "purpose": "login"
@@ -36,7 +47,7 @@
       "event_id": "evt_gen_0052_03",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-08-27T22:41:00Z",
+      "ts": "2026-11-07T22:41:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_relay_device_gen_0052",

@@ -30,6 +30,16 @@
       }
     },
     {
+      "event_id": "evt_seed_takeover_04_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T16:01:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
       "event_id": "evt_seed_takeover_04_03",
       "user_id": "usr_elena",
       "type": "sim_swap.requested",

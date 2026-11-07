@@ -6,10 +6,20 @@
   "trigger_event_id": "evt_gen_0278_01",
   "events": [
     {
+      "event_id": "evt_gen_0278_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T16:03:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0278_01",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-10-23T16:04:00Z",
+      "ts": "2026-11-07T16:04:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_elena_phone",

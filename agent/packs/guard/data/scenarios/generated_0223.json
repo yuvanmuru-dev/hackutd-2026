@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0223_01",
       "user_id": "usr_elena",
       "type": "call.started",
-      "ts": "2026-10-09T19:05:00Z",
+      "ts": "2026-11-07T19:05:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0223_02",
       "user_id": "usr_elena",
       "type": "protection.changed",
-      "ts": "2026-10-09T19:19:00Z",
+      "ts": "2026-11-07T19:19:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -35,10 +35,21 @@
       "call_id": "call_gen_0223"
     },
     {
+      "event_id": "evt_gen_0223_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T19:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_gen_0223"
+    },
+    {
       "event_id": "evt_gen_0223_03",
       "user_id": "usr_elena",
       "type": "transfer_pin.requested",
-      "ts": "2026-10-09T19:21:00Z",
+      "ts": "2026-11-07T19:21:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0223"

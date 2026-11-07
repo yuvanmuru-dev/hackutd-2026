@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0021_01",
       "user_id": "usr_marcus",
       "type": "login",
-      "ts": "2026-08-20T13:07:00Z",
+      "ts": "2026-11-07T13:07:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0021",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0021_02",
       "user_id": "usr_marcus",
       "type": "pin.attempt",
-      "ts": "2026-08-20T13:08:00Z",
+      "ts": "2026-11-07T13:08:00Z",
       "source": "generator",
       "data": {
         "ok": false,
@@ -30,10 +30,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0021_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T13:09:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0021_03",
       "user_id": "usr_marcus",
       "type": "sim_swap.requested",
-      "ts": "2026-08-20T13:10:00Z",
+      "ts": "2026-11-07T13:10:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0021",

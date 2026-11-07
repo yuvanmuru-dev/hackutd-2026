@@ -33,69 +33,112 @@
   ],
   "baselines": {
     "usr_maya": {
-      "known_device_hashes": ["h_maya_laptop", "h_maya_phone"],
+      "known_device_hashes": [
+        "h_maya_laptop",
+        "h_maya_phone"
+      ],
       "device_age_bucket": "4y_plus",
       "sim_age_bucket": "4y_plus",
       "sim_changes_90d": 0,
-      "usual_login_regions": ["Dallas, TX"],
+      "usual_login_regions": [
+        "Dallas, TX"
+      ],
       "login_region_pattern": "one_region",
       "usual_login_hour_bucket": "daytime",
       "login_frequency_bucket": "monthly",
       "account_changes_90d": 0,
       "usual_care_channel": "store",
-      "care_contacts_90d": 1
+      "care_contacts_90d": 1,
+      "billing_visit_frequency_bucket": "monthly",
+      "plan_change_frequency_bucket": "rare"
     },
     "usr_dev": {
-      "known_device_hashes": ["h_dev_phone"],
+      "known_device_hashes": [
+        "h_dev_phone",
+        "h_dev_new_phone"
+      ],
       "device_age_bucket": "under_1y",
       "sim_age_bucket": "under_1y",
-      "sim_changes_90d": 0,
-      "usual_login_regions": ["Austin, TX"],
+      "sim_changes_90d": 1,
+      "usual_login_regions": [
+        "Austin, TX"
+      ],
       "login_region_pattern": "one_region",
       "usual_login_hour_bucket": "afternoon_evening",
       "login_frequency_bucket": "weekly",
-      "account_changes_90d": 1,
+      "account_changes_90d": 2,
       "usual_care_channel": "app",
-      "care_contacts_90d": 0
+      "care_contacts_90d": 0,
+      "billing_visit_frequency_bucket": "monthly",
+      "plan_change_frequency_bucket": "occasional"
     },
     "usr_priya": {
-      "known_device_hashes": ["h_priya_phone"],
+      "known_device_hashes": [
+        "h_priya_phone"
+      ],
       "device_age_bucket": "1_to_3y",
       "sim_age_bucket": "1_to_3y",
       "sim_changes_90d": 0,
-      "usual_login_regions": ["Houston, TX"],
+      "usual_login_regions": [
+        "Houston, TX"
+      ],
       "login_region_pattern": "one_region",
       "usual_login_hour_bucket": "overnight_02_05",
       "login_frequency_bucket": "monthly",
       "account_changes_90d": 0,
       "usual_care_channel": "app",
-      "care_contacts_90d": 0
+      "care_contacts_90d": 0,
+      "billing_visit_frequency_bucket": "monthly",
+      "plan_change_frequency_bucket": "rare"
     },
     "usr_marcus": {
-      "known_device_hashes": ["h_marcus_phone"],
+      "known_device_hashes": [
+        "h_marcus_phone"
+      ],
       "device_age_bucket": "1_to_3y",
       "sim_age_bucket": "1_to_3y",
       "sim_changes_90d": 0,
-      "usual_login_regions": ["Dallas, TX"],
+      "usual_login_regions": [
+        "Dallas, TX",
+        "Phoenix, AZ",
+        "Denver, CO",
+        "Miami, FL",
+        "Seattle, WA",
+        "Boston, MA"
+      ],
       "login_region_pattern": "multi_state_weekly",
       "usual_login_hour_bucket": "daytime_evening",
       "login_frequency_bucket": "weekly",
       "account_changes_90d": 1,
       "usual_care_channel": "app",
-      "care_contacts_90d": 0
+      "care_contacts_90d": 0,
+      "billing_visit_frequency_bucket": "monthly",
+      "plan_change_frequency_bucket": "occasional"
     },
     "usr_elena": {
-      "known_device_hashes": ["h_elena_phone"],
+      "known_device_hashes": [
+        "h_elena_phone"
+      ],
       "device_age_bucket": "3_to_4y",
       "sim_age_bucket": "3_to_4y",
       "sim_changes_90d": 0,
-      "usual_login_regions": ["San Antonio, TX"],
+      "usual_login_regions": [
+        "San Antonio, TX"
+      ],
       "login_region_pattern": "one_region",
       "usual_login_hour_bucket": "daytime",
       "login_frequency_bucket": "monthly",
       "account_changes_90d": 1,
       "usual_care_channel": "care",
-      "care_contacts_90d": 3
+      "care_contacts_90d": 3,
+      "billing_visit_frequency_bucket": "monthly",
+      "plan_change_frequency_bucket": "occasional"
     }
+  },
+  "history_window": {
+    "start_date": "2026-08-09",
+    "end_date": "2026-11-06",
+    "days": 90,
+    "timezone": "America/Chicago"
   }
 }

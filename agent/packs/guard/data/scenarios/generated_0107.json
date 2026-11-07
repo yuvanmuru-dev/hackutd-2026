@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0107_01",
       "user_id": "usr_maya",
       "type": "call.started",
-      "ts": "2026-09-10T19:19:00Z",
+      "ts": "2026-11-07T19:19:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0107_02",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-09-10T19:31:00Z",
+      "ts": "2026-11-07T19:31:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_maya_laptop",
@@ -39,7 +39,7 @@
       "event_id": "evt_gen_0107_03",
       "user_id": "usr_maya",
       "type": "portal.signals",
-      "ts": "2026-09-10T19:35:00Z",
+      "ts": "2026-11-07T19:35:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0107",
@@ -65,7 +65,7 @@
       "event_id": "evt_gen_0107_04",
       "user_id": "usr_maya",
       "type": "protection.changed",
-      "ts": "2026-09-10T19:37:00Z",
+      "ts": "2026-11-07T19:37:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -75,10 +75,21 @@
       "call_id": "call_gen_0107"
     },
     {
+      "event_id": "evt_gen_0107_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T19:38:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0107"
+    },
+    {
       "event_id": "evt_gen_0107_05",
       "user_id": "usr_maya",
       "type": "transfer_pin.requested",
-      "ts": "2026-09-10T19:39:00Z",
+      "ts": "2026-11-07T19:39:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0107"

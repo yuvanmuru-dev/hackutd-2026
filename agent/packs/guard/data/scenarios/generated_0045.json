@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0045_01",
       "user_id": "usr_priya",
       "type": "login",
-      "ts": "2026-08-26T13:10:00Z",
+      "ts": "2026-11-07T13:10:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0045",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0045_02",
       "user_id": "usr_priya",
       "type": "protection.changed",
-      "ts": "2026-08-26T13:11:00Z",
+      "ts": "2026-11-07T13:11:00Z",
       "source": "generator",
       "data": {
         "name": "sim_protection",
@@ -31,10 +31,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0045_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T13:12:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0045_03",
       "user_id": "usr_priya",
       "type": "sim_swap.requested",
-      "ts": "2026-08-26T13:13:00Z",
+      "ts": "2026-11-07T13:13:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0045",

@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0265_01",
       "user_id": "usr_maya",
       "type": "call.started",
-      "ts": "2026-10-20T13:05:00Z",
+      "ts": "2026-11-07T13:05:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0265_02",
       "user_id": "usr_maya",
       "type": "login",
-      "ts": "2026-10-20T13:22:00Z",
+      "ts": "2026-11-07T13:22:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_maya_laptop",
@@ -36,10 +36,21 @@
       "call_id": "call_gen_0265"
     },
     {
+      "event_id": "evt_gen_0265_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T13:24:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0265"
+    },
+    {
       "event_id": "evt_gen_0265_03",
       "user_id": "usr_maya",
       "type": "protection.changed",
-      "ts": "2026-10-20T13:25:00Z",
+      "ts": "2026-11-07T13:25:00Z",
       "source": "generator",
       "data": {
         "name": "scam_block",

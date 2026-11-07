@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0199_01",
       "user_id": "usr_dev",
       "type": "login",
-      "ts": "2026-10-03T19:31:00Z",
+      "ts": "2026-11-07T19:31:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0199_0",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0199_02",
       "user_id": "usr_dev",
       "type": "login",
-      "ts": "2026-10-03T19:32:00Z",
+      "ts": "2026-11-07T19:32:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0199_1",
@@ -35,7 +35,7 @@
       "event_id": "evt_gen_0199_03",
       "user_id": "usr_dev",
       "type": "login",
-      "ts": "2026-10-03T19:33:00Z",
+      "ts": "2026-11-07T19:33:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0199_2",
@@ -45,10 +45,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0199_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T19:33:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0199_04",
       "user_id": "usr_dev",
       "type": "login",
-      "ts": "2026-10-03T19:34:00Z",
+      "ts": "2026-11-07T19:34:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_bot_device_gen_0199_3",

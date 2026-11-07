@@ -1,10 +1,11 @@
-"""Seeded synthetic guard scenarios.
+"""Seeded synthetic guard scenarios and sparse account history.
 
 Run from agent/: python3 -m packs.guard.generator
 Check committed output without writing: python3 -m packs.guard.generator --check
 
-This module writes only generated_*.json. The hand-authored seed_*.json files
-are deliberately outside its output set.
+Writes generated_*.json and five history/*.jsonl files. Hand-authored seed
+scenarios are validated but never rewritten. History contains only normal
+account events; line.region appears only in independent trigger scenarios.
 """
 from __future__ import annotations
 
@@ -14,10 +15,17 @@ import random
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from core.contracts import errors
 
 SCENARIO_DIR = Path(__file__).resolve().parent / "data" / "scenarios"
+DATA_DIR = SCENARIO_DIR.parent
+HISTORY_DIR = DATA_DIR / "history"
+HISTORY_START = datetime(2026, 8, 9, tzinfo=ZoneInfo("America/Chicago"))
+HISTORY_DAYS = 90
+HISTORY_WINDOW = {"start_date": "2026-08-09", "end_date": "2026-11-06", "days": 90,
+                  "timezone": "America/Chicago"}
 DEFAULT_SEED = 20261107
 PERSONAS = {
     "usr_maya": {"region": "Dallas, TX", "device": "h_maya_laptop"},
@@ -106,6 +114,81 @@ def _remote_region(rng: random.Random, home: str) -> str:
     return rng.choice([region for region in OTHER_REGIONS if region != home])
 
 
+def _with_line_snapshot(scenario: dict) -> dict:
+    """One carrier snapshot at this trigger, never a trail of serving regions."""
+    trigger = next(e for e in scenario["events"] if e["event_id"] == scenario["trigger_event_id"])
+    if trigger["type"] == "message.forwarded":
+        return scenario
+    uid = scenario["user_id"]
+    region = PERSONAS[uid]["region"]
+    if scenario["label"] == "legit":
+        logins = [e for e in scenario["events"] if e["type"] == "login" and e["ts"] <= trigger["ts"]]
+        if logins:
+            region = max(logins, key=lambda e: e["ts"])["data"]["region"]
+    # A takeover's remote requester and the customer's phone are independent.
+    snapshot = {
+        "event_id": scenario["scenario_id"].replace("scn_", "evt_", 1) + "_line_region",
+        "user_id": uid, "type": "line.region",
+        "ts": (datetime.fromisoformat(trigger["ts"].replace("Z", "+00:00")) - timedelta(seconds=1))
+            .isoformat().replace("+00:00", "Z"),
+        "source": "generator", "data": {"region": region},
+    }
+    if trigger.get("call_id"):
+        snapshot["call_id"] = trigger["call_id"]
+    events = [e for e in scenario["events"] if e["type"] != "line.region"]
+    events.insert(next(i for i, e in enumerate(events) if e["event_id"] == trigger["event_id"]), snapshot)
+    scenario["events"] = events
+    return scenario
+
+
+def histories(seed: int = DEFAULT_SEED) -> dict[str, list[dict]]:
+    """Normal sessions in a fixed 90-day window, sparse at persona cadence."""
+    result = {}
+    monthly = (0, 30, 60, 89)
+    weekly = tuple(range(0, 90, 7)) + (89,)
+    for persona_index, (uid, profile) in enumerate(PERSONAS.items()):
+        rng = random.Random(seed + 10000 + persona_index)
+        events = []
+
+        def add(day: int, hour: int, kind: str, data: dict, minute: int = 0):
+            at = (HISTORY_START + timedelta(days=day)).replace(hour=hour, minute=minute)
+            events.append({"event_id": f"evt_hist_{uid[4:]}_{len(events) + 1:03d}",
+                           "user_id": uid, "type": kind,
+                           "ts": at.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+                           "source": "generator", "data": data})
+
+        for visit, day in enumerate(weekly if uid in {"usr_dev", "usr_marcus"} else monthly):
+            hour = rng.randrange(2, 6) if uid == "usr_priya" else rng.randrange(16, 22) if uid == "usr_dev" else rng.randrange(10, 19)
+            region = ((profile["region"],) + OTHER_REGIONS)[visit % 6] if uid == "usr_marcus" else profile["region"]
+            device = ("h_maya_phone" if visit % 2 else "h_maya_laptop") if uid == "usr_maya" else profile["device"]
+            if uid == "usr_dev" and day > 50:
+                device = "h_dev_new_phone"
+            add(day, hour, "login", {"device_hash": device, "region": region,
+                                      "new_device": False, "succeeded": True})
+            normal_pace = {"usr_maya": 7000, "usr_dev": 1800, "usr_priya": 4200,
+                           "usr_marcus": 2300, "usr_elena": 6500}[uid]
+            pace = normal_pace + rng.randrange(-300, 500)
+            add(day, hour, "portal.signals", {
+                "session_id": f"ses_hist_{uid[4:]}_{visit:02d}",
+                "page_path": ["/portal", "/portal/billing" if visit % 2 == 0 else "/portal/plan"],
+                "ms_per_step": [pace, pace + 500], "hesitation_ms": rng.randrange(500, 2500),
+                "paste_into_pin": False, "tab_switches": rng.randrange(0, 2),
+                "pointer_speed": round(rng.uniform(0.3, 0.7), 2),
+                "typing_rhythm_distance": round(rng.uniform(0.05, 0.3), 2),
+            }, minute=2)
+        for day in ((45,) if uid == "usr_maya" else (12, 45, 78) if uid == "usr_elena" else ()):
+            add(day, 14, "pin.attempt", {"ok": True, "channel": "care"})
+        if uid == "usr_dev":
+            add(50, 17, "login", {"device_hash": "h_dev_new_phone", "region": profile["region"],
+                                    "new_device": True, "succeeded": True})
+            add(50, 17, "sim_swap.requested", {"new_device_hash": "h_dev_new_phone", "channel": "store"}, minute=5)
+        if uid in {"usr_dev", "usr_marcus", "usr_elena"}:
+            add(65, 16, "protection.changed", {"name": "scam_block", "enabled": True,
+                                                "via": "app" if uid != "usr_elena" else "care"})
+        result[uid] = sorted(events, key=lambda e: e["ts"])
+    return result
+
+
 def _build(index: int, label: str, variant: str, seed: int) -> dict:
     rng = random.Random(seed + index)
     uid = rng.choice(tuple(PERSONAS))
@@ -118,7 +201,8 @@ def _build(index: int, label: str, variant: str, seed: int) -> dict:
     elif variant == "known_family_call":
         uid = "usr_maya"
     p = PERSONAS[uid]
-    day = datetime(2026, 8, 15, tzinfo=timezone.utc) + timedelta(days=(index - 1) // 4)
+    # Scenarios are independent demo-day sessions, after the normal baseline.
+    day = datetime(2026, 11, 7, tzinfo=timezone.utc)
     hour = 8 if variant == "night_shift_login" else (13, 16, 19, 22)[(index - 1) % 4]
     start = day.replace(hour=hour) + timedelta(minutes=rng.randrange(0, 35))
     at = lambda minutes: start + timedelta(minutes=minutes)
@@ -256,7 +340,7 @@ def _build(index: int, label: str, variant: str, seed: int) -> dict:
         trigger_id = ev[0]["event_id"]
     else:
         trigger_id = ev[-1]["event_id"]
-    return {
+    return _with_line_snapshot({
         "scenario_id": f"scn_gen_{index:04d}",
         "user_id": uid,
         "label": label,
@@ -264,7 +348,7 @@ def _build(index: int, label: str, variant: str, seed: int) -> dict:
         "trigger_event_id": trigger_id,
         "events": ev,
         "generator": {"seed": seed + index, "variant": variant},
-    }
+    })
 
 
 def scenarios(seed: int = DEFAULT_SEED) -> list[dict]:
@@ -293,6 +377,21 @@ def _expected_trigger_type(label: str, variant: str) -> str:
     raise ValueError(f"Unknown group: {label}/{variant}")
 
 
+def _validate_snapshot(scenario: dict) -> None:
+    events = scenario["events"]
+    trigger_index = next(i for i, event in enumerate(events)
+                         if event["event_id"] == scenario["trigger_event_id"])
+    snapshots = [event for event in events if event["type"] == "line.region"]
+    if events[trigger_index]["type"] == "message.forwarded":
+        if snapshots:
+            raise ValueError(f"{scenario['scenario_id']}: forwarded text needs no serving-region snapshot")
+        return
+    if len(snapshots) != 1 or trigger_index == 0 or events[trigger_index - 1] != snapshots[0]:
+        raise ValueError(f"{scenario['scenario_id']}: expected one snapshot immediately before trigger")
+    if snapshots[0]["ts"] >= events[trigger_index]["ts"]:
+        raise ValueError(f"{scenario['scenario_id']}: snapshot must precede trigger")
+
+
 def write_or_check(seed: int = DEFAULT_SEED, output_dir: Path = SCENARIO_DIR,
                    *, check: bool = False) -> tuple[Counter, Counter]:
     labels: Counter = Counter()
@@ -309,6 +408,7 @@ def write_or_check(seed: int = DEFAULT_SEED, output_dir: Path = SCENARIO_DIR,
         violations = errors("DatasetScenario", scenario)
         if violations:
             raise ValueError(f"{scenario['scenario_id']}: {violations}")
+        _validate_snapshot(scenario)
         triggers = [item for item in scenario["events"]
                     if item["event_id"] == scenario["trigger_event_id"]]
         expected_type = _expected_trigger_type(scenario["label"],
@@ -333,6 +433,51 @@ def write_or_check(seed: int = DEFAULT_SEED, output_dir: Path = SCENARIO_DIR,
     return labels, variants
 
 
+def write_or_check_history(seed: int = DEFAULT_SEED, output_dir: Path = HISTORY_DIR,
+                           *, check: bool = False) -> dict[str, int]:
+    personas = json.loads((DATA_DIR / "personas.json").read_text())
+    if personas.get("history_window") != HISTORY_WINDOW:
+        raise ValueError("personas.json history_window differs from generator's 90-day window")
+    generated = histories(seed)
+    expected_names = {f"{uid}.jsonl" for uid in generated}
+    if check and {path.name for path in output_dir.glob("*.jsonl")} != expected_names:
+        raise ValueError("history file set differs from five personas")
+    counts = {}
+    for uid, events in generated.items():
+        for event in events:
+            violations = errors("Event", event)
+            if violations:
+                raise ValueError(f"{event['event_id']}: {violations}")
+            if event["type"] == "line.region":
+                raise ValueError("baseline history must not contain serving-region trails")
+            local_day = datetime.fromisoformat(event["ts"].replace("Z", "+00:00")).astimezone(HISTORY_START.tzinfo).date()
+            if not HISTORY_START.date() <= local_day < (HISTORY_START + timedelta(days=HISTORY_DAYS)).date():
+                raise ValueError(f"{event['event_id']}: outside the 90-day window")
+        path = output_dir / f"{uid}.jsonl"
+        content = "".join(json.dumps(event, sort_keys=True, ensure_ascii=False) + "\n" for event in events)
+        if check:
+            if not path.is_file() or path.read_text() != content:
+                raise ValueError(f"{path}: missing or differs from seed {seed}")
+        else:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            path.write_text(content)
+        counts[uid] = len(events)
+    return counts
+
+
+def validate_seeds() -> int:
+    paths = sorted(SCENARIO_DIR.glob("seed_*.json"))
+    if len(paths) != 20:
+        raise ValueError("expected the original 20 hand-authored seed scenarios")
+    for path in paths:
+        scenario = json.loads(path.read_text())
+        violations = errors("DatasetScenario", scenario)
+        if violations:
+            raise ValueError(f"{path}: {violations}")
+        _validate_snapshot(scenario)
+    return len(paths)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
@@ -340,7 +485,12 @@ def main() -> None:
                         help="validate and compare generated files without writing")
     args = parser.parse_args()
     labels, variants = write_or_check(args.seed, check=args.check)
+    history_counts = write_or_check_history(args.seed, check=args.check)
+    seed_count = validate_seeds()
     print(f"{'checked' if args.check else 'wrote'} {sum(labels.values())} generated scenarios")
+    print(f"validated {seed_count} seeds; {seed_count + sum(labels.values())} total scenarios")
+    print("history window:", HISTORY_WINDOW)
+    print("history events:", history_counts)
     print("labels:", dict(sorted(labels.items())))
     print("variants:", dict(sorted(variants.items())))
 

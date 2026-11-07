@@ -75,6 +75,17 @@
       "call_id": "call_seed_coached_02"
     },
     {
+      "event_id": "evt_seed_coached_02_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
       "event_id": "evt_seed_coached_02_05",
       "user_id": "usr_dev",
       "type": "transfer_pin.requested",

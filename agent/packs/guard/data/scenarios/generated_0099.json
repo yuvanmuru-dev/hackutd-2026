@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0099_01",
       "user_id": "usr_elena",
       "type": "call.started",
-      "ts": "2026-09-08T19:04:00Z",
+      "ts": "2026-11-07T19:04:00Z",
       "source": "generator",
       "data": {
         "direction": "in",
@@ -25,7 +25,7 @@
       "event_id": "evt_gen_0099_02",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-09-08T19:16:00Z",
+      "ts": "2026-11-07T19:16:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_elena_phone",
@@ -39,7 +39,7 @@
       "event_id": "evt_gen_0099_03",
       "user_id": "usr_elena",
       "type": "portal.signals",
-      "ts": "2026-09-08T19:20:00Z",
+      "ts": "2026-11-07T19:20:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0099",
@@ -65,7 +65,7 @@
       "event_id": "evt_gen_0099_04",
       "user_id": "usr_elena",
       "type": "protection.changed",
-      "ts": "2026-09-08T19:22:00Z",
+      "ts": "2026-11-07T19:22:00Z",
       "source": "generator",
       "data": {
         "name": "port_out_protection",
@@ -75,10 +75,21 @@
       "call_id": "call_gen_0099"
     },
     {
+      "event_id": "evt_gen_0099_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T19:23:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_gen_0099"
+    },
+    {
       "event_id": "evt_gen_0099_05",
       "user_id": "usr_elena",
       "type": "transfer_pin.requested",
-      "ts": "2026-09-08T19:24:00Z",
+      "ts": "2026-11-07T19:24:00Z",
       "source": "generator",
       "data": {},
       "call_id": "call_gen_0099"

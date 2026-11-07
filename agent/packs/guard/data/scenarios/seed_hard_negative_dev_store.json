@@ -19,6 +19,16 @@
       }
     },
     {
+      "event_id": "evt_seed_hn_dev_store_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T21:25:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
       "event_id": "evt_seed_hn_dev_02",
       "user_id": "usr_dev",
       "type": "sim_swap.requested",
@@ -30,5 +40,8 @@
       }
     }
   ],
-  "generator": {"seed": 3403, "variant": "dev_new_phone_store_upgrade"}
+  "generator": {
+    "seed": 3403,
+    "variant": "dev_new_phone_store_upgrade"
+  }
 }

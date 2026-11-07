@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0029_01",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-08-22T13:15:00Z",
+      "ts": "2026-11-07T13:15:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0029",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0029_02",
       "user_id": "usr_elena",
       "type": "portal.signals",
-      "ts": "2026-08-22T13:16:00Z",
+      "ts": "2026-11-07T13:16:00Z",
       "source": "generator",
       "data": {
         "session_id": "ses_gen_0029",
@@ -44,10 +44,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0029_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T13:17:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0029_03",
       "user_id": "usr_elena",
       "type": "sim_swap.requested",
-      "ts": "2026-08-22T13:18:00Z",
+      "ts": "2026-11-07T13:18:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0029",

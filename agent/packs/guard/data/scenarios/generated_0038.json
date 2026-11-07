@@ -9,7 +9,7 @@
       "event_id": "evt_gen_0038_01",
       "user_id": "usr_elena",
       "type": "login",
-      "ts": "2026-08-24T16:09:00Z",
+      "ts": "2026-11-07T16:09:00Z",
       "source": "generator",
       "data": {
         "device_hash": "h_new_device_gen_0038",
@@ -22,7 +22,7 @@
       "event_id": "evt_gen_0038_02",
       "user_id": "usr_elena",
       "type": "protection.changed",
-      "ts": "2026-08-24T16:10:00Z",
+      "ts": "2026-11-07T16:10:00Z",
       "source": "generator",
       "data": {
         "name": "sim_protection",
@@ -31,10 +31,20 @@
       }
     },
     {
+      "event_id": "evt_gen_0038_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T16:11:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
       "event_id": "evt_gen_0038_03",
       "user_id": "usr_elena",
       "type": "sim_swap.requested",
-      "ts": "2026-08-24T16:12:00Z",
+      "ts": "2026-11-07T16:12:00Z",
       "source": "generator",
       "data": {
         "new_device_hash": "h_new_device_gen_0038",
