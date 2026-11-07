@@ -14,7 +14,7 @@ export function VerdictCard({ detail, head, view }: Props) {
   return (
     <section className="g-panel g-verdict flex min-h-0 flex-col overflow-hidden px-6 py-5" data-revealed={revealed} aria-live="polite" aria-label="Verdict">
       <p className="g-label">Verdict</p>
-      <p className="g-verdict-threat mt-1">{revealed ? wordsFor(threat) : "Scoring…"}</p>
+      <p className="g-verdict-threat mt-1 text-balance">{revealed ? wordsFor(threat) : "Scoring…"}</p>
       <p className="mt-2 text-[clamp(20px,1.4vw,26px)] font-semibold tabular text-[var(--g-ink-2)]">
         {revealed ? confidenceWords(risk, head) : "The Risk agent has not scored yet"}
       </p>

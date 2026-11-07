@@ -40,7 +40,7 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
       <span className="g-pill" data-tone={s.tone}>
         {s.text}
       </span>
-      {mode === "live" && (
+      {mode === "live" && !view.done && (
         <span className="g-pill" data-tone="live">
           <span className="g-dot" aria-hidden />
           Live

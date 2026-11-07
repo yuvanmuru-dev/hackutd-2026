@@ -9,7 +9,7 @@ export function DataUsed({ dataUsed, signals }: { dataUsed: string[]; signals: C
       <h2 className="text-[22px] font-semibold">Data used</h2>
       <div className="g-scroll mt-3 min-h-0 flex-1">
         <ul className="flex flex-col gap-2 leading-snug">
-          {dataUsed.length === 0 && <li className="text-[var(--g-ink-3)]">Nothing read yet</li>}
+          {dataUsed.length === 0 && <li className="text-[var(--g-ink-3)]">None listed yet</li>}
           {dataUsed.map((d) => (
             <li key={d}>{d}</li>
           ))}

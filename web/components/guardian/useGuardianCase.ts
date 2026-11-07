@@ -55,6 +55,8 @@ export function useGuardianCase(caseId: string | null) {
         const d = await getCase(id);
         if (!alive.current) return;
         setDetail(d);
+        // The stream closes on "done" before its trailing `case` event, so the head also follows refetches.
+        setHead(headOf(d));
       } while (dirty.current);
     } catch {
       /* keep the last good detail; the stream keeps going */

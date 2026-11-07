@@ -33,7 +33,7 @@ export default function GuardianIndex() {
   return (
     <main className="guardian flex flex-col items-center justify-center gap-6 p-8 text-center">
       <TGlyph size={64} tone="accent" title="Titan" />
-      <h1 className="text-[36px] font-semibold tracking-tight">
+      <h1 className="text-balance text-[36px] font-semibold tracking-tight">
         {state === "looking" ? "Finding the latest case…" : "Waiting for a case"}
       </h1>
       {state === "none" && (
@@ -48,7 +48,7 @@ export default function GuardianIndex() {
               setState("looking");
               look();
             }}
-            className="h-14 rounded-full bg-[var(--g-ink)] px-8 text-[20px] font-semibold text-[var(--g-ground)] transition-transform active:scale-[0.98]"
+            className="h-14 rounded-full bg-[var(--g-ink)] px-8 text-[20px] font-semibold text-[var(--g-ground)] transition-[transform,opacity] hover:opacity-90 active:scale-[0.98]"
           >
             Check again
           </button>

@@ -52,7 +52,9 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
                 </div>
               </header>
               <StepList steps={steps}>
-                {steps.length === 0 && <li className="text-[var(--g-ink-3)]">Waiting for its turn</li>}
+                {steps.length === 0 && (
+                  <li className="text-[var(--g-ink-3)]">{view.done ? "Not needed for this case" : "Waiting for its turn"}</li>
+                )}
                 {steps.map((s) => (
                   <li key={s.seq} className="g-step" data-type={s.type}>
                     <span className="g-step-kind">{KIND[s.type] ?? s.type}</span>
