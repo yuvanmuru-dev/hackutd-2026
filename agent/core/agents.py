@@ -150,10 +150,14 @@ def outbound_ok(text: str, use_model: bool = True) -> tuple[bool, str]:
             return False, "asks for a secret"
     if use_model and llm.model_for("safety"):
         try:
-            out, _ = llm.chat_json("safety", "Assess this outbound message from a security service to a customer.", text, max_tokens=60)
-            verdicts = [str(v).lower() for v in out.values()]  # Safety Guard v3: {"User Safety": "safe", ...}
-            if out.get("safe") is False or any(v == "unsafe" for v in verdicts):
-                return False, "Safety Guard flagged it"
+            out, _ = llm.chat_json("safety", "Assess this outbound message from a security service to a customer.", text, max_tokens=80)
+            unsafe = out.get("safe") is False or any(str(v).lower() == "unsafe" for k, v in out.items() if "safety" in k.lower())
+            cats = {c.strip().lower() for c in str(out.get("Safety Categories", "")).split(",") if c.strip()}
+            severe = {c for c in cats if not c.startswith(("needs caution", "criminal planning", "fraud", "unauthorized advice", "other"))}
+            if unsafe and severe:  # Safety Guard v3 tags scam *warnings* as "Criminal Planning / Needs Caution"; those are advisory
+                return False, f"Safety Guard flagged it ({', '.join(sorted(severe))})"
+            if unsafe:
+                return True, f"Safety Guard advisory only ({', '.join(sorted(cats)) or 'no category'})"
         except Exception:  # noqa: BLE001
             return True, "Safety Guard unavailable; rules passed"
     return True, "ok"

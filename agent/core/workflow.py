@@ -117,12 +117,14 @@ class Run:
         mins = f"{cc['minutes']}-minute " if cc.get("minutes") else ""
         return f"While you were on a {mins}call with a number{caller} that we couldn't verify, someone asked you to{asks}."
 
-    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None) -> dict:
+    def send(self, kind: str, text: str, expects_reply: bool, action_id: str | None = None, model_written: bool = False) -> dict:
+        """Every message gets the rule checks (no links, never asks for a secret). Safety Guard also screens text a model wrote;
+        Titan's fixed templates and fact-built sentences skip it (it flags plain PIN-reset questions as PII)."""
         text = defang(text)
-        ok, why = agents.outbound_ok(text)
+        ok, why = agents.outbound_ok(text, use_model=model_written)
         if not ok:
             self.step("verifier", "reach", "error", f"Blocked an outbound message ({why}); using the safe template", {"reason": why})
-            text = TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"])
+            text = defang(TEMPLATES.get(kind, TEMPLATES["info"]).format(name=self.store.users[self.uid]["name"], story=self.story()))
         msg = {"message_id": new_id("msg"), "case_id": self.case["case_id"], "channel": "imessage", "direction": "out",
                "kind": kind, "text": text, "ts": iso(now())}
         self.case["messages"].append(msg)
@@ -254,8 +256,8 @@ class Run:
         except Exception:  # noqa: BLE001
             words = {}
         self.call_words = words
-        alert = words.get("alert_text") or TEMPLATES["alert"].format(name=name)
-        self.send("alert", alert, True)
+        alert = words.get("alert_text") or TEMPLATES["alert"].format(name=name, story=self.story())
+        self.send("alert", alert, True, model_written=bool(words.get("alert_text")))
         self.step("messaging", "reach", "message", f"iMessage sent: \"{alert[:90]}{'…' if len(alert) > 90 else ''}\"", {})
         return True
 
@@ -353,7 +355,7 @@ class Run:
         replaced = {}
         for k in ("what_happened", "why_we_stepped_in", "spot_it_next_time", "confidence_text"):
             summary[k] = defang(summary[k])
-            ok, why = agents.outbound_ok(summary[k], use_model=False)
+            ok, why = agents.outbound_ok(summary[k], use_model=k != "what_happened" and bool(s.get(k)))
             if not ok:
                 replaced[k] = why
                 summary[k] = "Titan stepped in to keep your number safe."
@@ -398,8 +400,8 @@ class Run:
 
 
 TEMPLATES = {
-    "alert": "Titan: {name}, you're on a call with a number we can't verify that says it's T-Mobile. We never ask you to turn off "
-             "protection or share a transfer PIN on a call. Your number is safe and locked again. Was this your idea? Reply YES or NO.",
+    "alert": "Titan: {name}, {story} We stopped it and your number is safe. T-Mobile will never ask you to turn off protection "
+             "or share a PIN. Was this your idea? Reply YES or NO.",
     "info": "Titan: We checked this for you. T-Mobile will never ask you for a PIN or code, or send you a link to verify your account.",
     "question": "Titan: Please hang up any call you're on, then reply YES or NO.",
     "summary": "Titan: We stepped in to keep your number safe. Your number is protected.",
