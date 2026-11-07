@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0168",
+  "user_id": "usr_elena",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0168_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0168_01",
+      "user_id": "usr_elena",
+      "type": "message.forwarded",
+      "ts": "2026-11-07T22:26:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "sms",
+        "text": "T-Mobile support: urgent account review. Reply with your account PIN.",
+        "from_hash": "h_sender_gen_0168"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261275,
+    "variant": "pin_request_no_link"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0077",
+  "user_id": "usr_elena",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0077_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0077_01",
+      "user_id": "usr_elena",
+      "type": "call.started",
+      "ts": "2026-11-07T13:20:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0077",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0077"
+    },
+    {
+      "event_id": "evt_gen_0077_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T13:32:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_gen_0077"
+    },
+    {
+      "event_id": "evt_gen_0077_02",
+      "user_id": "usr_elena",
+      "type": "otp.sent",
+      "ts": "2026-11-07T13:33:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0077"
+    },
+    {
+      "event_id": "evt_gen_0077_03",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T13:38:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0077",
+        "region": "Phoenix, AZ",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0077"
+    }
+  ],
+  "generator": {
+    "seed": 20261184,
+    "variant": "code_relay"
+  }
+}

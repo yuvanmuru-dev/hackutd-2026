@@ -1,0 +1,51 @@
+{
+  "scenario_id": "scn_gen_0069",
+  "user_id": "usr_elena",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0069_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0069_01",
+      "user_id": "usr_elena",
+      "type": "call.started",
+      "ts": "2026-11-07T13:06:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0069",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0069"
+    },
+    {
+      "event_id": "evt_gen_0069_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T13:11:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_gen_0069"
+    },
+    {
+      "event_id": "evt_gen_0069_02",
+      "user_id": "usr_elena",
+      "type": "otp.sent",
+      "ts": "2026-11-07T13:12:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0069"
+    }
+  ],
+  "generator": {
+    "seed": 20261176,
+    "variant": "code_relay"
+  }
+}

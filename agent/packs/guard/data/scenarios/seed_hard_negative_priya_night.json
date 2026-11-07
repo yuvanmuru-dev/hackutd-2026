@@ -1,0 +1,57 @@
+{
+  "scenario_id": "scn_seed_hn_priya_night",
+  "user_id": "usr_priya",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_seed_hn_priya_03",
+  "events": [
+    {
+      "event_id": "evt_seed_hn_priya_01",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-11-07T09:03:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_priya_phone",
+        "region": "Houston, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_priya_02",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T09:05:00Z",
+      "source": "generator",
+      "data": {
+        "ok": true,
+        "channel": "app"
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_priya_night_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T09:05:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_priya_03",
+      "user_id": "usr_priya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T09:06:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "account_change"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 3402,
+    "variant": "priya_normal_night_shift_pin"
+  }
+}

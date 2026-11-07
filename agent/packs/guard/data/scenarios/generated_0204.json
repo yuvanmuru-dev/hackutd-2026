@@ -1,0 +1,80 @@
+{
+  "scenario_id": "scn_gen_0204",
+  "user_id": "usr_priya",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0204_05",
+  "events": [
+    {
+      "event_id": "evt_gen_0204_01",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:17:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0204_02",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:18:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0204_03",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:19:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0204_04",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:20:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0204_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:21:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0204_05",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-11-07T22:22:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0204",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": false
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261311,
+    "variant": "pin_guess_burst"
+  }
+}

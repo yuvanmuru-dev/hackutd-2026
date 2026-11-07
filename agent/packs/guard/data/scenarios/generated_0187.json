@@ -1,0 +1,100 @@
+{
+  "scenario_id": "scn_gen_0187",
+  "user_id": "usr_dev",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0187_04",
+  "events": [
+    {
+      "event_id": "evt_gen_0187_01",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:22:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0187",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0187_02",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:23:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0187",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0187_03",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:24:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0187",
+        "region": "Phoenix, AZ",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0187_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T19:24:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0187_04",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:25:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0187",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0187_05",
+      "user_id": "usr_dev",
+      "type": "portal.signals",
+      "ts": "2026-11-07T19:27:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_gen_0187",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/transfer"
+        ],
+        "ms_per_step": [
+          1300,
+          900,
+          700
+        ],
+        "hesitation_ms": 700,
+        "paste_into_pin": true,
+        "tab_switches": 0,
+        "pointer_speed": 1.1,
+        "typing_rhythm_distance": 1.7
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261294,
+    "variant": "rapid_failed_logins"
+  }
+}
