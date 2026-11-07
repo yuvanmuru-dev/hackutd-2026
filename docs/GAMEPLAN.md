@@ -47,11 +47,14 @@ Verify every slug on build.nvidia.com at kickoff; swap in `.env` if one 404s.
 | Search our own docs (policies, manuals) | NeMo Retriever embed + rerank NIMs |
 | Guardrail on transcripts / outbound messages | Nemotron Safety Guard |
 
-### Brev GPU ($60 credits for the whole team)
-Build everything against hosted build.nvidia.com. **Brev is optional**: $60 is only a few hours on a big GPU, so treat it as a short demo-time upgrade, not infrastructure.
-- If used: one box for the voice models (Nemotron Lightning via vLLM + Nemotron ASR), started only for rehearsal and judging, stopped right after. Check prices first; an L40S/A100 at a few $/hour gives roughly 10–20 hours at most.
-- Keep Nemotron Super and everything else hosted. Hosted endpoints stay the fallback; switching is one env change and a restart.
-- One person owns the box and posts start/stop in the team chat. **Never leave it running overnight.**
+### Brev GPU ($60 credits for the whole team): use it, off the critical path
+Free, so we use it, but nothing depends on it. Everything is built and demoed against hosted build.nvidia.com first; Brev is switched on by env vars and switched off the same way.
+- **Owner:** Yuvan's Codex (data lane), after the data + tools are done (~T+5). Never Krishang (voice bridge is the riskiest lane).
+- **One box** (L40S or A100; check Brev's console price first). Easiest path: a Brev Launchable / NIM container, not a hand-built stack.
+- **Job 1, GPU training (30 min):** train the XGBoost risk classifier with `device="cuda"` (and RAPIDS cuML if easy) on the box. Pitch line: "trained on an NVIDIA GPU on Brev."
+- **Job 2, self-hosted Nemotron Nano (1–2 h):** serve Nano (OpenAI-compatible) for the Messaging and Voice agents. Switch with `VOICE_LLM_BASE_URL` / a `MESSAGING_LLM_BASE_URL`. Removes rate-limit risk during rehearsals and judging.
+- **Hours budget (~$60):** 2h at T+6 to set up and test, then stop · 4–6h for rehearsals from T+16 · on through judging. Stop it every time it's idle; owner posts start/stop in the team chat. **Never leave it running overnight.**
+- **Fallback:** any problem → point the env vars back at build.nvidia.com and restart. One minute.
 
 ## Idea bank (score these at kickoff against the announced tracks)
 All fit the same brain + doors + packs. Pick the one whose second track has the best prize *and* the best free data.
