@@ -1,16 +1,17 @@
 # AGENTS.md (read by Codex and Claude Code)
 
-5 agents build this repo in parallel. These rules keep us from colliding.
+7 agents build this repo in parallel. These rules keep us from colliding.
 
 ## Read first
-1. docs/GAMEPLAN.md: what we're building and why it beats ChatGPT
+0. docs/PLAN.md + docs/PACK_SPEC.md: what we are building (Shield Pro). They win over older docs
+1. docs/GAMEPLAN.md: architecture and why it beats ChatGPT
 2. docs/CONTRACTS.md + contracts/schema.json: the API every lane builds against
 3. docs/LANES.md: your lane, your folders, your branch
 4. docs/DEMO.md: the 2-minute video and the 5-minute judging script. Build for those beats first
 5. docs/PACK_SPEC.md (once it exists): the chosen domain
 
 ## Architecture in one line
-One brain (`agent/`, FastAPI + Nemotron) with many doors (`web/`, `voice/`, `email/`) plus `watcher/`.
+One brain (`agent/`, FastAPI + Nemotron) with many doors (`web/`, `voice/`, `messaging/`) plus `watcher/`.
 Doors call only the brain's HTTP API. Only the brain calls data APIs. Domains are packs in `agent/packs/<pack>/`.
 
 ## Hard rules
