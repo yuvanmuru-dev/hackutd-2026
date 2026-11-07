@@ -4,92 +4,94 @@ Tracks: **NVIDIA + T-Mobile (Safe Signal) + Photon**. Locked 2026-11-07.
 Working name: **Tell** (a "tell" is the habit that gives someone away). PROPOSAL, rename freely. Don't use "Scam Shield" (T-Mobile's real product).
 
 ## The pitch in two sentences
-Face ID proves it's you. It can't prove you're not being scammed, and our behavior layer can. Face is optional; behavior is always on.
-Tell learns how you normally use your carrier account (typing rhythm, devices, places, hours, the flow you take). When someone acts differently, Nemotron investigates, explains with honest confidence, and reaches you on iMessage or a phone call through Photon before your number or money is gone.
+Face ID proves it's you. It can't prove you're not being scammed. Tell can, because a carrier sees how your phone lives: who you talk to, where you go, which device you use. When the pattern breaks, Nemotron investigates, explains with honest confidence, and reaches you on iMessage or a call through Photon before your number or money is gone.
+**Behavior is always on. The face check is optional.**
 
-## The three threats we demo (all synthetic)
-| # | Threat | Who's acting | What gives it away | What Tell does |
-|---|---|---|---|---|
-| T1 | **Account takeover → SIM swap** | Attacker with a stolen password | New device, impossible travel, typing rhythm far from baseline, goes straight to the SIM page | Holds the SIM swap. Face check fails if Maya enabled it (wrong face). iMessage: "Was this you?" → user replies NO → lock + recovery plan |
-| T2 | **Coached victim → port-out PIN** (the novel one) | The real user, on the phone with a fake "support agent" | Line is on an active call with an unknown number (carrier signal), typing looks dictated (long pauses, then bursts), unusual hesitation, rushed flow, new destination | Face check **passes** (it's really her). Behavior still flags coercion → pauses the action, iMessage + agent calls her: "We never ask for your PIN on a call. Hang up, I'll wait." |
-| T3 | **Scam text before the attack** | Scammer | Forwarded text checked: lookalike domain, new domain age, known scam script | Verdict with sources, links it to her case, raises her risk level for 24h (watch) |
+## Data: synthetic by design
+T-Mobile's slide says "you create the data: synthetic scam messages and scenarios, no real customer data." So we build a **synthetic carrier**: a generator that produces 60 days of realistic network life for a set of personas, plus labeled attack scenarios. It is our demo world, our training baseline and our eval set. Live events from our real voice line, Photon messages and the web portal flow into the same timeline during the demo.
 
-T2 is what judges haven't seen: catching coercion, not just impostors. Only a carrier knows the line is on a call right now; that's the T-Mobile-specific edge.
+## Four behavior layers (main signal first)
+| Layer | What we model per person | Source in the hackathon | Catches |
+|---|---|---|---|
+| **1. Network life pattern** (main, carrier only) | Contact graph (who you call/text, hashed), call lengths and hours, usual cell towers (home, work, commute), sleep window, device ID + SIM history, roaming, account activity and support channels you use | **Synthetic generator** (60 days/persona) + **live call events from our voice line** | T1 new device / SIM / location; T2 a long call from a never-seen number right before a sensitive action |
+| **2. How you talk to Tell** | Reply speed, message length, punctuation/emoji, language. Stretch: voiceprint with NVIDIA TitaNet speaker verification (open source) | Photon iMessage replies (only messages sent to Tell), voice calls | Someone else answering "YES" for her; a different voice on the call |
+| **3. How you handle the phone** (stretch) | Grip angle and tremor (motion sensors), tap position offsets, swipe shape | Mobile web `devicemotion` (one iOS permission prompt) | Different person holding her phone |
+| **4. How you use the portal** | Page path and order, time per page, hesitation, paste into PIN fields, leaving the page (`visibilitychange`), typing rhythm as one small input | Behavior SDK in the web portal, derived numbers only | T1 attacker going straight to SIM swap; T2 dictated input, switching to the call/texts |
+
+The scam tell is usually a **sequence across layers**, e.g. "22-minute call from a never-contacted number showing 'T-Mobile Support' → 3 minutes later a port-out PIN request from her own phone at home, with long pauses and an app switch." Numbers alone don't say *why*; that's the job for Nemotron.
+
+## Synthetic carrier: what the generator makes (Lane 2)
+- **Personas (5)**, each with a real routine so "unusual" means something:
+  - Maya, 68, retired teacher. Small contact circle, home all day, never calls support.
+  - Dev, 24, student. Many contacts, irregular hours, phone upgrades often.
+  - Priya, 41, ER nurse on nights. 3am activity is normal for her.
+  - Marcus, 35, sales rep. Travels weekly, new towers are normal for him.
+  - Elena, 52. Mostly texts in Spanish, calls family abroad.
+- **Event types:** `call`, `sms_meta`, `tower`, `device`, `sim`, `account` (login, setting change, SIM swap, port-out PIN), `portal_session` (layer 4 features), `tell_message` (layer 2 features). Metadata only, no content, except the scam texts users forward.
+- **Attack scenarios, labeled:** T1 account takeover → SIM swap, T2 coached victim → port-out PIN, T3 smishing text, T4 bot credential stuffing, T5 follow-up "recovery scam" after T1/T2.
+- **Hard negatives, labeled legit** (these make the false-positive rate honest): Marcus logs in from a new city, Priya changes a setting at 3am, Dev activates a new phone bought at a store, Maya has a long call with her real bank then updates her email.
+- About **300 labeled scenarios**, seeded and reproducible. Nemotron writes the varied scam scripts and texts; Python generates the numeric events.
 
 ## How it works (fits the existing brain + doors)
-1. **Capture (web, on-device):** a small behavior SDK in the demo carrier portal computes features in the browser: key hold/flight times, paste events, pause lengths, pointer/touch speed, navigation path, time on page. **Only derived numbers leave the device. No raw keystrokes, no text typed.**
-2. **Score (brain, deterministic):** per-feature z-scores against the user's baseline plus device/geo checks → `anomaly` signals with numbers. This is plain math, fast and explainable. Nemotron does not guess numbers.
-3. **Investigate (Nemotron Super agent):** a sensitive action (SIM swap, port-out PIN, add line, change email/password) starts a run. Tools: `get_baseline`, `score_session`, `device_history`, `geo_velocity`, `line_status` (active call? who with?), `recent_scam_reports` (T3 cases), `policy_lookup` (carrier security policy via NeMo Retriever). It weighs the signals, picks a decision: `allow | step_up_face | hold_and_alert | block`, and writes the explanation.
-4. **Verify (second pass):** Nemotron checks each claimed signal against raw tool output; anything unsupported is downgraded. Confidence shown as a band with reasons, never a fake 99%.
-5. **Face check (optional, user toggles it in settings, off by default):** open source, in the browser, using `@vladmandic/human` (MIT): face detection, face descriptor match, antispoof + liveness scores, plus a blink/turn-your-head challenge. The face descriptor is stored **on the device only** (IndexedDB); the brain receives only `{match, similarity, liveness, antispoof}`. Webcam needs HTTPS (ngrok). Behavior stays on whether or not face is enabled.
-6. **Reach the user (Photon):** iMessage (SMS fallback) "Was this you?" with YES/NO; NO locks the account and opens recovery. High risk → agent phone call via Photon voice. Optional trusted contact gets alerted, only with the user's approval.
-7. **After:** recovery plan as approve-before-act actions (lock account, reset PIN, report to FTC + 7726, warn trusted contact) and a 24h watch for follow-up attempts. Every confirmed "it was me" updates the baseline.
+1. **Events in:** synthetic history is preloaded; live events arrive from the voice line (`call` with caller ID, duration), Photon (`tell_message`), the portal (`portal_session`, `account`), and the **demo console** that injects scripted events on cue.
+2. **Baselines + scoring (deterministic, fast):** per person and per layer: contact novelty, call-length percentile, tower familiarity, hour-of-day likelihood, device/SIM age, portal path likelihood, message-style distance. Output: signals with numbers and the baseline they're compared against. Nemotron never makes up numbers.
+3. **Investigate (Nemotron Super agent):** a sensitive action starts a run. Tools: `get_timeline(user, window)`, `score_layers(user, event)`, `contact_history(user, number)`, `line_status(user)`, `device_history`, `tower_familiarity`, `check_message` (lookalike domain, RDAP domain age, URLhaus), `recent_scam_reports`, `policy_lookup` (carrier security policy + FTC guidance via NeMo Retriever). It reads the cross-layer sequence, picks `allow | step_up_face | hold_and_alert | block`, and writes the explanation.
+4. **Verify (second pass):** Nemotron checks each claimed signal against raw tool output; unsupported claims are downgraded. Confidence is a band with reasons, never a fake 99%.
+5. **Face check (optional, off by default):** open source, in the browser, `@vladmandic/human` (MIT): face match + antispoof + liveness scores and a blink/head-turn challenge. The face descriptor stays on the device (IndexedDB); the brain gets only `{match, similarity, liveness, antispoof}`. Needs HTTPS (ngrok). A step-up, never the only factor.
+6. **Reach the user (Photon):** iMessage (SMS fallback) "Was this you?" YES/NO; NO locks and opens recovery. High risk → Tell calls her through Photon voice. Trusted contact alerted only with her approval.
+7. **After:** recovery plan as approve-before-act actions (lock, reset PIN, report to FTC + 7726, warn trusted contact) and a 24h watch for T5 follow-ups. A confirmed "it was me" updates her baseline.
 
-## Collecting behavior (always on)
-**Enrollment (about 60 seconds, at signup):** type your passphrase 10 times and your account PIN 10 times, tap through a short guided flow. That gives a fixed-text baseline, the setup the research benchmark uses. Every later session adds to the baseline after the fact (only sessions with no alert).
+## The threats we demo
+| # | Threat | What gives it away (layers) | What Tell does |
+|---|---|---|---|
+| T1 | Account takeover → SIM swap | New device + tower she's never used (1), straight-to-SIM path, unfamiliar typing (4) | Hold → face check fails if enabled → iMessage "Was this you?" → NO → locked + recovery |
+| T2 | **Coached victim → port-out PIN** (the novel one) | Long call from a never-seen number with a spoofed "support" caller ID, still active (1), dictated input + app switching (4), her own device and home tower (so it *is* her) | Face check passes. Tell still pauses it, texts and calls her: "We never ask for your PIN on a call. Hang up, I'll wait." |
+| T3 | Scam text | Lookalike domain, 3-day-old domain, known script | Verdict + sources in iMessage, raises her risk for 24h |
 
-**Passive capture on every session (browser JS, nothing installed):**
-| Signal | How | Catches |
-|---|---|---|
-| Key hold time, down-down and up-down latency per key pair | `keydown`/`keyup` timestamps on password, PIN, phone number fields (timings only, never which key) | T1 impostor typing her password |
-| Pauses, burst typing, paste into account/PIN fields | Gaps > 2s, `paste` events | T2 dictated input |
-| App switching | `visibilitychange` (leaving to read a text or answer the caller) | T2 coaching, OTP relay |
-| Pointer/touch: speed, curvature, tap duration, hesitation hovering | `pointer*` / `touch*` events | Bots, remote-access tools, unfamiliar user |
-| Navigation path and time per page | Router events | Attacker goes straight to the SIM page |
-| Device, IP location, local hour | User agent hash, IP geolocation, clock | New device, impossible travel, odd hour for this user |
-| Line status (on a call? with whom? how long?) | Carrier side, not the browser. In the demo our voice number sits in front of Maya's phone, so we see the call like a carrier would. Say it's simulated | T2 |
+## Straight verdict
+- **Viable:** yes. The main signal is generated data we control plus a few live events, the scoring is simple math, and Nemotron does the part it's good at: reasoning over a timeline and explaining it.
+- **Not new as a category:** BioCatch, LexisNexis BehavioSec, NuData and TypingDNA sell behavioral biometrics to banks; BioCatch uses "active call" as a signal. **Our angle:** the carrier's network life pattern (banks can't see it), an agent that explains every decision, and reaching you in Messages within seconds. Don't claim we invented behavioral biometrics.
+- **Legal footing:** US carrier privacy rules (CPNI, 47 U.S.C. §222) allow carriers to use network data to protect customers from fraud. Verify wording before saying it to judges.
+- **Don't claim:** voice stress or lie detection. Speaker identity is fine; emotion is not.
+- **Synthetic-data question judges will ask:** "Would this work on real data?" Answer: hard negatives in the set, false-positive rate reported, and the baselines are per person, so a traveler isn't flagged for traveling.
 
-**Scoring:** fixed-text typing → Scaled Manhattan distance to her enrollment (best classic detector on the CMU benchmark, ~9.6% equal-error rate). Everything else → z-scores vs her history. Combined into signals with numbers; Nemotron weighs them with context.
+## Privacy by design (T-Mobile scores it)
+- Metadata only, never call or message content (except what the user forwards to Tell). Contacts stored as salted hashes.
+- Face is opt-in and matched on the device; descriptors never reach our servers (Texas CUBI covers face geometry).
+- Nemotron sees signal summaries, not raw events. Safety Guard screens outbound messages.
+- 30-day retention, delete button, consent screen. All data is synthetic.
 
-**Two numbers for detection quality:** (1) we rerun the public CMU keystroke benchmark (51 people, research data, not customer data) and report our EER; (2) our synthetic T1/T2/T3 set: precision, recall, false-positive rate.
-
-## Straight verdict on behavioral biometrics
-- **Viable for 24 hours: yes.** Collection is just browser events, the math is a known detector, and the benchmark data is public.
-- **Not new as an industry idea.** BioCatch, LexisNexis BehavioSec, Mastercard NuData and TypingDNA sell this to banks. BioCatch Scams360 even uses "active phone call" as a scam signal. Judges from T-Mobile may know this. Don't claim we invented it.
-- **What is ours:** it runs at the carrier (which really knows about the call), it's open and on-device (privacy), an agent investigates and explains every decision in plain words, and it reaches you on iMessage or a call within seconds through Photon. Pitch: "bank-grade behavioral protection for your phone number, explained, and in your Messages."
-- **Accuracy truth:** about 1 in 10 errors on typing alone. So behavior never blocks by itself; it raises risk → face check or hold-and-ask. A false alarm costs Maya one "yes, it's me" text, not a lockout.
-- **Live demo wow:** hand a judge Maya's real password and let them log in. Tell flags them. That's a live, honest proof, not a video.
-- **Risks:** Maya herself getting flagged on stage (enroll well, tune the threshold, rehearse), and mobile keyboards giving weaker key data than laptops (do the judge demo on a laptop).
-
-## Privacy by design (say this in the pitch, T-Mobile scores it)
-- Face is opt-in, matched on the device, and the face descriptor never reaches our servers. Texas's biometric law (CUBI) covers face geometry; keeping it on the device is our answer.
-- Behavior: derived features only, per-user baseline, 30-day retention, delete button, consent screen on first use.
-- Nemotron sees feature summaries and signals, never raw input. Safety Guard screens outbound messages.
-- All users, sessions, calls and texts are synthetic. No real customer data.
+## Detection quality (one frame in the video)
+`evals/run.py` over the 300 labeled scenarios: precision, recall and **false-positive rate per threat**, calibration (does "high confidence" mean right?), and a layer ablation (network only vs all layers) to prove the layers add value. Optional footnote: our typing detector on the public CMU keystroke benchmark.
 
 ## NVIDIA surface
-Nemotron Super (investigation agent + verification; Nemotron weighs the signals, the numbers come from deterministic scoring), Nemotron Nano (voice agent + fast triage of forwarded texts), Nemotron VL (screenshots of scam texts), NeMo Retriever (carrier security policy + FTC scam guidance), Safety Guard (outbound messages), Nemotron ASR + Magpie (voice), optional Brev self-hosting.
-
-## Synthetic data (we create it; also the eval set)
-- `agent/packs/guard/data/users.json`: 3 personas with 30 days of baseline sessions (Maya 68 retired teacher, Dev 24 student, Priya 41 nurse on night shifts so "3am" is normal for her).
-- Generator script: legit sessions, impostor sessions (T1), coached sessions (T2), bot sessions. Labeled. 200+ sessions.
-- 40 scam/legit texts for T3, written + Nemotron-generated, labeled.
-- `evals/run.py` prints precision, recall and **false-positive rate** per threat type, plus calibration (does "high confidence" mean right?). That's T-Mobile's "detection quality".
+Nemotron Super (investigation + verification), Nemotron Nano (voice agent, fast triage of forwarded texts), Nemotron VL (scam text screenshots), NeMo Retriever (policy + FTC guidance), Safety Guard (outbound), Nemotron ASR + Magpie (voice), stretch TitaNet (speaker verification), optional Brev self-hosting.
 
 ## Demo inputs (frozen at T+14)
-- Persona: **Maya**, phone = a teammate's iPhone (Photon iMessage + Face ID).
-- Beat T1: attacker laptop logs in as Maya from "Lagos" and opens SIM swap.
-- Beat T2: Maya on her phone, on a call with "support" (teammate), types the port-out PIN request while being dictated to.
-- Beat T3: Maya forwards "T-Mobile: your account is locked, verify at t-mobile-secure-help.co" to the Tell number.
+- Persona **Maya**; her phone is a teammate's iPhone (Photon iMessage). Her history is synthetic.
+- **Demo console** (`/console`): buttons that inject scripted live events on cue ("incoming call from +1-800-… caller ID 'T-Mobile Support'"), so beats are repeatable. Real calls on our voice line produce the same events.
+- T1: attacker laptop logs in as Maya and opens SIM swap.
+- T2: "support" teammate calls Maya through our voice line; she starts a port-out PIN request while on the call.
+- T3: Maya forwards "T-Mobile: your account is locked, verify at t-mobile-secure-help.co" to Tell.
 
 ## 2-minute video (replaces the beats in DEMO.md)
 | Time | Beat |
 |---|---|
 | 0:00–0:10 | Hook: "Face ID proves it's you. It can't prove you're not being scammed." |
 | 0:10–0:25 | T3: Maya forwards a scam text in iMessage → verdict + sources in seconds |
-| 0:25–0:55 | T1: attacker tries a SIM swap → guardian dashboard shows the agent investigating live → hold → Maya's phone: "Was this you?" → NO → locked |
-| 0:55–1:30 | T2: Maya on a "support" call, Face ID passes, but Tell pauses it → iMessage + Tell calls her → she hangs up on the scammer |
+| 0:25–0:55 | T1: attacker tries a SIM swap → guardian dashboard shows the agent reading her timeline → hold → "Was this you?" → NO → locked |
+| 0:55–1:30 | T2: Maya on a "support" call; it really is her, but Tell pauses it, texts and calls her → she hangs up |
 | 1:30–1:45 | After: recovery plan with YES approvals, watch on the scam number |
-| 1:45–1:55 | Detection quality numbers + privacy (face never leaves the phone) + NVIDIA stack |
+| 1:45–1:55 | Detection numbers (incl. false-positive rate) + privacy + NVIDIA stack |
 | 1:55–2:00 | End card |
 
-## Lane mapping (changes from LANES.md)
-- **Lane 2 (packs):** `agent/packs/guard/`: synthetic data generator, scoring math, all tools, evals.
-- **Lane 3 (web):** two surfaces in `web/`: (a) the demo carrier portal with the always-on behavior SDK + optional open-source face check, (b) the guardian dashboard (live case view, risk timeline, signals, decisions).
-- **Lane 4 (voice):** Photon voice line via SIP bridge → Pipecat (Nemotron). Outbound "is this you?" call and inbound call screening. Twilio is the fallback if the bridge fails by T+2.
-- **Lane 5 (messaging + memory):** `messaging/` in TypeScript with Photon `spectrum-ts`: inbound forwarded texts → brain, outbound alerts, YES/NO replies → approve/reject. Plus `db/` and `watcher/`. Email via Photon too if the 2.0 beta has it; otherwise AgentMail stays.
+## Lane mapping (prompts in LANES.md)
+- **Lane 1:** contracts v0.3 (`NetworkEvent`, `Signal`, `RiskDecision`, face result), event ingest + timeline, pack loader.
+- **Lane 2:** synthetic carrier generator, baselines + scoring, tools, evals.
+- **Lane 3:** portal with behavior SDK + optional face check, guardian dashboard, demo console.
+- **Lane 4:** Photon voice (SIP bridge) or Twilio fallback; emits live `call` events; Tell's outbound calls.
+- **Lane 5:** `messaging/` (TypeScript, Photon): forwarded texts, alerts, YES/NO, `tell_message` style features; `db/`, `watcher/`.
 
 ## Open questions (decide by T+1)
 - Name.
 - Does the Photon 2.0 beta give us an SMS number, or iMessage only? (Lane 5 checks the dashboard.)
-- Line status (active call) is a **simulated carrier signal** from our own voice line. Say so in the demo.
