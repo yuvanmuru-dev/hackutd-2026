@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scn_gen_0065",
+  "user_id": "usr_priya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0065_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0065_01",
+      "user_id": "usr_priya",
+      "type": "call.started",
+      "ts": "2026-08-31T13:19:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0065",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0065"
+    },
+    {
+      "event_id": "evt_gen_0065_02",
+      "user_id": "usr_priya",
+      "type": "otp.sent",
+      "ts": "2026-08-31T13:31:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0065"
+    },
+    {
+      "event_id": "evt_gen_0065_03",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-08-31T13:37:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0065",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0065"
+    }
+  ],
+  "generator": {
+    "seed": 20261172,
+    "variant": "code_relay"
+  }
+}

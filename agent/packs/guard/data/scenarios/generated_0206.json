@@ -1,0 +1,70 @@
+{
+  "scenario_id": "scn_gen_0206",
+  "user_id": "usr_elena",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0206_05",
+  "events": [
+    {
+      "event_id": "evt_gen_0206_01",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-10-05T16:17:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0206_02",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-10-05T16:18:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0206_03",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-10-05T16:19:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0206_04",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-10-05T16:20:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0206_05",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-10-05T16:22:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0206",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261313,
+    "variant": "pin_guess_burst"
+  }
+}

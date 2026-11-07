@@ -1,0 +1,37 @@
+{
+  "scenario_id": "scn_gen_0010",
+  "user_id": "usr_dev",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0010_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0010_01",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-08-17T16:01:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0010",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0010_02",
+      "user_id": "usr_dev",
+      "type": "sim_swap.requested",
+      "ts": "2026-08-17T16:04:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0010",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261117,
+    "variant": "remote_new_device_swap"
+  }
+}

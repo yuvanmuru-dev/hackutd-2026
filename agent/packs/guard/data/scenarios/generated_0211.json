@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0211",
+  "user_id": "usr_priya",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0211_04",
+  "events": [
+    {
+      "event_id": "evt_gen_0211_01",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-10-06T19:29:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0211",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0211_02",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-10-06T19:30:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0211",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0211_03",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-10-06T19:31:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0211",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0211_04",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-10-06T19:32:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0211",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": true
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261318,
+    "variant": "burst_then_success"
+  }
+}

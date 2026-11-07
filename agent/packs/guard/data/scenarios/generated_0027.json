@@ -1,0 +1,62 @@
+{
+  "scenario_id": "scn_gen_0027",
+  "user_id": "usr_elena",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0027_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0027_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-08-21T19:32:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0027",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0027_02",
+      "user_id": "usr_elena",
+      "type": "portal.signals",
+      "ts": "2026-08-21T19:33:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_gen_0027",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/sim"
+        ],
+        "ms_per_step": [
+          1300,
+          900,
+          700
+        ],
+        "hesitation_ms": 700,
+        "paste_into_pin": true,
+        "tab_switches": 0,
+        "pointer_speed": 1.1,
+        "typing_rhythm_distance": 1.7
+      }
+    },
+    {
+      "event_id": "evt_gen_0027_03",
+      "user_id": "usr_elena",
+      "type": "sim_swap.requested",
+      "ts": "2026-08-21T19:35:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0027",
+        "channel": "app"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261134,
+    "variant": "rapid_portal_swap"
+  }
+}

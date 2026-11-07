@@ -1,0 +1,40 @@
+{
+  "scenario_id": "scn_gen_0060",
+  "user_id": "usr_dev",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0060_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0060_01",
+      "user_id": "usr_dev",
+      "type": "call.started",
+      "ts": "2026-08-29T22:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0060",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0060"
+    },
+    {
+      "event_id": "evt_gen_0060_02",
+      "user_id": "usr_dev",
+      "type": "otp.sent",
+      "ts": "2026-08-29T22:10:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0060"
+    }
+  ],
+  "generator": {
+    "seed": 20261167,
+    "variant": "code_relay"
+  }
+}

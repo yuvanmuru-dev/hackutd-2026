@@ -1,0 +1,40 @@
+{
+  "scenario_id": "scn_gen_0229",
+  "user_id": "usr_elena",
+  "label": "recovery_scam",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0229_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0229_01",
+      "user_id": "usr_elena",
+      "type": "call.started",
+      "ts": "2026-10-11T13:33:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0229",
+        "caller_name": "T-Mobile Fraud Recovery",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0229"
+    },
+    {
+      "event_id": "evt_gen_0229_02",
+      "user_id": "usr_elena",
+      "type": "otp.sent",
+      "ts": "2026-10-11T13:46:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "account_change"
+      },
+      "call_id": "call_gen_0229"
+    }
+  ],
+  "generator": {
+    "seed": 20261336,
+    "variant": "recovery_call_account_code"
+  }
+}

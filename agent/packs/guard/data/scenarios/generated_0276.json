@@ -1,0 +1,26 @@
+{
+  "scenario_id": "scn_gen_0276",
+  "user_id": "usr_maya",
+  "label": "legit",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0276_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0276_01",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-10-22T22:34:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_maya_laptop",
+        "region": "Dallas, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261383,
+    "variant": "routine_account_visit"
+  }
+}

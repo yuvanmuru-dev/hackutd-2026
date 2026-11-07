@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0234",
+  "user_id": "usr_priya",
+  "label": "recovery_scam",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0234_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0234_01",
+      "user_id": "usr_priya",
+      "type": "message.forwarded",
+      "ts": "2026-10-12T16:06:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "Fraud recovery: pay a report fee at https://t-mobile-recovery-0234.example to restore your line.",
+        "from_hash": "h_recovery_sender_gen_0234"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261341,
+    "variant": "recovery_text_report_fee"
+  }
+}

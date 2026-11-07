@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0240",
+  "user_id": "usr_priya",
+  "label": "recovery_scam",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0240_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0240_01",
+      "user_id": "usr_priya",
+      "type": "message.forwarded",
+      "ts": "2026-10-13T22:12:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "T-Mobile recovery: unlock your account at https://t-mobile-recovery-0240.example immediately.",
+        "from_hash": "h_recovery_sender_gen_0240"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261347,
+    "variant": "recovery_text_unlock"
+  }
+}

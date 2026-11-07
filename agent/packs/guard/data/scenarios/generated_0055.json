@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scn_gen_0055",
+  "user_id": "usr_marcus",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0055_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0055_01",
+      "user_id": "usr_marcus",
+      "type": "call.started",
+      "ts": "2026-08-28T19:17:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0055",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0055"
+    },
+    {
+      "event_id": "evt_gen_0055_02",
+      "user_id": "usr_marcus",
+      "type": "otp.sent",
+      "ts": "2026-08-28T19:26:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0055"
+    },
+    {
+      "event_id": "evt_gen_0055_03",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-08-28T19:35:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0055",
+        "region": "Phoenix, AZ",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0055"
+    }
+  ],
+  "generator": {
+    "seed": 20261162,
+    "variant": "code_relay"
+  }
+}

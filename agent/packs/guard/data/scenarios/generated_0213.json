@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0213",
+  "user_id": "usr_maya",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0213_04",
+  "events": [
+    {
+      "event_id": "evt_gen_0213_01",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-10-07T13:03:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0213",
+        "region": "Phoenix, AZ",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0213_02",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-10-07T13:04:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0213",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0213_03",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-10-07T13:05:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0213",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0213_04",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-10-07T13:06:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0213",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261320,
+    "variant": "burst_then_success"
+  }
+}

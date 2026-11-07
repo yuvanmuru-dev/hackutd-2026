@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0171",
+  "user_id": "usr_marcus",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0171_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0171_01",
+      "user_id": "usr_marcus",
+      "type": "message.forwarded",
+      "ts": "2026-09-26T19:01:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "T-Mobile transfer team: reply with your number transfer PIN immediately.",
+        "from_hash": "h_sender_gen_0171"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261278,
+    "variant": "transfer_pin_impostor"
+  }
+}

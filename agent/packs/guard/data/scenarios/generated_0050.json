@@ -1,0 +1,49 @@
+{
+  "scenario_id": "scn_gen_0050",
+  "user_id": "usr_dev",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0050_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0050_01",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-08-27T16:15:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0050",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0050_02",
+      "user_id": "usr_dev",
+      "type": "protection.changed",
+      "ts": "2026-08-27T16:16:00Z",
+      "source": "generator",
+      "data": {
+        "name": "sim_protection",
+        "enabled": false,
+        "via": "app"
+      }
+    },
+    {
+      "event_id": "evt_gen_0050_03",
+      "user_id": "usr_dev",
+      "type": "sim_swap.requested",
+      "ts": "2026-08-27T16:18:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0050",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261157,
+    "variant": "protection_off_swap"
+  }
+}

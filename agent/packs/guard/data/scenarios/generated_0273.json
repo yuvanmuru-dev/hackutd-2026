@@ -1,0 +1,26 @@
+{
+  "scenario_id": "scn_gen_0273",
+  "user_id": "usr_elena",
+  "label": "legit",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0273_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0273_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-10-22T13:22:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_elena_phone",
+        "region": "San Antonio, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261380,
+    "variant": "routine_account_visit"
+  }
+}

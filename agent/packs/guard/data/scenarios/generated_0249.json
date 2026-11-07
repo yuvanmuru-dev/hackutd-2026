@@ -1,0 +1,37 @@
+{
+  "scenario_id": "scn_gen_0249",
+  "user_id": "usr_priya",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_gen_0249_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0249_01",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-10-16T08:16:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_priya_phone",
+        "region": "Houston, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0249_02",
+      "user_id": "usr_priya",
+      "type": "pin.attempt",
+      "ts": "2026-10-16T08:20:00Z",
+      "source": "generator",
+      "data": {
+        "ok": true,
+        "channel": "app"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261356,
+    "variant": "night_shift_login"
+  }
+}

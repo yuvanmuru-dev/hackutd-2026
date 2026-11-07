@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0154",
+  "user_id": "usr_maya",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0154_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0154_01",
+      "user_id": "usr_maya",
+      "type": "message.forwarded",
+      "ts": "2026-09-22T16:15:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "sms",
+        "text": "T-Mobile refund pending. Confirm your details at https://t-mobile-help-0154.example",
+        "from_hash": "h_sender_gen_0154"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261261,
+    "variant": "lookalike_refund"
+  }
+}

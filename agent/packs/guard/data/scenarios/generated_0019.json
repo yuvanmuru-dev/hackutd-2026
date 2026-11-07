@@ -1,0 +1,48 @@
+{
+  "scenario_id": "scn_gen_0019",
+  "user_id": "usr_marcus",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0019_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0019_01",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-08-19T19:28:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0019",
+        "region": "Dallas, TX",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0019_02",
+      "user_id": "usr_marcus",
+      "type": "pin.attempt",
+      "ts": "2026-08-19T19:29:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0019_03",
+      "user_id": "usr_marcus",
+      "type": "sim_swap.requested",
+      "ts": "2026-08-19T19:31:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0019",
+        "channel": "app"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261126,
+    "variant": "local_new_device_swap"
+  }
+}

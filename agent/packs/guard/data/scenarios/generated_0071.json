@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scn_gen_0071",
+  "user_id": "usr_marcus",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0071_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0071_01",
+      "user_id": "usr_marcus",
+      "type": "call.started",
+      "ts": "2026-09-01T19:08:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0071",
+        "caller_name": "T-Mobile Support",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0071"
+    },
+    {
+      "event_id": "evt_gen_0071_02",
+      "user_id": "usr_marcus",
+      "type": "otp.sent",
+      "ts": "2026-09-01T19:18:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0071"
+    },
+    {
+      "event_id": "evt_gen_0071_03",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-09-01T19:26:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0071",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0071"
+    }
+  ],
+  "generator": {
+    "seed": 20261178,
+    "variant": "code_relay"
+  }
+}

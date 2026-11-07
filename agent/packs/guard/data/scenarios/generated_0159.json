@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0159",
+  "user_id": "usr_elena",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0159_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0159_01",
+      "user_id": "usr_elena",
+      "type": "message.forwarded",
+      "ts": "2026-09-23T19:25:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "T-Mobile refund pending. Confirm your details at https://t-mobile-help-0159.example",
+        "from_hash": "h_sender_gen_0159"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261266,
+    "variant": "lookalike_refund"
+  }
+}

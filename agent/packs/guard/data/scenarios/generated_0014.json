@@ -1,0 +1,48 @@
+{
+  "scenario_id": "scn_gen_0014",
+  "user_id": "usr_elena",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0014_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0014_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-08-18T16:11:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0014",
+        "region": "San Antonio, TX",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0014_02",
+      "user_id": "usr_elena",
+      "type": "pin.attempt",
+      "ts": "2026-08-18T16:12:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0014_03",
+      "user_id": "usr_elena",
+      "type": "sim_swap.requested",
+      "ts": "2026-08-18T16:14:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0014",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261121,
+    "variant": "local_new_device_swap"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "scenario_id": "scn_gen_0183",
+  "user_id": "usr_elena",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0183_04",
+  "events": [
+    {
+      "event_id": "evt_gen_0183_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-09-29T19:06:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0183",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0183_02",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-09-29T19:07:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0183",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0183_03",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-09-29T19:08:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0183",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0183_04",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-09-29T19:09:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0183",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": false
+      }
+    },
+    {
+      "event_id": "evt_gen_0183_05",
+      "user_id": "usr_elena",
+      "type": "portal.signals",
+      "ts": "2026-09-29T19:11:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_gen_0183",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/transfer"
+        ],
+        "ms_per_step": [
+          1300,
+          900,
+          700
+        ],
+        "hesitation_ms": 700,
+        "paste_into_pin": true,
+        "tab_switches": 0,
+        "pointer_speed": 1.1,
+        "typing_rhythm_distance": 1.7
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261290,
+    "variant": "rapid_failed_logins"
+  }
+}
