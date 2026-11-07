@@ -35,7 +35,7 @@ When the agents step in, judges watch **your screen on the projector**: Maya's c
 4. Also handle T1/T3 cases (shorter runs, no call). Check: `/demo/play/t1`, `/demo/play/t3`.
 
 ## Decisions already made
-D-003 dashboard is "under the hood" · D-004 no T-Mobile logo · D-010 steps stream from the brain · D-018 stack.
+D-003 dashboard is "under the hood" · D-044 T-Mobile "T" allowed (official asset) · D-010 steps stream from the brain · D-018 stack.
 
 ## Stop and ask Lane 1 if...
 - you need data that isn't in `CaseDetail` or `StepEvent` (e.g. a new field); don't compute risk in the UI.

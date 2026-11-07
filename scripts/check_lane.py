@@ -29,7 +29,6 @@ LANES["contract"] = ["contracts/*", "docs/CONTRACTS.md", "scripts/schema/*", "sc
 FORBIDDEN = [  # (regex on added lines, message). Docs are exempt.
     (r"api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com", "non-NVIDIA LLM endpoint (D-015)"),
     (r"[\"'](gpt-[0-9o]|o[1-4]-|claude-|gemini-)", "non-NVIDIA model name (D-015)"),
-    (r"(?i)t-?mobile[-_ ]?logo\.(png|svg|jpg)|magenta-t\.svg", "official T-Mobile logo asset (D-004)"),
     (r"(?i)(enter|tell me|read (me|out)|what is) (your|the) (pin|passcode|password|one[- ]time code)", "Titan must never ask for a PIN/code/password (D-012)"),
 ]
 
