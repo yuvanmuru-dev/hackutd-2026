@@ -74,10 +74,24 @@ export default function SecurityPage() {
       .then((s) => {
         setState(s);
         setDown(false);
+        // The brain is the source of truth: once it no longer holds the PIN (hold over, demo reset), drop ours.
+        if (s.transfer_pin.status !== "held") setHeld(null);
       })
       .catch(() => setDown(true));
   }, []);
   useEffect(load, [load]);
+
+  // Titan changes her protections on its own (it turns Port Out Protection back on right after a held
+  // Transfer PIN), and the console can reset everything: keep the page in step with the brain. Skipped
+  // while she is mid-change or a dialog is open, so a refresh never fights her own click.
+  const idle = busy === null && overlay === null && choiceBusy === null;
+  useEffect(() => {
+    if (!idle) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, 2000);
+    return () => clearInterval(id);
+  }, [idle, load]);
 
   const signals = () => (consent ? { portal_signals: snapshot() } : {});
 
