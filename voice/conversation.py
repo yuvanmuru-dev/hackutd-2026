@@ -13,6 +13,7 @@ HANG_UP = "If someone on another call is asking you to change account protection
 DISCLOSURE = "Did you share an account PIN, a login code, or a transfer PIN? Answer yes or no. Do not say any digits."
 REFUSAL = "I will never ask for or read back a PIN, code, or password. Keep those private."
 CLARIFY = "Please say yes or no for the single step I just asked about."
+FAREWELL = "Thank you for speaking with Titan. Goodbye."
 LABELS = {
     "relock": "turn account protection back on", "hold_transfer_pin": "keep the transfer PIN on hold",
     "require_step_up": "request an identity check in your account app", "reset_pin": "start an account PIN reset",
@@ -154,7 +155,7 @@ class Conversation:
             if intent == "secret":
                 return await self.next_action([reply or REFUSAL])
             if intent == "end":
-                return await self.prepare(SpeechPlan(["I'll end this call. No additional step was approved."], end=True))
+                return await self.prepare(SpeechPlan([FAREWELL], end=True))
             if intent == "question" and reply:
                 return await self.next_action([reply])
             return await self.next_action(confirm=True)
@@ -163,7 +164,7 @@ class Conversation:
         if intent == "secret":
             return await self.next_action([reply or REFUSAL])
         if intent == "end":
-            return await self.prepare(SpeechPlan(["I'll end this call. Your answers are recorded on this case."], end=True))
+            return await self.prepare(SpeechPlan([FAREWELL], end=True))
         if intent == "why":
             # Facts are read verbatim from the brain's already-verified CallRequest.
             facts = self.request["facts"]
