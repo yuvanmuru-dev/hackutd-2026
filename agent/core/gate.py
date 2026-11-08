@@ -12,7 +12,7 @@ from datetime import timedelta
 from core.store import Store, iso, new_id, now
 
 PAUSE_SCREEN = {
-    "title": "Pause. Are you on the phone with someone who asked you to do this?",
+    "title": "Are you on the phone with someone who asked you to do this?",
     "body": "T-Mobile will never call and ask you to turn off protection or share a PIN. "
             "The call you're on right now is from a number we can't verify.",
     "help_label": "I'm on a call: help me",
@@ -39,7 +39,7 @@ def check(store: Store, req: dict) -> dict:
 
     if suspicious:
         mins = summary["duration_s"] // 60
-        reasons.append(f"Unverified call active for {mins} min")
+        reasons.append("Unverified call in progress right now" if mins < 1 else f"Unverified call active for {mins} min")
         if call["caller_name"] and "t-mobile" in call["caller_name"].lower():
             reasons.append("Caller ID claims to be T-Mobile")
 

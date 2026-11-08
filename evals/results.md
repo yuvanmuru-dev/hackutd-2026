@@ -1,5 +1,7 @@
 # Titan development evaluation
 
+Final headline evidence is the [single sealed evaluation](sealed_run/results.md) (D-058). This file remains development evidence.
+
 Mode: **rules only (model rerun pending)**.
 
 Presentation status: **test-informed during development; provisional, no headline claim**.

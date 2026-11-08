@@ -1,14 +1,37 @@
 {
-  "status": "test_informed",
   "affected_split_sha256": "2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6",
-  "model_pr": 57,
   "audited_head": "044762137bd861c0708778d108ac9bcbb3b2e828",
-  "reason": "Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence.",
+  "development_split_status": "test-informed during development",
   "evidence": [
     "agent/packs/guard/ml/models/meta.json:69-74 records choices after inspecting held-out failure families.",
     "agent/packs/guard/ml/text.py:15-16 records a credential rule added after held-out code_request_no_link review.",
     "seed_scam_text_04.json has variant code_request_no_link and is in split.test, absent split.train."
   ],
-  "verified_fit_inputs": "Risk fit/calibration use 125 split.train risk scenarios and 49 allowed normal-history rows, with training out-of-fold calibration; the leakage is feature/rule selection, not direct weight fitting on test rows.",
-  "pending": "Lane 1 decision: freeze model and create a new separate sealed holdout, or retain explicit test-informed/provisional labeling. Frozen split stays unchanged."
+  "frozen_model_commit": "67fe7df582a63f4f871eea27867391d55e6a8d16",
+  "frozen_model_head": "3d66c258692031bd740757df42d011549d9c4984",
+  "main_model_hash_verification": "evals/main_model_verification.json",
+  "model_pr": 57,
+  "model_sha256": "fe2a9b18314624ae3507d029f53110b0d539c87f54005287e9d9392d3a8140d2",
+  "reason": "Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence.",
+  "resolution": "D-053/D-058: model frozen at PR #57 merge; exactly one sealed evaluation completed. Original development split is unchanged and supplies no headline numbers.",
+  "sealed_evaluation": {
+    "completed_at_utc": "2026-11-08T07:03:19.256682+00:00",
+    "data_commit": "3c513b4ca194593992ed80fb844b791012e37226",
+    "dataset_sha256": "c20095a240dc38423d3a3c9e90ac36c597215128d6b39ed4fb5f9e143d86b910",
+    "headline_eligible": true,
+    "mode": "hybrid model and rules",
+    "post_result_tuning": false,
+    "receipt": "evals/sealed_run/receipt.json",
+    "receipt_sha256": "0b09245b07290057d5fb8d13a7da4a1b419556539f803c8a99756729ccc497bb",
+    "report": "evals/sealed_run/results.md",
+    "report_sha256": "2e0444a746372e962fb2501a999b6551cbb3db6bc4b3a58bec871abcd0804ac1",
+    "rerun_performed": false,
+    "results": "evals/sealed_run/results.json",
+    "results_sha256": "78aa03f3e99c9947417333d38e78805bbd66eb7cda9461f72f63ac71ebbaeeac",
+    "run_count": 1,
+    "started_at_utc": "2026-11-08T07:03:18.304073+00:00",
+    "status": "complete"
+  },
+  "status": "sealed_scored_once",
+  "verified_fit_inputs": "Risk fit/calibration use 125 split.train risk scenarios and 49 allowed normal-history rows, with training out-of-fold calibration; the leakage is feature/rule selection, not direct weight fitting on test rows."
 }
