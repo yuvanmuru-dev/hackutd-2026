@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 // T-Mobile's official "T" (D-044 supersedes D-004). Paths are copied verbatim from T-Mobile's
 // published asset (cdn.tmobile.com .../logos/corporate/tmo-logo-v4.svg, also web/public/brand/t-mobile-t.svg).
 // Do not redraw, recolor or stretch it.
@@ -34,42 +36,24 @@ export function TGlyph({ size = 32, className, title = "T-Mobile" }: Props) {
 }
 
 /**
- * Titan's lockup: T-Mobile's official T *is* the first letter of "Titan" (T + "itan"), so the name
- * reads as one T-Mobile product word. `size` is the tile height; "itan" is set so its cap/ascender
- * height meets the tile and its baseline sits on the tile's bottom edge.
+ * Titan's logo (web/public/brand/titan.png, the approved artwork: T-Mobile's T as the first letter).
+ * `size` is roughly the cap height in px; width follows the artwork's 1189:371 ratio.
  */
-export function Wordmark({
-  size = 28,
-  tone = "light",
-  suffix,
-}: {
-  size?: number;
-  /** "light" = on a light ground (magenta letters); "dark" = on black (white letters). */
-  tone?: "light" | "dark" | "accent" | "ink";
-  /** A second word after the name, e.g. "Guardian". */
-  suffix?: string;
-}) {
-  const color = tone === "dark" ? "#ffffff" : "#e20074";
+export function Wordmark({ size = 28, suffix }: { size?: number; tone?: string; suffix?: string }) {
+  const h = Math.round(size * 1.15);
+  const guardian = suffix === "Guardian";
+  const src = guardian ? "/brand/titan-guardian.png" : "/brand/titan.png";
+  const ratio = guardian ? 1190 / 496 : 1189 / 371;
+  const height = guardian ? Math.round(h * 1.34) : h;
   return (
-    <span
-      role="img"
-      aria-label={suffix ? `Titan ${suffix}` : "Titan"}
-      className="inline-flex items-end font-extrabold leading-[0.74] tracking-[-0.035em]"
-      style={{ fontSize: Math.round(size * 1.39) }}
-    >
-      <TGlyph size={size} title="" />
-      <span aria-hidden style={{ color, marginLeft: Math.max(1, Math.round(size * 0.03)) }}>
-        itan
-      </span>
-      {suffix && (
-        <span
-          aria-hidden
-          className="font-semibold tracking-[-0.01em]"
-          style={{ fontSize: "0.5em", marginLeft: "0.45em", lineHeight: 1, paddingBottom: "0.04em", color: tone === "dark" ? "#b4b4b4" : "var(--ink-2)" }}
-        >
-          {suffix}
-        </span>
-      )}
-    </span>
+    <Image
+      src={src}
+      alt={guardian ? "Titan Guardian" : "Titan"}
+      width={Math.round(height * ratio)}
+      height={height}
+      priority
+      className="block h-auto select-none"
+      style={{ height, width: "auto" }}
+    />
   );
 }
