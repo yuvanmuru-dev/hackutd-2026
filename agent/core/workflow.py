@@ -389,12 +389,15 @@ class Run:
         summary["next_steps"] = [_sentence(x) for x in summary["next_steps"]]
         self.case["summary"] = summary
         self.step("response", "summary", "summary", "Incident summary written and checked", {"summary": summary, "replaced": replaced})
-        text = (f"Titan · Case {summary['case_number']}. What happened: {summary['what_happened']} "
-                f"What we did: {'; '.join(summary['what_we_did'])}."
-                + (f" You approved: {'; '.join(approved)}." if approved else "")
-                + f" {summary['confidence_text']} {summary['spot_it_next_time']} Reply REPORT for an FTC report.")
-        self.send("summary", text, False)
-        self.step("messaging", "summary", "message", "Incident summary sent by iMessage (no links)", {})
+        texts = [  # three short texts read like a real conversation, not one wall of text
+            f"Titan · Case {summary['case_number']}. {summary['what_happened']}",
+            f"What we did: {'; '.join(summary['what_we_did'])}."
+            + (f" You approved: {'; '.join(approved)}." if approved else "") + f" {summary['confidence_text']}",
+            f"{summary['spot_it_next_time']} Reply REPORT for an FTC report.",
+        ]
+        for t in texts:
+            self.send("summary", t, False)
+        self.step("messaging", "summary", "message", "Incident summary sent by iMessage in 3 short texts (no links)", {})
 
     async def go(self):
         self.case["run_running"] = True

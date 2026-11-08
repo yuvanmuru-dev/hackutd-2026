@@ -102,7 +102,11 @@ messages = [
     {"message_id": "msg_t2_tr2", "case_id": CASE, "channel": "voice", "direction": "in", "kind": "transcript", "ts": ts(1236),
      "text": "He said my account was being hacked. I told him my PIN."},
     {"message_id": "msg_t2_summary", "case_id": CASE, "channel": "imessage", "direction": "out", "kind": "summary", "ts": ts(1270),
-     "text": "Titan · Case TTN-4821. What happened: someone on an unverified call asked you to turn off Port Out Protection and create a transfer PIN. What we did: re-locked it and held the PIN. You approved: PIN reset, PIN cancelled, devices signed out, number reported. T-Mobile will never ask you to turn off protection or read out a PIN. Reply REPORT for an FTC report."},
+     "text": "Titan · Case TTN-4821. Someone on an unverified call asked you to turn off Port Out Protection and create a transfer PIN."},
+    {"message_id": "msg_t2_summary_2", "case_id": CASE, "channel": "imessage", "direction": "out", "kind": "summary", "ts": ts(1271),
+     "text": "What we did: turned protection back on and held the PIN. You approved: PIN reset, PIN cancelled, devices signed out, number reported."},
+    {"message_id": "msg_t2_summary_3", "case_id": CASE, "channel": "imessage", "direction": "out", "kind": "summary", "ts": ts(1272),
+     "text": "T-Mobile will never ask you to turn off protection or read out a PIN. Reply REPORT for an FTC report."},
 ]
 
 STEPS = [
@@ -171,7 +175,7 @@ files = {
     "checkreq.protection_off.json": {"user_id": U, "action": "protection_off", "protection": "port_out_protection", "portal_signals": portal_signals["data"]},
     "check.pause.json": {"check_id": "chk_t2_01", "decision": "pause", "reasons": ["Unverified call active for 18 min", "Caller ID claims to be T-Mobile", "Turning off a protection during that call"],
                          "during_call": True, "call": dict(active_call, duration_s=1065), "risk": None, "case_id": None, "hold_until": None,
-                         "pause_screen": {"title": "Pause. Are you on the phone with someone who asked you to do this?",
+                         "pause_screen": {"title": "Are you on the phone with someone who asked you to do this?",
                                           "body": "T-Mobile will never call and ask you to turn off protection or share a PIN. The call you're on right now is from a number we can't verify.",
                                           "help_label": "I'm on a call: help me", "continue_label": "I'm doing this on my own"}},
     "check.hold.json": {"check_id": "chk_t2_02", "decision": "hold", "reasons": ["Transfer PIN requested during an unverified call", "First transfer PIN in 4 years"],

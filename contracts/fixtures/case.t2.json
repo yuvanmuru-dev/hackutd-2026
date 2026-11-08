@@ -817,7 +817,25 @@
       "direction": "out",
       "kind": "summary",
       "ts": "2026-11-07T20:35:10Z",
-      "text": "Titan \u00b7 Case TTN-4821. What happened: someone on an unverified call asked you to turn off Port Out Protection and create a transfer PIN. What we did: re-locked it and held the PIN. You approved: PIN reset, PIN cancelled, devices signed out, number reported. T-Mobile will never ask you to turn off protection or read out a PIN. Reply REPORT for an FTC report."
+      "text": "Titan \u00b7 Case TTN-4821. Someone on an unverified call asked you to turn off Port Out Protection and create a transfer PIN."
+    },
+    {
+      "message_id": "msg_t2_summary_2",
+      "case_id": "case_t2",
+      "channel": "imessage",
+      "direction": "out",
+      "kind": "summary",
+      "ts": "2026-11-07T20:35:11Z",
+      "text": "What we did: turned protection back on and held the PIN. You approved: PIN reset, PIN cancelled, devices signed out, number reported."
+    },
+    {
+      "message_id": "msg_t2_summary_3",
+      "case_id": "case_t2",
+      "channel": "imessage",
+      "direction": "out",
+      "kind": "summary",
+      "ts": "2026-11-07T20:35:12Z",
+      "text": "T-Mobile will never ask you to turn off protection or read out a PIN. Reply REPORT for an FTC report."
     }
   ],
   "summary": {

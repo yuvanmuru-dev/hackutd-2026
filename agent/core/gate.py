@@ -12,7 +12,7 @@ from datetime import timedelta
 from core.store import Store, iso, new_id, now
 
 PAUSE_SCREEN = {
-    "title": "Pause. Are you on the phone with someone who asked you to do this?",
+    "title": "Are you on the phone with someone who asked you to do this?",
     "body": "T-Mobile will never call and ask you to turn off protection or share a PIN. "
             "The call you're on right now is from a number we can't verify.",
     "help_label": "I'm on a call: help me",
