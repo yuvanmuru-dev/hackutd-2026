@@ -75,6 +75,26 @@ def _t(name: str, default: float) -> float:
     return float(os.getenv(name, default))
 
 
+
+_UNIT = r"(seconds?|secs?|s|minutes?|mins?|hours?|hrs?|h|days?|years?|times?|percent|%)"
+
+
+def speakable(fact: str) -> str | None:
+    """A call fact Titan can say out loud. Voice refuses any 3+ digit run (so no PIN or code is ever spoken): durations and
+    counts with a unit are rewritten ("1152 seconds" -> "about 19 minutes"); a fact with any other long number is dropped."""
+    def unit(m):
+        n, u = int(m.group(1).replace(",", "")), m.group(2).lower()
+        if u.startswith(("second", "sec")) or u == "s":
+            n, u = max(1, round(n / 60)), "minutes"
+            return f"about {n} minute{'s' if n != 1 else ''}"
+        if u.startswith("min") and n >= 120:
+            return f"about {round(n / 60)} hours"
+        if u in ("%", "percent"):
+            return f"{n} percent"
+        return f"{n} {m.group(2)}"
+    text = re.sub(r"\b(\d[\d,]*)\s?" + _UNIT + r"\b", unit, fact)
+    return None if re.search(r"\d{3,}", text.replace(",", "")) else text
+
 class Run:
     def __init__(self, store: Store, case: dict, threat: str, trigger: dict):
         self.store, self.case, self.threat, self.trigger = store, case, threat, trigger
@@ -309,7 +329,8 @@ class Run:
         outbound.place_call(self.store, {
             "case_id": self.case["case_id"], "user_id": self.uid, "purpose": "scam_intervention",
             "opening_line": w.get("call_opening_line") or "Hi, this is Titan, your account security. I'll never ask you for a PIN or a code.",
-            "facts": (w.get("call_facts") or [c["claim"] for c in self.claims])[:4] + getattr(self, "taken", []),
+            "facts": [f for f in (speakable(x) for x in (w.get("call_facts") or [c["claim"] for c in self.claims])[:4]
+                                  + getattr(self, "taken", [])) if f],
             "pending_action_ids": []})
         return "called"
 
