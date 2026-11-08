@@ -23,7 +23,7 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
   const name = detail?.user.name ?? "Maya";
   return (
     <header className="flex flex-wrap items-center gap-x-6 gap-y-3">
-      <GuardianMark size={36} />
+      <GuardianMark size={44} />
       <div className="hidden h-8 w-px bg-[var(--g-line)] lg:block" aria-hidden />
       <div className="min-w-[min(100%,420px)] flex-1">
         <h1 className="line-clamp-2 text-balance text-[20px] font-semibold leading-tight tracking-tight sm:text-[28px]">
