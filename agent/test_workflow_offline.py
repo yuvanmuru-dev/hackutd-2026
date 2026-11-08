@@ -102,7 +102,7 @@ with TestClient(server.app) as c:
     agents_seen = [s["agent"] for s in d["steps"]]
     for a in ("context", "risk", "verifier", "response", "messaging"):
         assert a in agents_seen, (a, agents_seen)
-    assert d["threat"] == "coached" and d["risk"]["model"] == "rules"
+    assert d["threat"] == "coached" and d["risk"]["model"] in ("rules", "ml+rules")  # ml+rules once Lane 2b's model lands (D-051)
     score_step = next(s for s in d["steps"] if s["type"] == "score")
     assert score_step["data"]["decision"] == "hold_and_alert", score_step   # rules floor beat the lenient model
     assert d["verification"]["claims_dropped"] >= 1, d["verification"]      # "$5,000 from bank_records" dropped
