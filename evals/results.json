@@ -4528,7 +4528,7 @@
       "write_attempts": 0
     },
     "dataset_sha256": "d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105",
-    "evaluation_commit": "efd15f11010f69bb8a74e2382bc4842a31d4e45e",
+    "evaluation_commit": "6072509c01f744c8ae6dc1cda9d6f6d7b877fe59",
     "evaluation_hashes": {
       "evals/build_split.py": "12153185f81a826ead93c5bf33fc32a416ae5e740b075455e71ff09e095fc0a8",
       "evals/metrics.py": "44c287baecc18265f2f5a61ba0885736fc8cd66e2d99365c8e6ac26b2f1c3af7",
@@ -4545,7 +4545,7 @@
       "agent/packs/guard/data/history/usr_maya.jsonl": "c6aa6f5c2c26ff35caf0c6f5178f6e46e202e9a4ed4b127a3752a9a2504adab4",
       "agent/packs/guard/data/history/usr_priya.jsonl": "92419dfba20e530fbea9e66d585b3bb39d003246595374d4995fd8709213f9f5"
     },
-    "main_commit": "8e6407aa2fdad2795b78ab16912fc74b81845ee6",
+    "main_commit": "9f9aa22fa469f0bfad2c5b68ed8c49b311829083",
     "mode": "rules only (model rerun pending)",
     "model_hashes": {},
     "personas_sha256": "bd25b315367134fa2ff9516fa44e8834d46f5f204250ecf6539bb3ba255459e7",
@@ -4556,12 +4556,12 @@
       "agent/core/contracts.py": "f8da7a3f42a68ae758918ab70519b26e0a5cbc47f4bedcbf05eb86c133f6b118",
       "agent/core/events.py": "30187ef53eae5a1867c1ca09c5b21137048463e123d557be9103320e8e856e97",
       "agent/core/gate.py": "f347b4df6d79611d22812e7c6ae7751a548df8a6be2bb700b80fda0250600fce",
-      "agent/core/llm.py": "e01b2b8745109ca44f7e508a5fa69cbb7cc4a83ea8de9eac168e358eb7857d69",
+      "agent/core/llm.py": "28f905a498b318b5e0b7e07eb5f2e600222a11ac43c4a5f547749711f449aa48",
       "agent/core/mock_runs.py": "26fea9932aa3257c276a44b91be84c6e99f2b7c9f27a14ca1fbe29081630677f",
       "agent/core/outbound.py": "5dbcd5e225636a4154f9bb2aaa85783f811ad4376e4e6816202e5529c9811559",
       "agent/core/store.py": "947cec67fdb1de0bd07843ddc7b29d4d87fe6dea00ed2578b60e6b2da4edc535",
       "agent/core/toolbox.py": "0774855d5cd3c9611b25e2aabca5f38953f6dc5f4f4a6a5d7acc4ca5d4bde905",
-      "agent/core/workflow.py": "9c540fadb356f1ef84d27158528667894d037938de114a293d58d0385535aeb6",
+      "agent/core/workflow.py": "a17a8f6691779d4115ccfdf3d905e5682f22ad741069a842eb663cd3d038f7ab",
       "agent/packs/guard/external.py": "3acefd32294a44b29f1eade54ad72d773982f674055cbcda06381e76ab6455e2",
       "agent/packs/guard/generator.py": "17ffba439029e32836bb3a654c7882de108dfc97d746e4150db139c58ea00e42",
       "agent/packs/guard/test_external.py": "667348d0d02783bc71d1a5e1ca4225249b32aaf6cb3093644763f68dfe143c27",

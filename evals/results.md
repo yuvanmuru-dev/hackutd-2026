@@ -6,7 +6,7 @@ Presentation status: **provisional; final model run pending**.
 
 Rules-only results are provisional. The final post-model run of this script is the source for Devpost/video numbers; do not substitute training scores.
 
-Scorer source on main: `8e6407aa2fdad2795b78ab16912fc74b81845ee6`. Evaluation checkout: `efd15f11010f69bb8a74e2382bc4842a31d4e45e`.
+Scorer source on main: `9f9aa22fa469f0bfad2c5b68ed8c49b311829083`. Evaluation checkout: `6072509c01f744c8ae6dc1cda9d6f6d7b877fe59`.
 Dataset SHA-256: `d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105`. Split SHA-256: `2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6`.
 Scored 137 test cases; train=163, test=137. All 36 hard negatives and the entire code_relay family are held out.
 
