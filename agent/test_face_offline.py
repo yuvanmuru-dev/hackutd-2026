@@ -5,6 +5,7 @@ a failing face asks again; no face (camera denied) falls back to today's behavio
 lifts the transfer-PIN hold during a suspicious call.
 """
 import os
+import time
 
 os.environ["MOCK"] = "1"
 os.environ["MOCK_STEP_MS"] = "5"
@@ -46,5 +47,27 @@ with TestClient(server.app) as c:
     # a passing face check proves it's Maya, not that nobody is coaching her: the PIN hold still applies
     r = c.post("/check", json={"user_id": "usr_maya", "action": "transfer_pin", "face": GOOD}).json()
     assert r["decision"] == "hold", r
+
+    # Logged face/observation signals must not masquerade as an analysis run.
+    case = server.store.cases[cid]
+    server.store.add_step(case, "run_observation", "system", "watch", "signal", "Still watching the call", {})
+    r = c.post("/transfer-pin/usr_maya").json()
+    assert r["check"]["decision"] == "hold", r
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        detail = c.get(f"/cases/{cid}").json()
+        if detail["status"] == "watching":
+            break
+        time.sleep(0.02)
+    assert detail["threat"] == "coached" and detail["status"] == "watching", detail
+    assert any(a["kind"] == "relock" and a["status"] == "applied" for a in detail["actions"]), detail["actions"]
+    starts = [s for s in detail["steps"] if s["stage"] == "trigger" and s["type"] == "plan"]
+    assert len(starts) == 1, starts
+
+    # A fresh event after the run marker must not launch a second recovery run.
+    ev = {"event_id": "evt_face_repeat", "user_id": "usr_maya", "type": "transfer_pin.requested",
+          "ts": "2026-11-08T17:00:00Z", "source": "portal", "call_id": None, "data": {}}
+    repeated = c.post("/events", json=ev).json()
+    assert repeated["duplicate"] is False and repeated["case_id"] == cid and repeated["trigger"] is None, repeated
 
 print("PASS")
