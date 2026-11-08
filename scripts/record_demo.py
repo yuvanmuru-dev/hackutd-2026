@@ -1,12 +1,13 @@
 """Record one live rehearsal of every demo scenario so DEMO_MODE can replay Nemotron's answers on stage.
 
 1. Start the brain in record mode (needs your NVIDIA key in agent/.env):
-     cd agent && MOCK=0 LLM_CACHE=record REPLY_TIMEOUT_S=5 RECOVERY_TIMEOUT_S=30 \\
+     cd agent && MOCK=0 LLM_CACHE=record REPLY_TIMEOUT_S=5 RECOVERY_TIMEOUT_S=30 MESSAGING_URL= VOICE_URL= \\
        uv run --no-project --with-requirements requirements.txt uvicorn server:app --port 8000
 2. Run:  python scripts/record_demo.py            (BRAIN_URL defaults to http://localhost:8000)
 3. On stage: start the brain with DEMO_MODE=1 (MOCK=0). Matching prompts are answered from
    agent/core/recordings/llm_cache.json; anything new runs live. The dashboard labels the run.
-Re-record after changing prompts, tools or data. Recording texts nobody: it never sets MESSAGING_URL or VOICE_URL itself.
+Re-record after changing prompts, tools or data. The script auto-approves every recovery step, so it refuses a brain
+that can text or call (MESSAGING_URL / VOICE_URL set): blank them as shown above, or Maya gets every question at once.
 """
 import base64
 import json
@@ -54,6 +55,10 @@ def main():
     h = call("GET", "/health")
     if h.get("mock") or h.get("llm_cache", {}).get("mode") != "record":
         sys.exit("Start the brain with MOCK=0 LLM_CACHE=record first (see the top of this file).")
+    doors = h.get("doors", {})
+    if doors.get("messaging_url_set") or doors.get("voice_url_set"):
+        sys.exit("Refusing: this brain can text or call Maya, and recording auto-approves every step. "
+                 "Restart it with MESSAGING_URL= VOICE_URL= (see the top of this file).")
     t0 = time.time()
     call("POST", "/demo/reset")
     call("POST", "/demo/play/t2")
