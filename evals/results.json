@@ -21,7 +21,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_01",
       "trigger_type": "message.forwarded",
@@ -48,7 +49,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_02",
       "trigger_type": "message.forwarded",
@@ -75,7 +77,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_03",
       "trigger_type": "message.forwarded",
@@ -102,7 +105,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_04",
       "trigger_type": "message.forwarded",
@@ -129,7 +133,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_05",
       "trigger_type": "message.forwarded",
@@ -156,7 +161,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_06",
       "trigger_type": "message.forwarded",
@@ -183,7 +189,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_07",
       "trigger_type": "message.forwarded",
@@ -210,7 +217,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_08",
       "trigger_type": "message.forwarded",
@@ -237,7 +245,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_09",
       "trigger_type": "message.forwarded",
@@ -264,7 +273,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_10",
       "trigger_type": "message.forwarded",
@@ -293,7 +303,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_01",
       "trigger_type": "message.forwarded",
@@ -320,7 +331,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_02",
       "trigger_type": "message.forwarded",
@@ -347,7 +359,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_03",
       "trigger_type": "message.forwarded",
@@ -374,7 +387,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_04",
       "trigger_type": "message.forwarded",
@@ -401,7 +415,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_05",
       "trigger_type": "message.forwarded",
@@ -428,7 +443,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_06",
       "trigger_type": "message.forwarded",
@@ -455,7 +471,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_07",
       "trigger_type": "message.forwarded",
@@ -482,7 +499,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_08",
       "trigger_type": "message.forwarded",
@@ -509,7 +527,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_09",
       "trigger_type": "message.forwarded",
@@ -536,7 +555,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "benign_text_10",
       "trigger_type": "message.forwarded",
@@ -551,7 +571,7 @@
       "scam_text_false_positives": 0,
       "support": 10
     },
-    "on_main": false,
+    "on_main": true,
     "rules": {
       "any_nonlegit_false_alert_rate": 0.0,
       "any_nonlegit_false_alerts": 0,
@@ -707,7 +727,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0013",
       "trigger_type": "sim_swap.requested",
@@ -739,7 +760,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0014",
       "trigger_type": "sim_swap.requested",
@@ -771,7 +793,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0015",
       "trigger_type": "sim_swap.requested",
@@ -803,7 +826,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0016",
       "trigger_type": "sim_swap.requested",
@@ -835,7 +859,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0017",
       "trigger_type": "sim_swap.requested",
@@ -867,7 +892,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0018",
       "trigger_type": "sim_swap.requested",
@@ -899,7 +925,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0019",
       "trigger_type": "sim_swap.requested",
@@ -931,7 +958,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0020",
       "trigger_type": "sim_swap.requested",
@@ -963,7 +991,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0021",
       "trigger_type": "sim_swap.requested",
@@ -995,7 +1024,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0022",
       "trigger_type": "sim_swap.requested",
@@ -1027,7 +1057,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0023",
       "trigger_type": "sim_swap.requested",
@@ -1059,7 +1090,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0024",
       "trigger_type": "sim_swap.requested",
@@ -1091,7 +1123,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0025",
       "trigger_type": "sim_swap.requested",
@@ -1128,7 +1161,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0051",
       "trigger_type": "otp.sent",
@@ -1165,7 +1199,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0052",
       "trigger_type": "otp.sent",
@@ -1202,7 +1237,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0053",
       "trigger_type": "otp.sent",
@@ -1234,7 +1270,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0054",
       "trigger_type": "otp.sent",
@@ -1266,7 +1303,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0055",
       "trigger_type": "otp.sent",
@@ -1303,7 +1341,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0056",
       "trigger_type": "otp.sent",
@@ -1335,7 +1374,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0057",
       "trigger_type": "otp.sent",
@@ -1372,7 +1412,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0058",
       "trigger_type": "otp.sent",
@@ -1409,7 +1450,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0059",
       "trigger_type": "otp.sent",
@@ -1446,7 +1488,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0060",
       "trigger_type": "otp.sent",
@@ -1483,7 +1526,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0061",
       "trigger_type": "otp.sent",
@@ -1520,7 +1564,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0062",
       "trigger_type": "otp.sent",
@@ -1557,7 +1602,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0063",
       "trigger_type": "otp.sent",
@@ -1594,7 +1640,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0064",
       "trigger_type": "otp.sent",
@@ -1631,7 +1678,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0065",
       "trigger_type": "otp.sent",
@@ -1668,7 +1716,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0066",
       "trigger_type": "otp.sent",
@@ -1705,7 +1754,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0067",
       "trigger_type": "otp.sent",
@@ -1742,7 +1792,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0068",
       "trigger_type": "otp.sent",
@@ -1779,7 +1830,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0069",
       "trigger_type": "otp.sent",
@@ -1811,7 +1863,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0070",
       "trigger_type": "otp.sent",
@@ -1843,7 +1896,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0071",
       "trigger_type": "otp.sent",
@@ -1880,7 +1934,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0072",
       "trigger_type": "otp.sent",
@@ -1917,7 +1972,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0073",
       "trigger_type": "otp.sent",
@@ -1949,7 +2005,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0074",
       "trigger_type": "otp.sent",
@@ -1986,7 +2043,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0075",
       "trigger_type": "otp.sent",
@@ -2023,7 +2081,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0076",
       "trigger_type": "otp.sent",
@@ -2060,7 +2119,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0077",
       "trigger_type": "otp.sent",
@@ -2097,7 +2157,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0078",
       "trigger_type": "otp.sent",
@@ -2134,7 +2195,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0079",
       "trigger_type": "otp.sent",
@@ -2171,7 +2233,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0080",
       "trigger_type": "otp.sent",
@@ -2208,7 +2271,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0081",
       "trigger_type": "otp.sent",
@@ -2245,7 +2309,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0082",
       "trigger_type": "otp.sent",
@@ -2282,7 +2347,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0083",
       "trigger_type": "otp.sent",
@@ -2319,7 +2385,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0084",
       "trigger_type": "otp.sent",
@@ -2356,7 +2423,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0085",
       "trigger_type": "otp.sent",
@@ -2393,7 +2461,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0086",
       "trigger_type": "otp.sent",
@@ -2425,7 +2494,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0087",
       "trigger_type": "otp.sent",
@@ -2462,7 +2532,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0088",
       "trigger_type": "otp.sent",
@@ -2499,7 +2570,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0089",
       "trigger_type": "otp.sent",
@@ -2536,7 +2608,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0090",
       "trigger_type": "otp.sent",
@@ -2583,7 +2656,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0116",
       "trigger_type": "transfer_pin.requested",
@@ -2630,7 +2704,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0117",
       "trigger_type": "transfer_pin.requested",
@@ -2677,7 +2752,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0118",
       "trigger_type": "transfer_pin.requested",
@@ -2724,7 +2800,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0119",
       "trigger_type": "transfer_pin.requested",
@@ -2771,7 +2848,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0120",
       "trigger_type": "transfer_pin.requested",
@@ -2818,7 +2896,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0121",
       "trigger_type": "transfer_pin.requested",
@@ -2865,7 +2944,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0122",
       "trigger_type": "transfer_pin.requested",
@@ -2912,7 +2992,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0123",
       "trigger_type": "transfer_pin.requested",
@@ -2959,7 +3040,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0124",
       "trigger_type": "transfer_pin.requested",
@@ -3006,7 +3088,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0125",
       "trigger_type": "transfer_pin.requested",
@@ -3053,7 +3136,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0126",
       "trigger_type": "transfer_pin.requested",
@@ -3100,7 +3184,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0127",
       "trigger_type": "transfer_pin.requested",
@@ -3127,7 +3212,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0151",
       "trigger_type": "message.forwarded",
@@ -3154,7 +3240,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0152",
       "trigger_type": "message.forwarded",
@@ -3181,7 +3268,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0153",
       "trigger_type": "message.forwarded",
@@ -3208,7 +3296,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0154",
       "trigger_type": "message.forwarded",
@@ -3235,7 +3324,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0155",
       "trigger_type": "message.forwarded",
@@ -3262,7 +3352,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0156",
       "trigger_type": "message.forwarded",
@@ -3289,7 +3380,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0157",
       "trigger_type": "message.forwarded",
@@ -3316,7 +3408,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0158",
       "trigger_type": "message.forwarded",
@@ -3343,7 +3436,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0159",
       "trigger_type": "message.forwarded",
@@ -3370,7 +3464,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0160",
       "trigger_type": "message.forwarded",
@@ -3402,7 +3497,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0191",
       "trigger_type": "login",
@@ -3434,7 +3530,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0192",
       "trigger_type": "login",
@@ -3466,7 +3563,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0193",
       "trigger_type": "login",
@@ -3498,7 +3596,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0194",
       "trigger_type": "login",
@@ -3530,7 +3629,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0195",
       "trigger_type": "login",
@@ -3562,7 +3662,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0196",
       "trigger_type": "login",
@@ -3594,7 +3695,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0197",
       "trigger_type": "login",
@@ -3626,7 +3728,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0198",
       "trigger_type": "login",
@@ -3658,7 +3761,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0199",
       "trigger_type": "login",
@@ -3690,7 +3794,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0200",
       "trigger_type": "login",
@@ -3727,7 +3832,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0226",
       "trigger_type": "otp.sent",
@@ -3764,7 +3870,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0227",
       "trigger_type": "otp.sent",
@@ -3801,7 +3908,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0228",
       "trigger_type": "otp.sent",
@@ -3838,7 +3946,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0229",
       "trigger_type": "otp.sent",
@@ -3875,7 +3984,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0230",
       "trigger_type": "otp.sent",
@@ -3907,7 +4017,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0236",
       "trigger_type": "message.forwarded",
@@ -3939,7 +4050,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0237",
       "trigger_type": "message.forwarded",
@@ -3971,7 +4083,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0238",
       "trigger_type": "message.forwarded",
@@ -4003,7 +4116,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0239",
       "trigger_type": "message.forwarded",
@@ -4035,7 +4149,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0240",
       "trigger_type": "message.forwarded",
@@ -4062,7 +4177,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0241",
       "trigger_type": "login",
@@ -4089,7 +4205,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0242",
       "trigger_type": "login",
@@ -4116,7 +4233,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0243",
       "trigger_type": "login",
@@ -4143,7 +4261,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0244",
       "trigger_type": "login",
@@ -4170,7 +4289,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0245",
       "trigger_type": "login",
@@ -4197,7 +4317,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0246",
       "trigger_type": "login",
@@ -4224,7 +4345,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0247",
       "trigger_type": "login",
@@ -4251,7 +4373,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0248",
       "trigger_type": "login",
@@ -4278,7 +4401,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0249",
       "trigger_type": "pin.attempt",
@@ -4305,7 +4429,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0250",
       "trigger_type": "pin.attempt",
@@ -4332,7 +4457,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0251",
       "trigger_type": "pin.attempt",
@@ -4359,7 +4485,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0252",
       "trigger_type": "pin.attempt",
@@ -4386,7 +4513,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0253",
       "trigger_type": "pin.attempt",
@@ -4413,7 +4541,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0254",
       "trigger_type": "pin.attempt",
@@ -4440,7 +4569,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0255",
       "trigger_type": "pin.attempt",
@@ -4467,7 +4597,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0256",
       "trigger_type": "pin.attempt",
@@ -4494,7 +4625,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0257",
       "trigger_type": "sim_swap.requested",
@@ -4521,7 +4653,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0258",
       "trigger_type": "sim_swap.requested",
@@ -4548,7 +4681,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0259",
       "trigger_type": "sim_swap.requested",
@@ -4575,7 +4709,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0260",
       "trigger_type": "sim_swap.requested",
@@ -4602,7 +4737,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0261",
       "trigger_type": "sim_swap.requested",
@@ -4629,7 +4765,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0262",
       "trigger_type": "sim_swap.requested",
@@ -4656,7 +4793,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0263",
       "trigger_type": "sim_swap.requested",
@@ -4683,7 +4821,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0264",
       "trigger_type": "sim_swap.requested",
@@ -4710,7 +4849,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0265",
       "trigger_type": "protection.changed",
@@ -4737,7 +4877,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0266",
       "trigger_type": "protection.changed",
@@ -4764,7 +4905,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0267",
       "trigger_type": "protection.changed",
@@ -4791,7 +4933,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0268",
       "trigger_type": "protection.changed",
@@ -4818,7 +4961,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0269",
       "trigger_type": "protection.changed",
@@ -4845,7 +4989,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0270",
       "trigger_type": "protection.changed",
@@ -4872,7 +5017,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0271",
       "trigger_type": "protection.changed",
@@ -4899,7 +5045,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0272",
       "trigger_type": "protection.changed",
@@ -4936,7 +5083,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_01",
       "trigger_type": "otp.sent",
@@ -4973,7 +5121,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_02",
       "trigger_type": "otp.sent",
@@ -5010,7 +5159,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_03",
       "trigger_type": "otp.sent",
@@ -5047,7 +5197,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_04",
       "trigger_type": "otp.sent",
@@ -5074,7 +5225,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_dev_store",
       "trigger_type": "sim_swap.requested",
@@ -5101,7 +5253,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_marcus_travel",
       "trigger_type": "transfer_pin.requested",
@@ -5128,7 +5281,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_maya_daughter",
       "trigger_type": "otp.sent",
@@ -5155,7 +5309,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_priya_night",
       "trigger_type": "otp.sent",
@@ -5182,7 +5337,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_scam_text_04",
       "trigger_type": "message.forwarded",
@@ -5214,7 +5370,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_takeover_04",
       "trigger_type": "sim_swap.requested",
@@ -5228,14 +5385,15 @@
       "write_attempts": 0
     },
     "dataset_sha256": "d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105",
-    "evaluation_commit": "b1172f5e868180797914df475d46f16373b913a6",
+    "evaluation_commit": "97e7847046cea6b66824b67d0809dc8445b29590",
     "evaluation_hashes": {
       "evals/build_split.py": "12153185f81a826ead93c5bf33fc32a416ae5e740b075455e71ff09e095fc0a8",
       "evals/metrics.py": "09d7cfd9613eae162d7bde6c913933cb725465f702e8d7c3873ab4f3c95b57f7",
-      "evals/run.py": "250850c5af8d10291d36e36d9993732ad3a51fedfcba70b01d795a823ace7318",
+      "evals/run.py": "30d5e5fb207dc2882a81cbacd9e08c3d746b744d5780959594a465ba33d12968",
       "evals/test_metrics.py": "6d5d362454a1c9f978fb76b7a1808626eb88eaa4481c75dce7cc35c62960b254",
-      "evals/test_run.py": "9e5d3d58b07a0b87694148b4a02e8374e7270d2adb1853cf34f507499842b471"
+      "evals/test_run.py": "58b1582ef1086ec06b0721fde9d507216a6c5d13c12eccff7b95fd3e3bdf494c"
     },
+    "evaluation_role": "test-informed during development",
     "fallback_errors": {},
     "final_model_run": false,
     "history_hashes": {
@@ -5245,7 +5403,7 @@
       "agent/packs/guard/data/history/usr_maya.jsonl": "c6aa6f5c2c26ff35caf0c6f5178f6e46e202e9a4ed4b127a3752a9a2504adab4",
       "agent/packs/guard/data/history/usr_priya.jsonl": "92419dfba20e530fbea9e66d585b3bb39d003246595374d4995fd8709213f9f5"
     },
-    "main_commit": "76aa44084ee735571777f24f87c168a85c28df9b",
+    "main_commit": "e0c96d42b180e18dfcbf211604465cdc94c91928",
     "mode": "rules only (model rerun pending)",
     "model_hashes": {},
     "personas_sha256": "bd25b315367134fa2ff9516fa44e8834d46f5f204250ecf6539bb3ba255459e7",
@@ -5413,7 +5571,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0013",
       "trigger_type": "sim_swap.requested",
@@ -5445,7 +5604,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0014",
       "trigger_type": "sim_swap.requested",
@@ -5477,7 +5637,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0015",
       "trigger_type": "sim_swap.requested",
@@ -5509,7 +5670,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0016",
       "trigger_type": "sim_swap.requested",
@@ -5541,7 +5703,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0017",
       "trigger_type": "sim_swap.requested",
@@ -5573,7 +5736,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0018",
       "trigger_type": "sim_swap.requested",
@@ -5605,7 +5769,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0019",
       "trigger_type": "sim_swap.requested",
@@ -5637,7 +5802,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0020",
       "trigger_type": "sim_swap.requested",
@@ -5669,7 +5835,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0021",
       "trigger_type": "sim_swap.requested",
@@ -5701,7 +5868,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0022",
       "trigger_type": "sim_swap.requested",
@@ -5733,7 +5901,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0023",
       "trigger_type": "sim_swap.requested",
@@ -5765,7 +5934,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0024",
       "trigger_type": "sim_swap.requested",
@@ -5797,7 +5967,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0025",
       "trigger_type": "sim_swap.requested",
@@ -5834,7 +6005,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0051",
       "trigger_type": "otp.sent",
@@ -5871,7 +6043,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0052",
       "trigger_type": "otp.sent",
@@ -5908,7 +6081,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0053",
       "trigger_type": "otp.sent",
@@ -5940,7 +6114,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0054",
       "trigger_type": "otp.sent",
@@ -5972,7 +6147,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0055",
       "trigger_type": "otp.sent",
@@ -6009,7 +6185,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0056",
       "trigger_type": "otp.sent",
@@ -6041,7 +6218,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0057",
       "trigger_type": "otp.sent",
@@ -6078,7 +6256,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0058",
       "trigger_type": "otp.sent",
@@ -6115,7 +6294,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0059",
       "trigger_type": "otp.sent",
@@ -6152,7 +6332,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0060",
       "trigger_type": "otp.sent",
@@ -6189,7 +6370,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0061",
       "trigger_type": "otp.sent",
@@ -6226,7 +6408,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0062",
       "trigger_type": "otp.sent",
@@ -6263,7 +6446,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0063",
       "trigger_type": "otp.sent",
@@ -6300,7 +6484,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0064",
       "trigger_type": "otp.sent",
@@ -6337,7 +6522,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0065",
       "trigger_type": "otp.sent",
@@ -6374,7 +6560,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0066",
       "trigger_type": "otp.sent",
@@ -6411,7 +6598,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0067",
       "trigger_type": "otp.sent",
@@ -6448,7 +6636,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0068",
       "trigger_type": "otp.sent",
@@ -6485,7 +6674,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0069",
       "trigger_type": "otp.sent",
@@ -6517,7 +6707,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0070",
       "trigger_type": "otp.sent",
@@ -6549,7 +6740,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0071",
       "trigger_type": "otp.sent",
@@ -6586,7 +6778,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0072",
       "trigger_type": "otp.sent",
@@ -6623,7 +6816,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0073",
       "trigger_type": "otp.sent",
@@ -6655,7 +6849,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0074",
       "trigger_type": "otp.sent",
@@ -6692,7 +6887,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0075",
       "trigger_type": "otp.sent",
@@ -6729,7 +6925,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0076",
       "trigger_type": "otp.sent",
@@ -6766,7 +6963,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0077",
       "trigger_type": "otp.sent",
@@ -6803,7 +7001,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0078",
       "trigger_type": "otp.sent",
@@ -6840,7 +7039,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0079",
       "trigger_type": "otp.sent",
@@ -6877,7 +7077,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0080",
       "trigger_type": "otp.sent",
@@ -6914,7 +7115,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0081",
       "trigger_type": "otp.sent",
@@ -6951,7 +7153,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0082",
       "trigger_type": "otp.sent",
@@ -6988,7 +7191,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0083",
       "trigger_type": "otp.sent",
@@ -7025,7 +7229,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0084",
       "trigger_type": "otp.sent",
@@ -7062,7 +7267,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0085",
       "trigger_type": "otp.sent",
@@ -7099,7 +7305,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0086",
       "trigger_type": "otp.sent",
@@ -7131,7 +7338,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0087",
       "trigger_type": "otp.sent",
@@ -7168,7 +7376,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0088",
       "trigger_type": "otp.sent",
@@ -7205,7 +7414,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0089",
       "trigger_type": "otp.sent",
@@ -7242,7 +7452,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0090",
       "trigger_type": "otp.sent",
@@ -7289,7 +7500,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0116",
       "trigger_type": "transfer_pin.requested",
@@ -7336,7 +7548,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0117",
       "trigger_type": "transfer_pin.requested",
@@ -7383,7 +7596,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0118",
       "trigger_type": "transfer_pin.requested",
@@ -7430,7 +7644,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0119",
       "trigger_type": "transfer_pin.requested",
@@ -7477,7 +7692,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0120",
       "trigger_type": "transfer_pin.requested",
@@ -7524,7 +7740,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0121",
       "trigger_type": "transfer_pin.requested",
@@ -7571,7 +7788,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0122",
       "trigger_type": "transfer_pin.requested",
@@ -7618,7 +7836,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0123",
       "trigger_type": "transfer_pin.requested",
@@ -7665,7 +7884,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0124",
       "trigger_type": "transfer_pin.requested",
@@ -7712,7 +7932,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0125",
       "trigger_type": "transfer_pin.requested",
@@ -7759,7 +7980,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0126",
       "trigger_type": "transfer_pin.requested",
@@ -7806,7 +8028,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0127",
       "trigger_type": "transfer_pin.requested",
@@ -7833,7 +8056,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0151",
       "trigger_type": "message.forwarded",
@@ -7860,7 +8084,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0152",
       "trigger_type": "message.forwarded",
@@ -7887,7 +8112,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0153",
       "trigger_type": "message.forwarded",
@@ -7914,7 +8140,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0154",
       "trigger_type": "message.forwarded",
@@ -7941,7 +8168,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0155",
       "trigger_type": "message.forwarded",
@@ -7968,7 +8196,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0156",
       "trigger_type": "message.forwarded",
@@ -7995,7 +8224,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0157",
       "trigger_type": "message.forwarded",
@@ -8022,7 +8252,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0158",
       "trigger_type": "message.forwarded",
@@ -8049,7 +8280,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0159",
       "trigger_type": "message.forwarded",
@@ -8076,7 +8308,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0160",
       "trigger_type": "message.forwarded",
@@ -8108,7 +8341,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0191",
       "trigger_type": "login",
@@ -8140,7 +8374,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0192",
       "trigger_type": "login",
@@ -8172,7 +8407,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0193",
       "trigger_type": "login",
@@ -8204,7 +8440,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0194",
       "trigger_type": "login",
@@ -8236,7 +8473,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0195",
       "trigger_type": "login",
@@ -8268,7 +8506,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0196",
       "trigger_type": "login",
@@ -8300,7 +8539,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0197",
       "trigger_type": "login",
@@ -8332,7 +8572,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0198",
       "trigger_type": "login",
@@ -8364,7 +8605,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0199",
       "trigger_type": "login",
@@ -8396,7 +8638,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0200",
       "trigger_type": "login",
@@ -8433,7 +8676,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0226",
       "trigger_type": "otp.sent",
@@ -8470,7 +8714,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0227",
       "trigger_type": "otp.sent",
@@ -8507,7 +8752,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0228",
       "trigger_type": "otp.sent",
@@ -8544,7 +8790,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0229",
       "trigger_type": "otp.sent",
@@ -8581,7 +8828,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0230",
       "trigger_type": "otp.sent",
@@ -8613,7 +8861,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0236",
       "trigger_type": "message.forwarded",
@@ -8645,7 +8894,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0237",
       "trigger_type": "message.forwarded",
@@ -8677,7 +8927,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0238",
       "trigger_type": "message.forwarded",
@@ -8709,7 +8960,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0239",
       "trigger_type": "message.forwarded",
@@ -8741,7 +8993,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0240",
       "trigger_type": "message.forwarded",
@@ -8768,7 +9021,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0241",
       "trigger_type": "login",
@@ -8795,7 +9049,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0242",
       "trigger_type": "login",
@@ -8822,7 +9077,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0243",
       "trigger_type": "login",
@@ -8849,7 +9105,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0244",
       "trigger_type": "login",
@@ -8876,7 +9133,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0245",
       "trigger_type": "login",
@@ -8903,7 +9161,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0246",
       "trigger_type": "login",
@@ -8930,7 +9189,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0247",
       "trigger_type": "login",
@@ -8957,7 +9217,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0248",
       "trigger_type": "login",
@@ -8984,7 +9245,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0249",
       "trigger_type": "pin.attempt",
@@ -9011,7 +9273,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0250",
       "trigger_type": "pin.attempt",
@@ -9038,7 +9301,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0251",
       "trigger_type": "pin.attempt",
@@ -9065,7 +9329,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0252",
       "trigger_type": "pin.attempt",
@@ -9092,7 +9357,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0253",
       "trigger_type": "pin.attempt",
@@ -9119,7 +9385,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0254",
       "trigger_type": "pin.attempt",
@@ -9146,7 +9413,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0255",
       "trigger_type": "pin.attempt",
@@ -9173,7 +9441,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0256",
       "trigger_type": "pin.attempt",
@@ -9200,7 +9469,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0257",
       "trigger_type": "sim_swap.requested",
@@ -9227,7 +9497,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0258",
       "trigger_type": "sim_swap.requested",
@@ -9254,7 +9525,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0259",
       "trigger_type": "sim_swap.requested",
@@ -9281,7 +9553,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0260",
       "trigger_type": "sim_swap.requested",
@@ -9308,7 +9581,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0261",
       "trigger_type": "sim_swap.requested",
@@ -9335,7 +9609,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0262",
       "trigger_type": "sim_swap.requested",
@@ -9362,7 +9637,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0263",
       "trigger_type": "sim_swap.requested",
@@ -9389,7 +9665,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0264",
       "trigger_type": "sim_swap.requested",
@@ -9416,7 +9693,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0265",
       "trigger_type": "protection.changed",
@@ -9443,7 +9721,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0266",
       "trigger_type": "protection.changed",
@@ -9470,7 +9749,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0267",
       "trigger_type": "protection.changed",
@@ -9497,7 +9777,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0268",
       "trigger_type": "protection.changed",
@@ -9524,7 +9805,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0269",
       "trigger_type": "protection.changed",
@@ -9551,7 +9833,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0270",
       "trigger_type": "protection.changed",
@@ -9578,7 +9861,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0271",
       "trigger_type": "protection.changed",
@@ -9605,7 +9889,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_gen_0272",
       "trigger_type": "protection.changed",
@@ -9642,7 +9927,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_01",
       "trigger_type": "otp.sent",
@@ -9679,7 +9965,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_02",
       "trigger_type": "otp.sent",
@@ -9716,7 +10003,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_03",
       "trigger_type": "otp.sent",
@@ -9753,7 +10041,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_code_relay_04",
       "trigger_type": "otp.sent",
@@ -9780,7 +10069,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_dev_store",
       "trigger_type": "sim_swap.requested",
@@ -9807,7 +10097,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_marcus_travel",
       "trigger_type": "transfer_pin.requested",
@@ -9834,7 +10125,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_maya_daughter",
       "trigger_type": "otp.sent",
@@ -9861,7 +10153,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_hn_priya_night",
       "trigger_type": "otp.sent",
@@ -9888,7 +10181,8 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_scam_text_04",
       "trigger_type": "message.forwarded",
@@ -9920,11 +10214,26 @@
       },
       "route": {
         "ml_called": false,
-        "ml_error": null
+        "ml_error": null,
+        "ml_returned_score": false
       },
       "scenario_id": "scn_seed_takeover_04",
       "trigger_type": "sim_swap.requested",
       "variant": "remote_care_sim_swap"
     }
-  ]
+  ],
+  "training_audit": {
+    "affected_split_sha256": "2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6",
+    "audited_head": "044762137bd861c0708778d108ac9bcbb3b2e828",
+    "evidence": [
+      "agent/packs/guard/ml/models/meta.json:69-74 records choices after inspecting held-out failure families.",
+      "agent/packs/guard/ml/text.py:15-16 records a credential rule added after held-out code_request_no_link review.",
+      "seed_scam_text_04.json has variant code_request_no_link and is in split.test, absent split.train."
+    ],
+    "model_pr": 57,
+    "pending": "Lane 1 decision: freeze model and create a new separate sealed holdout, or retain explicit test-informed/provisional labeling. Frozen split stays unchanged.",
+    "reason": "Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence.",
+    "status": "test_informed",
+    "verified_fit_inputs": "Risk fit/calibration use 125 split.train risk scenarios and 49 allowed normal-history rows, with training out-of-fold calibration; the leakage is feature/rule selection, not direct weight fitting on test rows."
+  }
 }
