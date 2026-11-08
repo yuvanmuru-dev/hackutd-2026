@@ -28,8 +28,10 @@ the actual sealed set or consume its receipt.
 
 ## Freeze and single attempt
 
-After the deadline, verify #57's final head and merge commit with GitHub and
-fetch main. Use the exact merged scorer checkout: serving code, artifacts,
+At the deadline, record #57's final head with GitHub; after its merge verify
+that exact head is the merge's second parent and fetch main. The helper also
+rejects model-head commits dated after the tuning cutoff. Use the exact
+merged scorer checkout: serving code, artifacts,
 baseline history, personas, contracts and Store fixtures must match that
 commit. Later unrelated main changes do not redefine the frozen scorer.
 

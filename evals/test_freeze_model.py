@@ -1,6 +1,7 @@
 """Freeze checks use a tiny temporary git repo, never a real model or sealed data."""
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -51,7 +52,9 @@ class FreezeTests(unittest.TestCase):
         self.temp.cleanup()
 
     def git(self, *args):
-        return subprocess.check_output(["git", *args], cwd=self.root, text=True).strip()
+        env = {**os.environ, "GIT_AUTHOR_DATE": "2026-11-07T20:00:00Z",
+               "GIT_COMMITTER_DATE": "2026-11-07T20:00:00Z"}
+        return subprocess.check_output(["git", *args], cwd=self.root, text=True, env=env).strip()
 
     def write(self, path, value):
         target = self.root / path
@@ -96,6 +99,12 @@ class FreezeTests(unittest.TestCase):
             freeze.write_freeze({"model_commit": "replacement"}, path)
         self.assertEqual(path.read_bytes(), before)
         self.assertEqual(json.loads(before)["model_commit"], "fixture")
+
+    def test_model_commit_after_tuning_cutoff_is_rejected(self):
+        with patch.object(freeze, "datetime", AfterDeadline), \
+                patch.object(freeze, "commit_time", return_value=AfterDeadline.now()):
+            with self.assertRaisesRegex(ValueError, "after.*cutoff"):
+                freeze.build_snapshot(self.merge, self.head)
 
 
 if __name__ == "__main__":

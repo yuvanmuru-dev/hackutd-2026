@@ -47,6 +47,10 @@ def _hashes_at(commit: str, paths: list[str]) -> dict[str, str]:
             for p in paths}
 
 
+def commit_time(commit: str) -> datetime:
+    return datetime.fromisoformat(git("show", "-s", "--format=%cI", commit)).astimezone(timezone.utc)
+
+
 def build_snapshot(commit: str, model_head: str) -> dict:
     """Both SHAs must be explicit, fetched, and connected by the PR merge."""
     if not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (commit, model_head)):
@@ -57,6 +61,8 @@ def build_snapshot(commit: str, model_head: str) -> dict:
     parents = git("show", "-s", "--format=%P", commit).split()
     if len(parents) != 2 or parents[1] != model_head:
         raise ValueError("Expected PR #57 merge with its final head as second parent")
+    if commit_time(model_head) > datetime.fromisoformat(NOT_BEFORE):
+        raise ValueError("Model head was committed after the D-053a tuning cutoff")
     paths = git("ls-tree", "-r", "--name-only", commit).splitlines()
     serving = _hashes_at(commit, [p for p in paths if serving_path(p)])
     model = {p: h for p, h in serving.items() if p.startswith("agent/packs/guard/ml/")}
@@ -65,6 +71,8 @@ def build_snapshot(commit: str, model_head: str) -> dict:
         raise ValueError("Freeze requires the real ML source and model artifacts")
     snapshot = {"format_version": 1, "decision": "D-053/D-053a", "pull_request": 57,
                 "model_commit": commit, "model_head_commit": model_head, "parents": parents,
+                "model_head_committed_at_utc": commit_time(model_head).isoformat(),
+                "merge_committed_at_utc": commit_time(commit).isoformat(),
                 "not_before_utc": NOT_BEFORE, "frozen_at_utc": datetime.now(timezone.utc).isoformat(),
                 "serving_hashes": serving, "input_hashes": _hashes_at(commit, [p for p in paths if input_path(p)]),
                 "model_hashes": model, "model_sha256": aggregate(model)}
@@ -84,6 +92,12 @@ def verify_snapshot(snapshot: dict) -> None:
     parents = git("show", "-s", "--format=%P", commit).split()
     if parents != snapshot["parents"] or len(parents) != 2 or parents[1] != head:
         raise ValueError("Freeze merge/head metadata does not match git")
+    head_time, merge_time = commit_time(head), commit_time(commit)
+    if head_time > datetime.fromisoformat(NOT_BEFORE):
+        raise ValueError("Model head was committed after the D-053a tuning cutoff")
+    if head_time.isoformat() != snapshot["model_head_committed_at_utc"] \
+            or merge_time.isoformat() != snapshot["merge_committed_at_utc"]:
+        raise ValueError("Frozen git timestamps do not match the recorded head/merge")
     if subprocess.run(["git", "merge-base", "--is-ancestor", commit, "origin/main"],
                       cwd=ROOT, check=False).returncode:
         raise ValueError("Frozen merge is not on fetched origin/main")
