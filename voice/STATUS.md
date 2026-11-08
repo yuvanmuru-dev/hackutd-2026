@@ -126,3 +126,11 @@ Release verification: voice pytest **49 passed, 1 upstream warning in 22.39s**; 
 Known CI blocker: `python scripts/check_lane.py lane/voice origin/main` flags two existing negative-test inputs in voice/tests/test_conversation.py (unsafe opening and password-request rejection tests) as D-012 production prompts. The checks/tests were not weakened or bypassed; Lane 1 must approve a test-aware guardrail correction. Publishing as a draft with this failure explicit.
 
 Credential clarification for sponsor support: the supplied PHOTON_SECRET_KEY is a Photon 2.0 Project API key, currently passed to SIP auth_password per the supplied setup. It is not a separately generated outbound SIP password or a Stable project secret. SIP credential compatibility remains unverified and should be checked alongside Photon-side 503 logs. No credential, project identifier or sending number is included here.
+
+## D-057 / PR #62 integrated
+
+Updated lane/voice from main **4b5cb3b**, including merged #62 and D-055 through D-058. `voice/.venv/Scripts/python.exe scripts/check_lane.py lane/voice origin/main` (run from repository root) now reports **PASS lane guardrails (25 files, branch lane/voice)**. The earlier negative-test guardrail blocker is resolved by Lane 1's D-057 change; no test was changed or weakened here. Gitleaks branch-history scan again reports no leaks found.
+
+PR #61 remains a draft until a real call rings. No Photon calls were retried. D-055 now records the provider root cause: the shared line is not voice eligible, and outbound voice needs separately generated SIP credentials rather than the project API key. Waiting for Karthik's eligible line/SIP credentials (sponsor ticket #1916); any paid fallback remains Yuvan's decision. Current environment and provisioning code have not been repointed to an unverified replacement credential.
+
+Post-update validation: voice pytest **49 passed, 1 upstream warning in 34.87s**; D-054 gate **PASS** for both cases; shared contracts **PASS 57 fixtures/events valid**.
