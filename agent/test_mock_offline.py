@@ -94,6 +94,18 @@ with TestClient(server.app) as c:
     ok("Action", a)
     assert c.post("/actions/act_nope/approve", json={"via": "web"}).status_code == 404
 
+    # 6b. T5: the number Maya reported calls back -> labeled scam + "same scam" heads-up (D-047)
+    assert c.get("/health").json()["ok"]
+    from core.store import store as _store
+    assert "h_8f2c19" in _store.scam_numbers, _store.scam_numbers
+    again = fixture("event.call_started.json") | {"event_id": "evt_t5_01", "call_id": "call_t5"}
+    r5 = c.post("/events", json=again).json()
+    assert r5["trigger"] == "repeat_heads_up", r5
+    d5 = ok("CaseDetail", c.get(f"/cases/{r5['case_id']}").json())
+    assert d5["call"]["scam_label"] is True and "reported as a scam" in d5["messages"][-1]["text"], d5["messages"]
+    c.post("/events", json={"event_id": "evt_t5_02", "user_id": "usr_maya", "type": "call.ended", "ts": "2026-11-08T15:00:00Z",
+                            "source": "voice", "call_id": "call_t5", "data": {"duration_s": 30}})
+
     # 7. T3 (forwarded text) and T1 (takeover) scenarios via the console helper
     c.post("/demo/reset")
     c.post("/demo/play/t3")

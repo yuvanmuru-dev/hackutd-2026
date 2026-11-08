@@ -138,6 +138,8 @@ async def replay(store: Store, case: dict, threat: str):
                         a.update(status="applied", approved_via="voice", applied_at=iso(now()))
                         if a["kind"] == "revoke_transfer_pin":
                             store.transfer_pins[uid] = {"status": "revoked", "hold_until": None}
+                        if a["kind"] == "report_number":
+                            store.report_number(case)
             elif t == "summary":
                 case["summary"] = data["summary"]
             elif t == "done":
@@ -150,13 +152,20 @@ async def replay(store: Store, case: dict, threat: str):
         case["run_running"] = False
 
 
-def heads_up(store: Store, case: dict):
-    text = ("Titan: Heads up. The call you just answered says it's T-Mobile, but we can't verify it. "
-            "We'll never ask for your PIN or ask you to turn off protection.")
+REPEAT_TEXT = ("Titan: Heads up. The number calling you now was reported as a scam after it called you before. "
+               "It's calling back, often pretending to help you recover money. We'd let it ring. We'll never ask for your PIN.")
+
+
+def heads_up(store: Store, case: dict, repeat: bool = False):
+    text = REPEAT_TEXT if repeat else ("Titan: Heads up. The call you just answered says it's T-Mobile, but we can't verify it. "
+                                       "We'll never ask for your PIN or ask you to turn off protection.")
     msg = {"message_id": new_id("msg"), "case_id": case["case_id"], "channel": "imessage", "direction": "out",
            "kind": "heads_up", "text": text, "ts": iso(now())}
     case["messages"].append(msg)
-    store.add_step(case, new_id("run"), "messaging", "reach", "message", "Heads-up text sent: unverified call claiming to be T-Mobile",
-                   {"message_id": msg["message_id"]})
+    if repeat:
+        case.update(threat="coached", confidence="high", status="watching")
+    store.add_step(case, new_id("run"), "messaging", "reach", "message",
+                   "Heads-up text sent: a number Titan reported is calling again" if repeat
+                   else "Heads-up text sent: unverified call claiming to be T-Mobile", {"message_id": msg["message_id"]})
     outbound.send_message(store, {"case_id": case["case_id"], "user_id": case["user_id"], "channel": "imessage",
                                   "kind": "heads_up", "text": text, "expects_reply": False, "action_id": None})

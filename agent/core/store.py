@@ -63,6 +63,7 @@ class Store:
             self.case_by_call: dict[str, str] = {}
             self.checks: dict[str, dict] = {}
             self.outbox: list[dict] = []  # what the brain asked messaging/voice to send
+            self.scam_numbers: dict[str, dict] = {}  # number_hash -> {first_reported, report_count, case_id} (Titan's reports to Scam ID)
 
     # ---- users / timeline
     def user(self, uid: str) -> dict | None:
@@ -82,7 +83,19 @@ class Store:
             "duration_s": max(0, int((end - parse(c["started_at"])).total_seconds()))}
 
     def suspicious(self, c: dict | None) -> bool:
-        return bool(c) and (c["attestation"] in UNVERIFIED or c["scam_label"]) and not c["seen_before"]
+        if not c:
+            return False
+        return bool(c["scam_label"]) or (c["attestation"] in UNVERIFIED and not c["seen_before"])
+
+    def report_number(self, case: dict) -> str | None:
+        """Customer approved 'report the number': record it so the network labels it next time (Scam ID)."""
+        call = self.calls.get(case.get("call_id") or "")
+        h = call.get("other_number_hash") if call else None
+        if not h:
+            return None
+        rec = self.scam_numbers.setdefault(h, {"first_reported": iso(now()), "report_count": 0, "case_id": case["case_id"]})
+        rec["report_count"] += 1
+        return h
 
     def timeline(self, uid: str) -> dict:
         evs = sorted((e for e in self.events.values() if e["user_id"] == uid), key=lambda e: e["ts"])

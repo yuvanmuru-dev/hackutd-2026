@@ -25,6 +25,7 @@ MODELS = {
     "super": ("NEMOTRON_MODEL", "nvidia/nemotron-3-ultra-550b-a55b"),
     "nano": ("NEMOTRON_NANO_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
     "safety": ("SAFETY_MODEL", "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"),
+    "vision": ("NEMOTRON_VL_MODEL", "nvidia/nemotron-3.5-super-vl-120b-a12b"),
 }
 _client = None
 _calls: list[dict] = []  # last calls, for the dashboard/debug (model, ms, ok)
@@ -98,7 +99,7 @@ def _retryable(e: Exception) -> bool:
 
 def chat(role: str, messages: list[dict], *, max_tokens: int = 900, temperature: float = 0.2) -> tuple[str, str]:
     """Returns (text, model_used). Retries, then falls back super -> nano."""
-    chain = [role] + (["nano"] if role == "super" else [])
+    chain = [role] + (["nano"] if role == "super" else [])  # vision has no text-only fallback
     last: Exception | None = None
     extra = {}
     if os.getenv("NEMOTRON_THINKING", "off") == "off":

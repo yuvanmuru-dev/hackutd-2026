@@ -32,9 +32,15 @@ def ingest(store: Store, ev: dict) -> dict:
         d = ev["data"]
         cid = ev.get("call_id") or f"call_{ev['event_id'][4:]}"
         ev["call_id"] = cid
+        reported = d["other_number_hash"] in store.scam_numbers  # Titan reported it earlier: the network now labels it
         store.calls[cid] = {"call_id": cid, "user_id": uid, "caller_name": d.get("caller_name"), "attestation": d["attestation"],
-                            "seen_before": d["seen_before"], "scam_label": d["scam_label"], "started_at": ev["ts"], "ended_at": None}
+                            "seen_before": d["seen_before"], "scam_label": d["scam_label"] or reported, "started_at": ev["ts"],
+                            "ended_at": None, "other_number_hash": d["other_number_hash"]}
         c = store.calls[cid]
+        if reported:
+            case = _case_for_call(store, uid, cid, "Reported scam number calling again")
+            out.update(case_id=case["case_id"], trigger="repeat_heads_up")
+            return out
         if store.suspicious(c) and c["caller_name"] and "t-mobile" in c["caller_name"].lower():
             case = _case_for_call(store, uid, cid, "Unverified call claiming to be T-Mobile")
             out.update(case_id=case["case_id"], trigger="heads_up")
