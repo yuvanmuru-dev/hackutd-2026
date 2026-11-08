@@ -8,7 +8,7 @@ Rules-only results are provisional. The final post-model run of this script is t
 
 Model training audit: **test_informed**. Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence. See model_audit.md; a Lane 1 decision is pending before independent model claims.
 
-Scorer source on main: `76aa44084ee735571777f24f87c168a85c28df9b`. Evaluation checkout: `008498fb70f3b9a647d1b2168e43f9cdb7b904af`.
+Scorer source on main: `e0c96d42b180e18dfcbf211604465cdc94c91928`. Evaluation checkout: `97e7847046cea6b66824b67d0809dc8445b29590`.
 Dataset SHA-256: `d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105`. Split SHA-256: `2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6`.
 Scored 137 test cases; train=163, test=137. All 36 hard negatives and the entire code_relay family are held out.
 
@@ -42,7 +42,7 @@ These evaluation-only controls are outside the frozen split and are never used f
 | rules | 10 | 0 | 0.0% | 0 | 0.0% |
 | brain | 10 | 0 | 0.0% | 0 | 0.0% |
 
-Benign controls SHA-256: `b6b21b0fdea0bb645afd6de9a0c2188211ade6caf510c62ff1c61205c7876116`; source commit: `b6953bfb7920eaef5c08e030d9a5456548ff7806`; present on fetched main: `False`.
+Benign controls SHA-256: `b6b21b0fdea0bb645afd6de9a0c2188211ade6caf510c62ff1c61205c7876116`; source commit: `b6953bfb7920eaef5c08e030d9a5456548ff7806`; present on fetched main: `True`.
 Ten hand-written synthetic notices are a small control set, not representative benign-text validation.
 
 ## Confidence and observed correctness

@@ -571,7 +571,7 @@
       "scam_text_false_positives": 0,
       "support": 10
     },
-    "on_main": false,
+    "on_main": true,
     "rules": {
       "any_nonlegit_false_alert_rate": 0.0,
       "any_nonlegit_false_alerts": 0,
@@ -5385,7 +5385,7 @@
       "write_attempts": 0
     },
     "dataset_sha256": "d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105",
-    "evaluation_commit": "008498fb70f3b9a647d1b2168e43f9cdb7b904af",
+    "evaluation_commit": "97e7847046cea6b66824b67d0809dc8445b29590",
     "evaluation_hashes": {
       "evals/build_split.py": "12153185f81a826ead93c5bf33fc32a416ae5e740b075455e71ff09e095fc0a8",
       "evals/metrics.py": "09d7cfd9613eae162d7bde6c913933cb725465f702e8d7c3873ab4f3c95b57f7",
@@ -5402,7 +5402,7 @@
       "agent/packs/guard/data/history/usr_maya.jsonl": "c6aa6f5c2c26ff35caf0c6f5178f6e46e202e9a4ed4b127a3752a9a2504adab4",
       "agent/packs/guard/data/history/usr_priya.jsonl": "92419dfba20e530fbea9e66d585b3bb39d003246595374d4995fd8709213f9f5"
     },
-    "main_commit": "76aa44084ee735571777f24f87c168a85c28df9b",
+    "main_commit": "e0c96d42b180e18dfcbf211604465cdc94c91928",
     "mode": "rules only (model rerun pending)",
     "model_hashes": {},
     "personas_sha256": "bd25b315367134fa2ff9516fa44e8834d46f5f204250ecf6539bb3ba255459e7",
