@@ -78,7 +78,7 @@
         "paste_into_pin": false,
         "tab_switches": 3,
         "pointer_speed": 0.42,
-        "typing_rhythm_distance": 1.1
+        "typing_rhythm_distance": 2.8
       }
     },
     {
@@ -221,6 +221,16 @@
         "name": "Portal behavior (derived)",
         "record": "events/evt_t2_03"
       }
+    },
+    {
+      "group": "portal",
+      "name": "typing_rhythm_distance",
+      "value": 2.8,
+      "baseline": 0,
+      "source": {
+        "name": "Portal behavior (derived, timing only)",
+        "record": "events/evt_t2_03"
+      }
     }
   ],
   "verification": {
@@ -349,11 +359,12 @@
       "agent": "context",
       "stage": "context",
       "type": "signal",
-      "title": "Portal: 41 s hesitation on Security, left the page 3 times",
+      "title": "Portal: 41 s hesitation on Security, left the page 3 times, typed 2.8× off her usual rhythm",
       "data": {
         "signals": [
           "hesitation_s",
-          "tab_switches"
+          "tab_switches",
+          "typing_rhythm_distance"
         ]
       }
     },

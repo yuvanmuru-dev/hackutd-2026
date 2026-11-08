@@ -114,7 +114,7 @@ export function notePointerSpeed(pxPerMs: number) {
 // Only the single distance number is sent, inside portal_signals.
 const BASELINE = "titan.rhythm.baseline";
 const DEMO_BASELINE: Rhythm = { median: 180, cv: 0.35 }; // plausible seed for Maya when this browser has none
-const MIN_INTERVALS = 6;
+const MIN_INTERVALS = 3; // a 4-digit PIN gives 3 gaps: enough for the demo PIN to count
 const MAX_INTERVALS = 200;
 type Rhythm = { median: number; cv: number };
 

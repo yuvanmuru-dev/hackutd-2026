@@ -23,7 +23,7 @@ event: step
 data: {"seq": 7, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:07Z", "agent": "context", "stage": "context", "type": "tool_result", "title": "First transfer PIN in 4 years \u00b7 her usual laptop \u00b7 her usual area", "data": {"tool": "account_history"}}
 
 event: step
-data: {"seq": 8, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:08Z", "agent": "context", "stage": "context", "type": "signal", "title": "Portal: 41 s hesitation on Security, left the page 3 times", "data": {"signals": ["hesitation_s", "tab_switches"]}}
+data: {"seq": 8, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:08Z", "agent": "context", "stage": "context", "type": "signal", "title": "Portal: 41 s hesitation on Security, left the page 3 times, typed 2.8\u00d7 off her usual rhythm", "data": {"signals": ["hesitation_s", "tab_switches", "typing_rhythm_distance"]}}
 
 event: step
 data: {"seq": 9, "case_id": "case_t2", "run_id": "run_t2", "ts": "2026-11-07T20:33:08Z", "agent": "risk", "stage": "risk", "type": "tool_call", "title": "ml.score(usr_maya, evt_t2_05)", "data": {"tool": "ml.score"}}
