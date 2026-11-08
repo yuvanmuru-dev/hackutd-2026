@@ -7,7 +7,7 @@ import httpx
 import pytest
 
 from conversation import Conversation
-from models import NvidiaModels, SpeechBlocked
+from models import DialogueFormatError, NvidiaModels, SpeechBlocked
 from test_conversation import ModelStub, VOICE_SETTINGS, setup_case
 
 
@@ -108,4 +108,55 @@ def test_unsupported_generated_fact_is_rejected_by_grounding_guard():
         async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
             with pytest.raises(SpeechBlocked):
                 await NvidiaModels(client, VOICE_SETTINGS).guard("Your transfer is cancelled.", facts=["Protection is on."])
+    asyncio.run(run())
+
+
+def test_setup_probe_instructs_model_to_leave_questions_to_the_application():
+    async def run():
+        def handle(request):
+            body = json.loads(request.content)
+            instruction = body["messages"][0]["content"]
+            assert "Do not ask any questions or use question marks" in instruction
+            result = {"intent": "question", "reply": "I am Titan, your account-security assistant."}
+            chunk = {"choices": [{"delta": {"content": json.dumps(result)}}]}
+            return httpx.Response(200, text="data: " + json.dumps(chunk) + "\n\ndata: [DONE]\n\n")
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            await NvidiaModels(client, VOICE_SETTINGS).verify()
+    asyncio.run(run())
+
+
+def test_model_question_does_not_bypass_the_single_question_guard():
+    async def run():
+        def handle(request):
+            result = {"intent": "question", "reply": "How can I help protect your account today?"}
+            chunk = {"choices": [{"delta": {"content": json.dumps(result)}}]}
+            return httpx.Response(200, text="data: " + json.dumps(chunk) + "\n\ndata: [DONE]\n\n")
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            with pytest.raises(DialogueFormatError, match="Invalid bounded conversation response"):
+                await NvidiaModels(client, VOICE_SETTINGS).respond("I need help.", [], "", [])
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("reply", [
+    json.dumps({"intent": "question", "reply": "How can I help protect your account today?"}),
+    "not JSON",
+])
+def test_warmup_format_slip_does_not_abort_setup(reply):
+    async def run():
+        def handle(request):
+            chunk = {"choices": [{"delta": {"content": reply}}]}
+            return httpx.Response(200, text="data: " + json.dumps(chunk) + "\n\ndata: [DONE]\n\n")
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            await NvidiaModels(client, VOICE_SETTINGS).verify()
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("failure", [httpx.ConnectError("synthetic unavailable"), SpeechBlocked("synthetic unsafe")])
+def test_warmup_does_not_hide_endpoint_or_speech_policy_failures(failure):
+    async def run():
+        async with httpx.AsyncClient() as client:
+            model = NvidiaModels(client, VOICE_SETTINGS)
+            model.respond = AsyncMock(side_effect=failure)
+            with pytest.raises(type(failure)):
+                await model.verify()
     asyncio.run(run())

@@ -226,7 +226,6 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
             entry.status = "failed"
             status = error.response.status_code if isinstance(error, httpx.HTTPStatusError) else None
             emit("intervention.setup_failed", case_id=cid, exception_type=type(error).__name__, http_status=status,
-                 sip_status_code=getattr(error, "sip_status_code", None),
                  **provider_diagnostics(error, settings))
             try:
                 await app.state.brain.delivery(cid, "Titan voice setup failed; no successful conversation was confirmed.")
