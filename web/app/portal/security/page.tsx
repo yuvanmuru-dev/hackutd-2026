@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { CallingScreen, PauseScreen } from "@/components/portal/PauseScreen";
 import { PortalShell } from "@/components/portal/PortalShell";
-import { ProtectionToggle } from "@/components/portal/ProtectionToggle";
-import { TransferPinCard } from "@/components/portal/TransferPinCard";
+import { ProtectionToggle, SwitchRow } from "@/components/portal/ProtectionToggle";
+import { TransferPinPanel } from "@/components/portal/TransferPinCard";
 import {
   BrainError,
   check,
@@ -18,7 +18,7 @@ import {
   type Contract as C,
   type ProtectionName,
 } from "@/lib/api/client";
-import { consentGiven, resetFlow, snapshot } from "@/lib/behavior/session";
+import { consentGiven, resetFlow, setConsent, snapshot } from "@/lib/behavior/session";
 import { useBehavior } from "@/lib/behavior/useBehavior";
 
 const ORDER: ProtectionName[] = ["sim_protection", "port_out_protection", "scam_block"];
@@ -29,8 +29,31 @@ type Overlay =
   | { kind: "calling"; caseId: string | null }
   | null;
 
+/**
+ * Settings in two columns (design-taste app sheet: achromatic ledger): a label column with the
+ * section's title and help beside a borderless panel. Stacks on a phone. Sizes stay at Maya's 18px floor.
+ */
+function Section({ id, title, help, children }: { id: string; title: string; help: ReactNode; children: ReactNode }) {
+  return (
+    <section
+      aria-labelledby={id}
+      className="grid grid-cols-1 gap-5 border-t border-line py-8 first:border-t-0 first:pt-2 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-10"
+    >
+      <div>
+        <h2 id={id} className="text-[24px] font-semibold leading-tight tracking-[-0.01em]">
+          {title}
+        </h2>
+        <div className="mt-2 text-ink-2">{help}</div>
+      </div>
+      <div className="min-w-0 rounded-2xl bg-surface p-5 sm:p-7">{children}</div>
+    </section>
+  );
+}
+
 export default function SecurityPage() {
-  const consent = useSyncExternalStore(subscribe, consentGiven, () => null) === true;
+  const stored = useSyncExternalStore(subscribe, consentGiven, () => null);
+  const [consentChoice, setConsentChoice] = useState<boolean | null>(null);
+  const consent = (consentChoice ?? stored) === true;
   useBehavior("/portal/security", consent);
 
   const [state, setState] = useState<C.ProtectionState | null>(null);
@@ -70,7 +93,7 @@ export default function SecurityPage() {
       finishFlow();
     } catch (e) {
       if (e instanceof BrainError && e.status === 409) return turnOff(name); // skipped the pause: ask again
-      setNotice("That didn’t go through. Please try again.");
+      setNotice("That change didn’t go through. Your protection is still on. Please try again.");
       setOverlay(null);
     }
   }
@@ -84,7 +107,7 @@ export default function SecurityPage() {
       else if (r.decision === "pause" && r.pause_screen)
         setOverlay({ kind: "pause", name, screen: r.pause_screen, reasons: r.reasons });
       else if (r.decision === "block") setOverlay({ kind: "calling", caseId: r.case_id ?? null });
-      else setNotice(r.reasons[0] ?? "We can’t make that change right now.");
+      else setNotice(r.reasons[0] ?? "We can’t make that change right now. Your protection is still on.");
     } catch {
       setDown(true);
     } finally {
@@ -97,7 +120,7 @@ export default function SecurityPage() {
     try {
       setState(await setProtection(name, { enabled: true, via: "portal" }));
     } catch {
-      setNotice("That didn’t go through. Please try again.");
+      setNotice("That change didn’t go through. Please try again.");
     } finally {
       setBusy(null);
     }
@@ -119,7 +142,7 @@ export default function SecurityPage() {
         setOverlay({ kind: "pause", name, screen: r.pause_screen, reasons: r.reasons });
       } else {
         setOverlay(null);
-        setNotice(r.reasons[0] ?? "We can’t make that change right now.");
+        setNotice(r.reasons[0] ?? "We can’t make that change right now. Your protection is still on.");
       }
     } catch {
       setOverlay(null);
@@ -143,61 +166,100 @@ export default function SecurityPage() {
     }
   }
 
+  const shield = !!state?.shield_mode;
+
   return (
     <PortalShell signedIn current="Security">
-      <h1 className="text-title font-semibold tracking-tight">Security</h1>
+      <h1 className="text-[clamp(32px,5vw,40px)] font-bold leading-tight tracking-[-0.02em]">Security</h1>
       <p className="mt-2 text-lead text-ink-2">Protections that keep your phone number yours.</p>
 
-      {down && (
-        <p role="alert" className="mt-6 rounded-xl bg-notice-soft p-5 text-body font-semibold text-notice">
-          Can’t reach Titan right now. Your protections stay as they are.{" "}
-          <button type="button" onClick={load} className="underline underline-offset-4">
-            Try again
-          </button>
-        </p>
-      )}
-      {notice && (
-        <p role="status" className="mt-6 rounded-xl bg-surface-2 p-5 text-body">
-          {notice}
-        </p>
-      )}
-      {state?.shield_mode && (
-        <p role="status" className="mt-6 rounded-xl bg-accent-soft p-5 text-body">
-          <span className="font-semibold">Extra checks are on during this call.</span> Changes to protections ask you
-          one question first.
-        </p>
-      )}
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-        <section aria-labelledby="prot-title" className="rounded-2xl border border-line bg-surface px-6 py-4 sm:px-8">
-          <h2 id="prot-title" className="pt-3 text-[26px] font-semibold tracking-tight">
-            Number protections
-          </h2>
-          <ul className="divide-y divide-line">
-            {ORDER.map((name) => {
-              const p = state?.protections.find((x) => x.name === name);
-              return (
-                <ProtectionToggle
-                  key={name}
-                  name={name}
-                  enabled={p?.enabled ?? false}
-                  busy={busy === name}
-                  disabled={!state || busy !== null}
-                  onChange={(next) => (next ? turnOn(name) : turnOff(name))}
-                />
-              );
-            })}
-          </ul>
-        </section>
-        {state && (
-          <TransferPinCard
-            pin={state.transfer_pin}
-            held={held}
-            busy={busy === "pin"}
-            disabled={busy !== null}
-            onRequest={transferPin}
-          />
+      {/* Always mounted so screen readers announce changes; empty when there is nothing to say. */}
+      <div role="status" className="empty:hidden">
+        {down && (
+          <p className="mt-6 rounded-xl bg-notice-soft p-5 font-semibold text-notice">
+            We can’t reach your account right now. Nothing has been changed.{" "}
+            <button type="button" onClick={load} className="underline underline-offset-4 hover:no-underline">
+              Try again
+            </button>
+          </p>
         )}
+        {notice && <p className="mt-6 rounded-xl bg-surface p-5">{notice}</p>}
+        {shield && (
+          <p className="mt-6 rounded-xl bg-accent-soft p-5">
+            <span className="font-semibold">Extra checks are on during this call.</span> Turning a protection off asks
+            you one question first.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <Section
+          id="prot-title"
+          title="Number protections"
+          help={<p>These stop someone else from taking your phone number. Keep them on unless you’re moving carriers.</p>}
+        >
+          {state ? (
+            <ul className="divide-y divide-line">
+              {ORDER.map((name) => {
+                const p = state.protections.find((x) => x.name === name);
+                return (
+                  <ProtectionToggle
+                    key={name}
+                    name={name}
+                    enabled={p?.enabled ?? false}
+                    busy={busy === name}
+                    disabled={busy !== null}
+                    onChange={(next) => (next ? turnOn(name) : turnOff(name))}
+                  />
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="py-2 text-ink-2">
+              {down ? "We can’t show your protections right now. They stay as they were." : "Loading your protections…"}
+            </p>
+          )}
+        </Section>
+
+        <Section
+          id="tpin-title"
+          title="Transfer PIN"
+          help={<p>You only need this when you move your number to a new carrier. Nobody from T-Mobile will ask you for it.</p>}
+        >
+          {state ? (
+            <TransferPinPanel
+              pin={state.transfer_pin}
+              held={held}
+              busy={busy === "pin"}
+              disabled={busy !== null}
+              onRequest={transferPin}
+            />
+          ) : (
+            <p className="py-2 text-ink-2">{down ? "Not available right now." : "Loading…"}</p>
+          )}
+        </Section>
+
+        <Section
+          id="notes-title"
+          title="Behavior notes"
+          help={<p>Timing only, like how long a page takes. Never what you type.</p>}
+        >
+          <ul>
+            <SwitchRow
+              id="notes-switch"
+              name="Let Titan notice coaching"
+              what="Helps Titan spot when someone is talking you through changes."
+              enabled={consent}
+              busy={false}
+              disabled={false}
+              onChange={(next) => {
+                setConsent(next);
+                setConsentChoice(next);
+                if (next) resetFlow("/portal/security");
+              }}
+            />
+          </ul>
+        </Section>
       </div>
 
       {overlay?.kind === "pause" && (

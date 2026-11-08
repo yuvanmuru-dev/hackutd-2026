@@ -13,6 +13,8 @@
   --surface-2: #efeff1;
   --line: #e3e3e6;
   --line-strong: #c9c9ce;
+  /* Boundary of an interactive control (switch track, input edge): 3:1+ on white. */
+  --control: #7c7c84;
   --ink: #111114;
   --ink-2: #4b4b52;
   --ink-3: #64646b;
@@ -36,6 +38,7 @@
   --color-surface-2: var(--surface-2);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-control: var(--control);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
@@ -78,9 +81,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
 }
 
 .pause-in {
