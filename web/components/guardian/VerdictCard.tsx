@@ -15,19 +15,16 @@ export function VerdictCard({ detail, head, view }: Props) {
     <section className="g-panel g-verdict flex min-h-0 flex-col overflow-hidden px-6 py-5" data-revealed={revealed} aria-live="polite" aria-label="Verdict">
       <p className="g-label">Verdict</p>
       <p className="g-verdict-threat mt-1 text-balance">{revealed ? wordsFor(threat) : "Scoring…"}</p>
-      <p className="mt-2 text-[clamp(20px,1.4vw,26px)] font-semibold tabular text-[var(--g-ink-2)]">
+      <p className="mt-2 text-[18px] font-semibold tabular text-[var(--g-ink-2)]">
         {revealed ? confidenceWords(risk, head) : "The Risk agent has not scored yet"}
       </p>
 
       {revealed && reasons.length > 0 && (
         <div className="g-scroll min-h-0 flex-1">
-          <p className="g-label mt-5">Why</p>
-          <ul className="mt-2 flex flex-col gap-2">
+          <p className="g-label mt-5">Top reasons</p>
+          <ul className="mt-1 divide-y divide-[var(--g-line)] leading-snug [&>li]:py-2">
             {reasons.map((r) => (
-              <li key={r.feature} className="flex gap-3 leading-snug">
-                <span className="mt-[9px] h-2 w-2 flex-none rounded-full bg-[var(--g-accent)]" aria-hidden />
-                <span>{r.text}</span>
-              </li>
+              <li key={r.feature}>{r.text}</li>
             ))}
           </ul>
           {counter && <p className="mt-3 leading-snug text-[var(--g-ink-2)]">Against it: {counter.text}</p>}
@@ -37,11 +34,11 @@ export function VerdictCard({ detail, head, view }: Props) {
       <div className="mt-auto flex-none pt-4">
         {v ? (
           <span className="g-pill" data-tone={v.status === "verified" ? "positive" : "notice"}>
-            {v.status === "verified" ? "Checked twice" : "Confidence lowered"} · {v.claims_checked} claims,{" "}
+            {v.status === "verified" ? "Verified" : "Confidence reduced"} · {v.claims_checked} claims,{" "}
             {v.claims_dropped} dropped
           </span>
         ) : (
-          <span className="g-pill">{view.verified ? "Checked twice" : "Verifier pending"}</span>
+          <span className="g-pill">{view.verified ? "Verified" : "Verification pending"}</span>
         )}
       </div>
     </section>

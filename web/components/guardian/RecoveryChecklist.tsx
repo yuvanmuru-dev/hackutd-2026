@@ -26,17 +26,17 @@ const approved = (a: C.Action) => (a.approved_via ? `Maya approved ${VIA[a.appro
 function note(a: C.Action): string {
   switch (a.status) {
     case "applied":
-      return a.requires_approval ? approved(a) : "Done on its own · safer";
+      return a.requires_approval ? approved(a) : "Applied automatically";
     case "approved":
       return approved(a);
     case "awaiting_approval":
-      return "Waiting for Maya’s yes";
+      return "Waiting for Maya’s approval";
     case "proposed":
       return "Proposed";
     case "rejected":
       return "Maya said no";
     case "failed":
-      return "Didn’t go through";
+      return "Failed";
   }
 }
 
@@ -47,14 +47,14 @@ export function RecoveryChecklist({ actions, view }: { actions: C.Action[]; view
   return (
     <section className="g-panel flex min-h-0 flex-col px-6 py-5" aria-label="What Titan did">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-[22px] font-semibold">What Titan did</h2>
+        <h2 className="text-[20px] font-semibold">What Titan did</h2>
         {actions.length > 0 && (
           <span className="g-label tabular">
             {done} of {actions.length} done
           </span>
         )}
       </div>
-      <ul className="g-scroll mt-3 flex max-h-[360px] min-h-0 flex-1 flex-col gap-3 lg:max-h-none" aria-live="polite">
+      <ul className="g-scroll mt-2 flex max-h-[360px] min-h-0 flex-1 flex-col divide-y divide-[var(--g-line)] lg:max-h-none [&>li]:py-2.5" aria-live="polite">
         {rows.length === 0 && (
           <li className="text-[var(--g-ink-3)]">{view.needsApproval ? "Waiting for Maya’s answers" : "No actions yet"}</li>
         )}

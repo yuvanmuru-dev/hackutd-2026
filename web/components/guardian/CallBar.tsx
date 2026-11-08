@@ -5,10 +5,10 @@ import type { Contract as C } from "@/lib/api/client";
 import { formatDuration, isRiskyMarker, markerLabel } from "./derive";
 
 const ATTESTATION: Record<C.CallSummary["attestation"], string> = {
-  A: "verified number",
-  B: "partly verified",
-  C: "unverified number",
-  none: "no caller verification",
+  A: "Verified caller ID",
+  B: "Partly verified caller ID",
+  C: "Unverified caller ID",
+  none: "No caller verification",
 };
 
 /** Live call clock: ticks only while the call is still open and we are live. */
@@ -31,7 +31,7 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
   if (!call) {
     return (
       <section className="g-panel flex items-center gap-6 px-6 py-4" aria-label="Call">
-        <span className="text-[22px] font-semibold">No phone call in this case</span>
+        <span className="text-[20px] font-semibold">No phone call in this case</span>
         <span className="g-label">Titan is working from account activity only.</span>
       </section>
     );
@@ -44,24 +44,24 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
   const visible = markers.filter((m) => m.type !== "call.started" && m.type !== "call.ended");
 
   return (
-    <section className="g-panel grid grid-cols-1 items-center gap-x-10 gap-y-4 px-5 py-5 sm:grid-cols-[auto_1fr] sm:px-6" aria-label="Call">
+    <section className="g-panel grid grid-cols-1 items-center gap-x-10 gap-y-4 px-5 py-4 sm:grid-cols-[auto_1fr] sm:px-6" aria-label="Call">
       <div>
-        <p className="g-label">{ongoing ? "On the phone for" : "Call lasted"}</p>
-        <p className="text-[56px] font-bold leading-none tracking-tight tabular" aria-live="off">
+        <p className="g-label">{ongoing ? "Call time" : "Call lasted"}</p>
+        <p className="mt-1 text-[32px] font-semibold leading-none tabular" aria-live="off">
           {formatDuration(seconds)}
         </p>
       </div>
       <div className="min-w-0">
-        <p className="text-[22px] font-semibold leading-snug">
+        <p className="text-[20px] font-semibold leading-snug">
           “{call.caller_name ?? "Unknown caller"}”
           <span className="font-normal text-[var(--g-ink-2)]">
             {" "}
             · {ATTESTATION[call.attestation]}
-            {call.seen_before ? "" : " · never called her before"}
+            {call.seen_before ? "" : " · first call from this number"}
             {call.scam_label ? " · reported as scam" : ""}
           </span>
         </p>
-        <div className="mt-5">
+        <div className="mt-4">
           <div className="g-track">
             <div className="g-track-fill" style={{ width: "100%" }} />
             {visible.map((m) => (

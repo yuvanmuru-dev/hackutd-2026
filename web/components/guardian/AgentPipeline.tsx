@@ -44,7 +44,7 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
                   {state === "done" ? <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m3.5 8.5 3 3 6-7" /></svg> : i + 1}
                 </span>
                 <div className="min-w-0">
-                  <h2 className="text-[26px] font-bold leading-tight tracking-tight">{p.label}</h2>
+                  <h2 className="text-[20px] font-semibold leading-tight">{p.label}</h2>
                   <p className="g-label">
                     {p.job}
                     {state === "active" ? " · working" : state === "done" ? ` · ${steps.length} ${steps.length === 1 ? "step" : "steps"}` : ""}
@@ -53,7 +53,7 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
               </header>
               <StepList steps={steps}>
                 {steps.length === 0 && (
-                  <li className="text-[var(--g-ink-3)]">{view.done ? "Not needed for this case" : "Waiting for its turn"}</li>
+                  <li className="text-[var(--g-ink-3)]">{view.done ? "Not needed for this case" : "Waiting"}</li>
                 )}
                 {steps.map((s) => (
                   <li key={s.seq} className="g-step" data-type={s.type}>
@@ -90,7 +90,7 @@ function StepList({ steps, children }: { steps: C.StepEvent[]; children: React.R
     return () => cancelAnimationFrame(id);
   }, [steps.length]);
   return (
-    <ol ref={ref} className="g-scroll mt-4 flex max-h-[320px] min-h-0 flex-1 flex-col gap-3 lg:max-h-none">
+    <ol ref={ref} className="g-scroll mt-3 flex max-h-[320px] min-h-0 flex-1 flex-col divide-y divide-[var(--g-line)] lg:max-h-none [&>li]:py-2">
       {children}
     </ol>
   );

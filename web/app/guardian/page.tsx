@@ -31,14 +31,14 @@ export default function GuardianIndex() {
   if (state === "down") return <GuardianScreen caseId={null} />;
 
   return (
-    <main className="guardian flex flex-col items-center justify-center gap-6 p-8 text-center">
-      <GuardianMark size={56} />
-      <h1 className="text-balance text-[36px] font-semibold tracking-tight">
+    <main className="guardian flex flex-col items-start gap-5 p-6 sm:p-10">
+      <GuardianMark size={40} />
+      <h1 className="mt-6 text-balance text-[28px] font-semibold">
         {state === "looking" ? "Finding the latest case…" : "Waiting for a case"}
       </h1>
       {state === "none" && (
         <>
-          <p className="max-w-xl text-[22px] text-[var(--g-ink-2)]">
+          <p className="max-w-xl text-[18px] text-[var(--g-ink-2)]">
             Titan opens a case the moment something risky happens on Maya’s account. Start a scenario from the demo
             console.
           </p>
@@ -48,7 +48,7 @@ export default function GuardianIndex() {
               setState("looking");
               look();
             }}
-            className="h-14 rounded-full bg-[var(--g-ink)] px-8 text-[20px] font-semibold text-[var(--g-ground)] transition-[transform,opacity] hover:opacity-90 active:scale-[0.98]"
+            className="h-12 rounded-[8px] border border-[var(--g-line-strong)] px-5 text-[16px] font-semibold text-[var(--g-ink)] transition-colors hover:bg-[var(--g-surface-2)]"
           >
             Check again
           </button>
