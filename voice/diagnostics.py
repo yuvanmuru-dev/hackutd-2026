@@ -7,7 +7,10 @@ from urllib.parse import quote
 def provider_diagnostics(error, settings):
     # Model, HTTP and speech errors can contain customer text. Only LiveKit's
     # structured server error is eligible for provider message/metadata logging.
-    from livekit.api.twirp_client import ServerError
+    try:
+        from livekit.api.twirp_client import ServerError
+    except ImportError:  # Older SDKs use TwirpError for the same structured failures.
+        from livekit.api.twirp_client import TwirpError as ServerError
     if not isinstance(error, ServerError):
         return {}
     fields = ("account_sid", "auth_token", "elevenlabs_key", "nvidia_key",
@@ -53,7 +56,15 @@ def provider_diagnostics(error, settings):
             return value
         return "[unsupported value]"
 
-    return {"provider_code": clean_text(error.code),
+    sip_status = getattr(error, "sip_status_code", None) or error.metadata.get("sip_status_code")
+    try:
+        sip_status = int(sip_status)
+    except (TypeError, ValueError):
+        sip_status = None
+    if sip_status is not None and not 100 <= sip_status <= 699:
+        sip_status = None
+    return {"sip_status_code": sip_status,
+            "provider_code": clean_text(error.code),
             "provider_http_status": error.status,
             "provider_message": clean_text(error.message),
             "provider_metadata": clean(error.metadata)}
