@@ -1,0 +1,47 @@
+{
+  "scenario_id": "scn_gen_0263",
+  "user_id": "usr_dev",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_gen_0263_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0263_01",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T19:30:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_store_upgrade_gen_0263",
+        "region": "Austin, TX",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0263_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T19:37:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0263_02",
+      "user_id": "usr_dev",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T19:38:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_store_upgrade_gen_0263",
+        "channel": "store"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261370,
+    "variant": "store_phone_upgrade"
+  }
+}

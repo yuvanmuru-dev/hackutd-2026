@@ -1,0 +1,59 @@
+{
+  "scenario_id": "scn_gen_0040",
+  "user_id": "usr_priya",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0040_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0040_01",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-11-07T22:24:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0040",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0040_02",
+      "user_id": "usr_priya",
+      "type": "protection.changed",
+      "ts": "2026-11-07T22:25:00Z",
+      "source": "generator",
+      "data": {
+        "name": "sim_protection",
+        "enabled": false,
+        "via": "app"
+      }
+    },
+    {
+      "event_id": "evt_gen_0040_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:26:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0040_03",
+      "user_id": "usr_priya",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T22:27:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0040",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261147,
+    "variant": "protection_off_swap"
+  }
+}

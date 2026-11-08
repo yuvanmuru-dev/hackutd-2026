@@ -1,0 +1,72 @@
+{
+  "scenario_id": "scn_gen_0036",
+  "user_id": "usr_marcus",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0036_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0036_01",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-11-07T22:19:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0036",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0036_02",
+      "user_id": "usr_marcus",
+      "type": "portal.signals",
+      "ts": "2026-11-07T22:20:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_gen_0036",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/sim"
+        ],
+        "ms_per_step": [
+          1300,
+          900,
+          700
+        ],
+        "hesitation_ms": 700,
+        "paste_into_pin": true,
+        "tab_switches": 0,
+        "pointer_speed": 1.1,
+        "typing_rhythm_distance": 1.7
+      }
+    },
+    {
+      "event_id": "evt_gen_0036_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T22:21:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0036_03",
+      "user_id": "usr_marcus",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T22:22:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0036",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261143,
+    "variant": "rapid_portal_swap"
+  }
+}

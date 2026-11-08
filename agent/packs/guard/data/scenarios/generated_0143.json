@@ -1,0 +1,25 @@
+{
+  "scenario_id": "scn_gen_0143",
+  "user_id": "usr_priya",
+  "label": "scam_text",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0143_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0143_01",
+      "user_id": "usr_priya",
+      "type": "message.forwarded",
+      "ts": "2026-11-07T19:04:00Z",
+      "source": "generator",
+      "data": {
+        "channel": "imessage",
+        "text": "T-Mobile: your account is locked. Verify now at https://t-mobile-secure-0143.example",
+        "from_hash": "h_sender_gen_0143"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261250,
+    "variant": "lookalike_account_lock"
+  }
+}

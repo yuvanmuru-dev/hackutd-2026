@@ -1,0 +1,113 @@
+{
+  "scenario_id": "scn_seed_coached_04",
+  "user_id": "usr_elena",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_coached_04_06",
+  "events": [
+    {
+      "event_id": "evt_seed_coached_04_01",
+      "user_id": "usr_elena",
+      "type": "call.started",
+      "ts": "2026-11-07T19:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_seed_coached_04",
+        "caller_name": "T-Mobile Account Team",
+        "attestation": "C",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_02",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T19:16:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_elena_phone",
+        "region": "San Antonio, TX",
+        "new_device": false,
+        "succeeded": true
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_03",
+      "user_id": "usr_elena",
+      "type": "portal.signals",
+      "ts": "2026-11-07T19:17:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_seed_coached_04",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/port-out"
+        ],
+        "ms_per_step": [
+          6800,
+          33000,
+          10500
+        ],
+        "hesitation_ms": 33000,
+        "paste_into_pin": false,
+        "tab_switches": 2,
+        "pointer_speed": 0.49,
+        "typing_rhythm_distance": 1.1600000000000001
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_04",
+      "user_id": "usr_elena",
+      "type": "protection.changed",
+      "ts": "2026-11-07T19:19:00Z",
+      "source": "generator",
+      "data": {
+        "name": "port_out_protection",
+        "enabled": false,
+        "via": "portal"
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_05",
+      "user_id": "usr_elena",
+      "type": "otp.sent",
+      "ts": "2026-11-07T19:20:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "transfer_pin"
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T19:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      },
+      "call_id": "call_seed_coached_04"
+    },
+    {
+      "event_id": "evt_seed_coached_04_06",
+      "user_id": "usr_elena",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T19:21:00Z",
+      "source": "generator",
+      "data": {},
+      "call_id": "call_seed_coached_04"
+    }
+  ],
+  "generator": {
+    "seed": 20261111,
+    "variant": "fake_support_port_out"
+  }
+}

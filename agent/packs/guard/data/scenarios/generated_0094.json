@@ -1,0 +1,102 @@
+{
+  "scenario_id": "scn_gen_0094",
+  "user_id": "usr_dev",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0094_05",
+  "events": [
+    {
+      "event_id": "evt_gen_0094_01",
+      "user_id": "usr_dev",
+      "type": "call.started",
+      "ts": "2026-11-07T16:15:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0094",
+        "caller_name": "T-Mobile Support",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0094"
+    },
+    {
+      "event_id": "evt_gen_0094_02",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T16:27:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_dev_phone",
+        "region": "Austin, TX",
+        "new_device": false,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0094"
+    },
+    {
+      "event_id": "evt_gen_0094_03",
+      "user_id": "usr_dev",
+      "type": "portal.signals",
+      "ts": "2026-11-07T16:31:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_gen_0094",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/transfer"
+        ],
+        "ms_per_step": [
+          5200,
+          23000,
+          7700
+        ],
+        "hesitation_ms": 34000,
+        "paste_into_pin": false,
+        "tab_switches": 3,
+        "pointer_speed": 0.43,
+        "typing_rhythm_distance": 0.35
+      },
+      "call_id": "call_gen_0094"
+    },
+    {
+      "event_id": "evt_gen_0094_04",
+      "user_id": "usr_dev",
+      "type": "protection.changed",
+      "ts": "2026-11-07T16:33:00Z",
+      "source": "generator",
+      "data": {
+        "name": "port_out_protection",
+        "enabled": false,
+        "via": "portal"
+      },
+      "call_id": "call_gen_0094"
+    },
+    {
+      "event_id": "evt_gen_0094_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:34:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_gen_0094"
+    },
+    {
+      "event_id": "evt_gen_0094_05",
+      "user_id": "usr_dev",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T16:35:00Z",
+      "source": "generator",
+      "data": {},
+      "call_id": "call_gen_0094"
+    }
+  ],
+  "generator": {
+    "seed": 20261201,
+    "variant": "fake_support_port_out"
+  }
+}

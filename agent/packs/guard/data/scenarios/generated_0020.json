@@ -1,0 +1,58 @@
+{
+  "scenario_id": "scn_gen_0020",
+  "user_id": "usr_maya",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0020_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0020_01",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T22:16:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0020",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0020_02",
+      "user_id": "usr_maya",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:17:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0020_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:18:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0020_03",
+      "user_id": "usr_maya",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T22:19:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0020",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261127,
+    "variant": "pin_failure_before_swap"
+  }
+}

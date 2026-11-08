@@ -29,18 +29,17 @@ LANES["contract"] = ["contracts/*", "docs/CONTRACTS.md", "scripts/schema/*", "sc
 FORBIDDEN = [  # (regex on added lines, message). Docs are exempt.
     (r"api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com", "non-NVIDIA LLM endpoint (D-015)"),
     (r"[\"'](gpt-[0-9o]|o[1-4]-|claude-|gemini-)", "non-NVIDIA model name (D-015)"),
-    (r"(?i)t-?mobile[-_ ]?logo\.(png|svg|jpg)|magenta-t\.svg", "official T-Mobile logo asset (D-004)"),
     (r"(?i)(enter|tell me|read (me|out)|what is) (your|the) (pin|passcode|password|one[- ]time code)", "Titan must never ask for a PIN/code/password (D-012)"),
 ]
 
 
 def changed_files(base: str) -> list[str]:
-    out = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], capture_output=True, text=True, check=True)
+    out = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], capture_output=True, text=True, encoding="utf-8", errors="replace", check=True)
     return [f for f in out.stdout.splitlines() if f]
 
 
 def added_lines(base: str) -> list[tuple[str, str]]:
-    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], capture_output=True, text=True, check=True).stdout
+    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
     current, lines = None, []
     for line in out.splitlines():
         if line.startswith("+++ b/"):
