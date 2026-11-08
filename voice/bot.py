@@ -40,6 +40,28 @@ def make_stt(settings: Settings):
         settings=NvidiaSTTService.Settings(language=Language.EN_US, interim_results=True))
 
 
+def make_user_turn_params():
+    """Noise alone must not interrupt; short answers still work after playback."""
+    from pipecat.audio.vad.silero import SileroVADAnalyzer
+    from pipecat.audio.vad.vad_analyzer import VADParams
+    from pipecat.processors.aggregators.llm_response_universal import LLMUserAggregatorParams
+    from pipecat.turns.user_start import MinWordsUserTurnStartStrategy
+    from pipecat.turns.user_stop import SpeechTimeoutUserTurnStopStrategy
+    from pipecat.turns.user_turn_strategies import UserTurnStrategies
+
+    return LLMUserAggregatorParams(
+        vad_analyzer=SileroVADAnalyzer(sample_rate=16000, params=VADParams(
+            confidence=0.8, start_secs=0.25, stop_secs=0.3, min_volume=0.6)),
+        user_turn_strategies=UserTurnStrategies(
+            # Replace the default VAD-only start: a cough or clatter must not
+            # discard queued speech or invalidate the approval question.
+            # Pipecat drops sub-threshold text while the bot is speaking and
+            # accepts a single word once playback finishes. "Please stop" can
+            # barge in; an early isolated "yes" cannot approve an unheard step.
+            start=[MinWordsUserTurnStartStrategy(min_words=2, use_interim=True)],
+            stop=[SpeechTimeoutUserTurnStopStrategy(user_speech_timeout=0.8)]))
+
+
 async def run_probe(websocket, start: dict, settings: Settings):
     """Play a labeled greeting through Pipecat and close after draining the audio."""
     from pipecat.frames.frames import BotStartedSpeakingFrame, EndFrame, TTSSpeakFrame
@@ -137,21 +159,19 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
     import time
     from service import emit
     from models import redact
-    from pipecat.audio.vad.silero import SileroVADAnalyzer
     from pipecat.frames.frames import (BotStartedSpeakingFrame, BotStoppedSpeakingFrame, EndFrame,
-        InterruptionFrame, InterimTranscriptionFrame, LLMContextFrame, TTSSpeakFrame, TTSTextFrame, TranscriptionFrame)
+        InterruptionFrame, InterimTranscriptionFrame, LLMContextFrame, TTSSpeakFrame, TTSTextFrame, TranscriptionFrame,
+        VADUserStoppedSpeakingFrame)
     from pipecat.observers.base_observer import BaseObserver
     from pipecat.observers.service_metrics_observer import ServiceMetricsObserver
     from pipecat.pipeline.pipeline import Pipeline
     from pipecat.pipeline.worker import PipelineParams, PipelineWorker, ProcessorUnusablePolicy
     from pipecat.processors.aggregators.llm_context import LLMContext
-    from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair, LLMUserAggregatorParams
+    from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
     from pipecat.processors.frame_processor import FrameProcessor
     from pipecat.serializers.twilio import TwilioFrameSerializer
     from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams, FastAPIWebsocketTransport
     from pipecat.workers.runner import WorkerRunner
-    from pipecat.turns.user_turn_strategies import UserTurnStrategies
-    from pipecat.turns.user_stop import SpeechTimeoutUserTurnStopStrategy
 
     started = time.monotonic()
     cid = conversation.request["case_id"]
@@ -202,6 +222,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
             self.interrupted = False
             self.first_audio = False
             self.speaking = False
+            self.user_speech_ended = None
 
         async def flush(self):
             if not self.parts:
@@ -217,12 +238,22 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
 
         async def on_push_frame(self, data):
             frame = data.frame
+            if isinstance(frame, VADUserStoppedSpeakingFrame) and data.first_push:
+                # VAD reports after its configured silence window. Subtract that
+                # window to estimate the last incoming speech at the app, not
+                # phone/network latency or listener-perceived response delay.
+                self.user_speech_ended = time.monotonic() - frame.stop_secs
             if isinstance(frame, InterruptionFrame) and data.first_push and self.speaking:
                 self.interrupted = True
                 conversation.heard("", interrupted=True)
             if data.source is not output:
                 return
             if isinstance(frame, BotStartedSpeakingFrame):
+                if self.user_speech_ended is not None:
+                    emit("voice.response_delay", case_id=cid, stage="transport",
+                         observed_ms=round((time.monotonic()-self.user_speech_ended)*1000),
+                         measurement="vad_estimated_speech_end_to_transport_audio")
+                    self.user_speech_ended = None
                 self.speaking = True
                 if not self.parts:
                     self.interrupted = False
@@ -237,9 +268,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
                 await self.flush()
 
     context = LLMContext()
-    aggregators = LLMContextAggregatorPair(context,
-        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer(sample_rate=16000),
-            user_turn_strategies=UserTurnStrategies(stop=[SpeechTimeoutUserTurnStopStrategy()])))
+    aggregators = LLMContextAggregatorPair(context, user_params=make_user_turn_params())
     dialogue = DialogueProcessor()
     audit = SpokenAudit()
     metrics = ServiceMetricsObserver()

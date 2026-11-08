@@ -146,3 +146,107 @@ Actual test results: the first specifically authorized greeting-only probe compl
 Validation: `.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25` -> **51 passed, 1 upstream deprecation warning in 21.98s**; D-054 approval-boundary gate -> both cases PASS; shared contract validator -> PASS 57 fixtures/events valid. New regression tests prove the configured trunk is updated with dedicated SIP credentials rather than creating a replacement, and project API keys are rejected as SIP passwords. Existing allowlist/TLS/call-cleanup checks are retained.
 
 The condition to keep PR #61 draft until a real call rings is now satisfied. Report only the verified bridge result; do not claim the entire Lane 4 definition of done or close #32 until the live conversation/approval milestone is tested. VOICE_CONVERSATION_ENABLED remains false; no automated intervention retry was enabled.
+
+## D-059 live conversation test in progress
+
+Synced main through ad875be (#61 merge and D-059). Ran the approval-boundary script first: both cases PASS. Started a real brain with MOCK=0 / DEMO_MODE=0 using the existing voice NVIDIA key in process memory, VOICE_URL pointing to localhost:8100, messaging dispatch unset, REPLY_TIMEOUT_S=5 and RECOVERY_TIMEOUT_S=180 for this coordinated rehearsal. Enabled VOICE_CONVERSATION_ENABLED=true (the parser requires true/false). No brain files or agent/.env were edited.
+
+Initial T2 case case_17941182830007 rang but the user did not pick up. No voice action was approved. A replay initially encountered stale synthetic carrier windows; closed only those windows through contract-valid call.ended events before a clean replay. The answered case case_17941185180047 reached hosted ASR and the user confirmed hearing Titan, but the next question was blocked by Safety Guard, causing the call to end. Confirmed zero voice-approved steps. The dashboard SSE feed contains both expected voice transcript events (2/2); transcript lines did not approve actions.
+
+Diagnosed the fixed wording against the unchanged live NVIDIA Safety Guard: acknowledgement PASS; original reset-your-account-PIN question SpeechBlocked; start-an-account-PIN-reset variant PASS. Changed only the fixed reset/cancel labels to clearer wording. The updated reset prompt, cancellation prompt, acknowledgement and farewell all PASS the same guard. No guard or policy bypass was added. Conversation tests: 22 passed. Full voice suite after these fixes: **51 passed, one upstream warning in 18.69s**.
+
+User requested another coordinated attempt. Case case_17941187340076 failed during SIP dialing before audio with SipCallError; zero transcripts and zero voice approvals on that case. Added numeric SIP status-code logging alongside the existing sanitized setup-failure event for future diagnosis. No new retry has been placed while waiting for confirmation that the teammate phone is free.
+
+Added operational response timing: VAD-estimated incoming speech end (subtracting the configured silence window) to the next transport BotStartedSpeaking event, with only duration/case metadata logged. This is app-observed timing, not listener-perceived latency. No successful human reply-to-response measurement is available yet; do not substitute first-audio or TTS TTFB values for it.
+
+End-to-end one spoken YES -> one explicit approval remains UNVERIFIED. Voice conversation mode is enabled only for this ongoing authorized rehearsal. The user has been asked whether to retry once or stop phone testing. No PIN/code/password values were requested, printed or recorded; no audio files or scam-call audio were collected.
+
+With no confirmation yet that the phone is free, restored VOICE_CONVERSATION_ENABLED=false and restarted voice to enforce the D-059 interlock between coordinated tests. Keep the live brain/case audit available. Resume the one diagnostic retry only after the user confirms readiness; enable conversation mode only for that test window.
+
+## Coordinated retry: approval loop diagnosed and fixed locally
+
+User authorized one more retry with the phone free. With MOCK=0 brain and the approved Photon/LiveKit route, case **case_17941212060102** received live speech and produced spoken responses. The user reported a loop around YES/confirmation. Stopped the attempt and restored VOICE_CONVERSATION_ENABLED=false; no further phone calls were placed.
+
+Audit result: **zero voice-approved actions**. The recorded outgoing PIN-reset prompt contained the question but its trailing instruction was cut before the final words 'or no'; a YES arrived before the full prompt completion marker, so the strict gate remained unarmed and re-asked. The customer's phrase 'that step is complete' appeared as incoming speech; no corresponding approved action or bot confirmation was recorded. Do not report the approval test as passed.
+
+Fix: the fixed approval prompt now ends at its natural question mark, e.g. 'Would you like me to start an account PIN reset?' There is no trailing instruction to interrupt after the customer has heard the question. Complete-question/interruption validation and strict explicit YES/NO remain unchanged. Added a regression proving a YES at the natural complete-question boundary approves one step, not two. No Safety Guard or approval check was weakened.
+
+Live NVIDIA Safety Guard accepted the short reset question after transient ReadTimeouts; its successful static verification took 11.595 seconds. This static preflight time is not a conversation response measurement.
+
+Measured five app-side VAD-estimated speech-end -> transport BotStartedSpeaking delays from this call: **1555, 1899, 1646, 2495, 2102 ms**. Range **1.555-2.495 s**, median **1.899 s**. These are app-observed estimates that subtract the configured VAD silence window; they are not handset-level or listener-perceived timings and none is an approval acknowledgement.
+
+Conversation calls remain disabled. The live brain and case audit remain available; the local voice service was restarted with the interlock enforced (PID 55800, session 80014). A coordinated phone test after the prompt fix is still required to verify one spoken YES -> one approved step and an audible acknowledgement. No additional call has been authorized or attempted since stopping the loop.
+
+
+## Noise and interruption resilience (offline verified)
+
+User requested resilience before another live call; no additional call was placed. Replaced VAD-only user-turn starts with Pipecat MinWordsUserTurnStartStrategy: two recognized words to interrupt playback, one word when playback is finished. This preserves short YES/NO answers without letting noise-only VAD events or isolated backchannels cut off a question. Silero confidence 0.8, start 250 ms, stop 300 ms; user speech timeout 800 ms leaves space for pauses. An interrupted question is repeated calmly without approving it. The full-question gate, brain 409 checks, transcript audit-only boundary and completed-action exclusion remain enforced.
+
+New tests exercise actual installed Pipecat strategies for noise-only VAD, isolated interim/final words during playback, recognized phrase barge-in and one-word answers after playback. The real Silero model rejects deterministic synthetic quiet noise plus a brief click. Conversation regression covers interruption, re-asking, exactly one approval after full playback, and not re-running that action when the next output is interrupted. No recorded audio, voiceprints or new dependency/provider was added. Background conversations/TV can still look like speech; no speaker-authentication claim is made.
+
+Verification commands (from voice/): `.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25` -> **56 passed, one upstream AudioContextTTSService deprecation warning in 27.50s**; `.venv/Scripts/python.exe scripts/check_brain_approval_boundary.py` -> **PASS transcript, PASS customer.reply**; `.venv/Scripts/python.exe ../scripts/validate_contracts.py` -> **PASS 57 fixtures/events valid**. Earlier targeted run -> 27 passed. Conversation dispatch remains false. Live noise/barge-in behavior, listener-perceived latency and one spoken YES -> one action with audible acknowledgement remain unverified; #32 is not complete.
+
+
+## Coordinated T2 rehearsal: no loop, approval window expired
+
+Case case_17941223150165, November 8, 2026 around 01:21-01:23 America/Chicago. Brain health confirmed MOCK=false and live NVIDIA endpoints; approval-boundary script passed before dialing. Initial /internal/call returned HTTP 422 because a verified hold deadline included calendar year 2026, triggering the conservative three-digit speech filter. For this single authorized call, submitted the identical brain-generated request with only that date's year rendered as words, preserving the date; HTTP 202. No additional phone call was placed.
+
+The user confirmed responsive speech, no looping, and that Titan recovered after interruptions. They did not hear an action-complete acknowledgement; Titan correctly said no recovery step was pending. The case's 180-second recovery window expired during the script-rejection delay/initial turn. Final audit: zero voice approvals; all four unapproved recovery actions rejected without approved_via. This is a verified live conversation/interruption result, NOT a successful approval test. The case stores 12 voice transcript messages; the SSE replay returned only 6/12 before its stream ended after the earlier case completion. No transcript/reply caused an approval. Handset response delay was not supplied by the user. Transport estimates included 1.098, 11.542 and 1.292 s, but background VAD can overwrite their turn association; do not claim those as validated handset reply delays.
+
+Restored VOICE_CONVERSATION_ENABLED=false and stopped the test service. The first room check briefly saw one Titan room; a subsequent bounded cleanup check found no remaining Titan room, so no other room was deleted. Restarted disabled service. No audio was recorded or secret digits requested.
+
+Fixed the calendar presentation in voice/models.py and service.py: valid named dates in 2000-2099 render the calendar year as words before the unchanged speech policy and live Safety Guard. No fact is removed or invented; standalone numbers, invalid dates and secret requests remain blocked. Regression includes the brain's exact deadline shape at /internal/call. Full voice pytest -> **62 passed, one upstream warning in 23.11s**; approval-boundary -> PASS transcript, PASS customer.reply; contracts -> PASS 57 fixtures/events valid; git diff --check clean; Gitleaks diff scan -> no leaks found. A fresh, coordinated T2 case is needed to test one explicit YES before the recovery timeout. No retry has been authorized since this call.
+
+QUESTION FOR LANE 1
+Lane / issue / branch: 4 voice / #32 / lane/voice
+Blocked on: Complete dashboard transcript replay after a case finishes during a voice call.
+Context: case_17941223150165 stores 12 voice transcript messages, but GET /cases/{id}/stream returns only 6/12, closing at an earlier done event before later voice audit events. No voice action was approved.
+What the docs say: Lane 4 posts every line; the guardian displays case transcripts. Voice transcripts remain audit-only (D-054).
+Options: A) Lane 1 makes SSE replay all stored history before terminating at done and supports later audit events. B) Lane 1 specifies a case-detail refresh path for post-completion transcript messages with Lane 3.
+My recommendation: A; preserve existing schema. No brain/web files were edited by Lane 4.
+Can I keep working meanwhile? yes: fresh-case live approval test after readiness confirmation; no blind calls.
+
+
+## Fresh-case retry rejected by SIP (403)
+
+User authorized exactly one fresh T2 call. Re-ran approval-boundary script (PASS transcript and customer.reply), checked live brain MOCK=false, enabled conversation dispatch and started the latest tested service. Case case_17941228850214 was generated by POST /demo/play/t2; the brain's original request was accepted automatically with HTTP 202, confirming the date-rendering fix removes the earlier HTTP 422 without manual request edits.
+
+At **2026-11-08 01:28:42 America/Chicago** (07:28:42 UTC), LiveKit/Photon dialing failed with **SipCallError / sip_status_code 403** before audio or ringing was confirmed. Room identifier for provider support: titan-3e5e55461e8fb5bb0b8025fe. SIP Call-ID was not exposed by the sanitized application log. No incoming speech or recovery approval occurred. The failed session cleaned up its room. No further call was placed.
+
+Read-only `.venv/Scripts/python.exe livekit_setup.py --check` -> **LIVEKIT CHECK PASS: authenticated; Photon TLS trunk and configured line match**. This verifies configured endpoint/TLS/line/username, not provider acceptance of the SIP password or outbound permission. Restored VOICE_CONVERSATION_ENABLED=false and stopped the enabled process. The e2e approval milestone remains blocked on provider rejection; do not claim a successful call or response timing from this attempt.
+
+
+## D-061 provider investigation hold
+
+Lane 1 selected Photon investigation until approximately 02:05 America/Chicago on November 8. No calls until Karthik reports; at most one retry after that answer, subject to the deadline. If unresolved by the cutoff, recovery demo is text-only and voice is described only as built/tested and shown in existing video; do not claim end-to-end voice approvals passed.
+
+Routing confirmation: both successful greeting-only probes and failed T2 conversation use LiveKitCalls.run; CreateSIPParticipant always uses the same settings.maya_number destination and settings.photon_number caller ID. No code path substitutes a case/user-provided telephone number. Since the successful call, Lane 4 changed only the conversation flag in voice/.env, not MAYA_PHONE_NUMBER or PHOTON_PHONE_NUMBER. Prior read-only trunk check confirmed the configured caller line/endpoint/TLS/username still match. This confirms the same local routing inputs; the application deliberately does not retain raw destination/caller-ID logs, so an independent provider-side historical number comparison requires Karthik's call logs. No number or credential values are printed here. Conversation flag remains false. Waiting for Karthik's SIP credential-regeneration, rejection-reason and outbound-plan findings; no retry is queued.
+
+
+## D-061 read-only dashboard investigation
+
+Used the computer-use skill to inspect the user's existing LiveKit tab in Vivaldi after access to Zen was denied. No account settings, plan, credentials or trunks were changed; no call was retried.
+
+Historical call **SCL_mfdog5s7JQus**, November 8 07:28:42 UTC (01:28:42 America/Chicago): full dashboard error text **unexpected status from INVITE response: sip status: 403: Forbidden**. SIP response 403; call status FAILED; provider **photon**; destination host **sip.photon.codes**; TLS; trunk **ST_aJYMnTC5i9tP**; provider call ID **njZUe2e8KOBISXCkNVWWlIoju0M**. Call-ended event payload repeats the same error and `callStatusCode.status=Forbidden`; no more specific auth/balance/destination reason is shown. PCAP is unavailable (dash). The evidence indicates a remote INVITE response from the Photon route relayed by LiveKit, not local CallRequest validation. It does not distinguish Photon authentication, account permission, destination restrictions or downstream carrier rejection.
+
+The dashboard's failed-call FROM/TO exactly match the successful 01:21, 01:00 and earlier ring/greeting calls. This upgrades the earlier local-config confirmation to provider-log confirmation, without storing raw numbers here.
+
+Billing shows **Build**, next invoice **$0.00**. Past-seven-day usage shows approximately **4 outbound/SIP participant minutes**, **0 inbound seconds**, and **6 SIP sessions**. Usage and limits shows 100 concurrent participants (peak 1), 1,000 API requests/minute (peak 7); it does not expose a remaining SIP-minute or outbound-call quota. Current official docs (https://docs.livekit.io/deploy/admin/quotas-and-limits/) list **1,000 third-party SIP minutes** on Build, shared across free projects, versus 50 inbound minutes for LiveKit-owned US local numbers. About 996 minutes would remain only if this project is the workspace's sole usage and the displayed rounded total covers the period; this is an estimate, not a verified account balance. Photon plan/credit remains unknown.
+
+Implemented shared bounded LiveKit SDK diagnostics for service and CLI: sanitized message and metadata, provider HTTP/code, SIP reason, and support IDs. Explicitly masks configured secrets/numbers, URI contents, sensitive metadata keys and nested JSON fields. Raw speech/model exceptions stay excluded. Synthetic tests include service failure logging, redaction and bounds. Calls remain disabled; waiting for Karthik/Photon's explanation before any retry.
+
+Diagnostics validation: `.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25` -> **66 passed, one upstream warning in 35.03s**; approval-boundary script -> PASS transcript and customer.reply; contract validator -> PASS 57 fixtures/events valid; git diff --check clean; Gitleaks diff/new-file scans -> no leaks found. No new provider call was made; historical SDK metadata cannot be reconstructed from the former code-only log.
+
+
+## Lane 1 authorized one short retry: SIP connected, approvals unverified
+
+November 8 around 01:44-01:47 America/Chicago. The former local processes were no longer running; restarted the real brain with MOCK=0/DEMO_MODE=0 and existing credentials in process memory, voice URL configured, messaging unset, reply timeout 5 s, recovery timeout 180 s. Approval-boundary script again PASS transcript/customer.reply before the sole call. Enabled the tested voice service, generated one fresh T2 case **case_17941239680007**, and the brain's original call request returned HTTP 202.
+
+Photon/LiveKit connected without SIP 403 and transport audio began at 07:46:51 UTC. Hosted ASR received a reply and Titan produced a response; turn preparation logged 1645 ms (not handset speech-end-to-response delay). A separate test-only watchdog ended only the newly created Titan room after its 55-second creation-time limit, enforcing the requested under-one-minute test. Room name **titan-879efb0aebfe8f82522feba5**. No second call or blind retry was placed.
+
+Audit after disconnect: **7 voice transcript messages, all 7/7 present in dashboard SSE; zero voice-approved actions; no outgoing 'That step is complete' acknowledgement**. Thus provider/audio recovery is observed, but the one-spoken-YES approval milestone remains unverified. Awaiting the user's audible-result report; do not claim e2e approval success or listener-perceived latency.
+
+Cleanup diagnostic: after the watchdog's intentional room deletion, the provider finally block attempted to delete that room again and logged **ServerError not_found / HTTP 404 / requested room does not exist**, with empty metadata. This is cleanup after the intentional cap, NOT a SIP 403 or failure to connect. No credential or quota conclusion can be drawn from it. Conversation dispatch restored false and enabled service stopped; no new call is queued. Keep provider calls to Lane 1's stated rehearsal/judging minimum.
+
+
+User report for case_17941239680007: the phone rang and Titan was audible; the first YES was acknowledged with an appropriate response, and the call cut off after the second YES. This confirms live speech output and the disclosure exchange. The call was deliberately capped by the test watchdog, so the cutoff must not be reported as a recurrence of the earlier SIP 403. The case audit still records zero voice-approved recovery actions. No additional call is authorized or queued.
