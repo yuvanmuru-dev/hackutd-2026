@@ -24,7 +24,8 @@ export type Event = {
     | "portal.signals"
     | "message.forwarded"
     | "customer.reply"
-    | "face.result";
+    | "face.result"
+    | "line.region";
   ts: string;
   source: "portal" | "voice" | "messaging" | "console" | "watcher" | "generator" | "brain";
   call_id?: string | null;
@@ -120,6 +121,15 @@ export interface ProtectionChangeData {
   name: "sim_protection" | "port_out_protection" | "scam_block";
   enabled: boolean;
   via: "portal" | "app" | "care" | "titan";
+}
+/**
+ * line.region payload: where the phone on this line is right now (serving region). Simulated carrier signal, read only at a trigger.
+ *
+ * This interface was referenced by `TitanContractsV03`'s JSON-Schema
+ * via the `definition` "LineRegionData".
+ */
+export interface LineRegionData {
+  region: string;
 }
 /**
  * This interface was referenced by `TitanContractsV03`'s JSON-Schema
