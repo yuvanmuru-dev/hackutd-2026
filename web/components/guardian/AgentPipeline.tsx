@@ -20,6 +20,9 @@ const KIND: Partial<Record<C.StepEvent["type"], string>> = {
   error: "Guardrail",
 };
 
+/** Steps shown per agent: a projector reads two lines a column, not eight. */
+const SHOWN = 2;
+
 type StageState = "idle" | "active" | "done";
 
 function stageState(view: GuardianView, agent: PipelineAgent): StageState {
@@ -31,11 +34,10 @@ function stageState(view: GuardianView, agent: PipelineAgent): StageState {
 
 export function AgentPipeline({ view }: { view: GuardianView }) {
   return (
-    <section aria-label="Four agents, in order" className="grid min-h-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-2">
+    <section aria-label="Four agents, in order" className="grid min-h-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[minmax(0,1fr)] lg:gap-4">
       {PIPELINE.map((p, i) => {
         const state = stageState(view, p.agent);
         const steps = view.columns[p.agent];
-        const next = PIPELINE[i + 1];
         return (
           <Fragment key={p.agent}>
             <article className="g-panel g-stage px-4 py-4 2xl:px-5" data-state={state} aria-current={state === "active" ? "step" : undefined}>
@@ -55,19 +57,21 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
                 {steps.length === 0 && (
                   <li className="text-[var(--g-ink-3)]">{view.done ? "Not needed for this case" : "Waiting"}</li>
                 )}
-                {steps.map((s) => (
+                {steps.length > SHOWN && (
+                  <li className="g-label">
+                    {steps.length - SHOWN} earlier {steps.length - SHOWN === 1 ? "step" : "steps"}
+                  </li>
+                )}
+                {steps.slice(-SHOWN).map((s) => (
                   <li key={s.seq} className="g-step" data-type={s.type}>
-                    <span className="g-step-kind">{KIND[s.type] ?? s.type}</span>
-                    <p className="g-step-title leading-snug">{s.title}</p>
+                    <p className="g-step-title leading-snug">
+                      <span className="g-step-kind">{KIND[s.type] ?? s.type} </span>
+                      {s.title}
+                    </p>
                   </li>
                 ))}
               </StepList>
             </article>
-            {next && (
-              <span className="g-arrow hidden lg:block" data-lit={view.columns[next.agent].length > 0} aria-hidden>
-                →
-              </span>
-            )}
           </Fragment>
         );
       })}

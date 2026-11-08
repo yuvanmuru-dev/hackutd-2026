@@ -15,6 +15,8 @@ const KIND: Partial<Record<C.Message["kind"], string>> = {
 
 const CHANNEL: Record<string, string> = { imessage: "iMessage", sms: "SMS", voice: "Phone call", web: "Web" };
 
+const SHOWN = 2;
+
 const time = (ts: string) =>
   new Date(ts).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 
@@ -37,7 +39,12 @@ export function ConversationStrip({ messages }: { messages: C.Message[] }) {
       <h2 className="text-[20px] font-semibold">Messages and call</h2>
       <div ref={box} className="g-scroll mt-2 flex max-h-[360px] min-h-0 flex-1 flex-col pr-1 lg:max-h-none" aria-live="polite">
         {sorted.length === 0 && <p className="text-[var(--g-ink-3)]">Nothing sent to Maya yet</p>}
-        {sorted.map((m) => {
+        {sorted.length > SHOWN && (
+          <p className="g-label pb-1">
+            {sorted.length - SHOWN} earlier {sorted.length - SHOWN === 1 ? "message" : "messages"}
+          </p>
+        )}
+        {sorted.slice(-SHOWN).map((m) => {
           const who = m.direction === "out" ? "Titan" : "Maya";
           const kind = m.direction === "out" && m.channel !== "voice" ? KIND[m.kind] ?? m.kind : null;
           return (

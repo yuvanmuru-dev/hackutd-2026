@@ -42,6 +42,7 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
   const ongoing = !call.ended_at;
   const pos = (ts: string) => Math.min(100, Math.max(0, ((Date.parse(ts) - start) / span) * 100));
   const visible = markers.filter((m) => m.type !== "call.started" && m.type !== "call.ended");
+  const risky = visible.filter((m) => isRiskyMarker(m));
 
   return (
     <section className="g-panel grid grid-cols-1 items-center gap-x-10 gap-y-4 px-5 py-4 sm:grid-cols-[auto_1fr] sm:px-6" aria-label="Call">
@@ -75,8 +76,8 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
             ))}
           </div>
           <ol className="mt-4 flex flex-wrap gap-x-7 gap-y-1 text-[17px]" aria-label="During this call">
-            {visible.length === 0 && <li className="text-[var(--g-ink-3)]">No account changes during the call yet</li>}
-            {visible.map((m) => (
+            {risky.length === 0 && <li className="text-[var(--g-ink-3)]">No risky changes during the call yet</li>}
+            {risky.map((m) => (
               <li key={m.event_id} className="whitespace-nowrap">
                 <span className="tabular text-[var(--g-ink-3)]">
                   {formatDuration((Date.parse(m.ts) - start) / 1000)}

@@ -136,14 +136,6 @@
   color: var(--g-positive);
   box-shadow: inset 0 0 0 2px var(--g-positive);
 }
-.g-arrow {
-  align-self: center;
-  color: var(--g-ink-3);
-  font-size: 22px;
-}
-.g-arrow[data-lit="true"] {
-  color: var(--g-ink-2);
-}
 
 .g-step-kind {
   color: var(--g-ink-3);
