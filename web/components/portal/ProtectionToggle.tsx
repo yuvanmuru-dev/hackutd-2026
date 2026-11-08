@@ -53,7 +53,9 @@ export function SwitchRow({ id, name, what, enabled, busy, disabled, onChange }:
         <p id={id} className="text-body font-semibold leading-6">
           {name}
         </p>
-        <p className="mt-0.5 text-[16px] leading-6 text-ink-2">{what}</p>
+        <p id={`${id}-what`} className="mt-0.5 text-[16px] leading-6 text-ink-2">
+          {what}
+        </p>
       </div>
       <span aria-live="polite" className="flex-none text-right text-[15px] text-ink-3">
         {busy ? "Saving…" : saved ? "Saved" : <span aria-hidden>{enabled ? "On" : "Off"}</span>}
@@ -63,10 +65,13 @@ export function SwitchRow({ id, name, what, enabled, busy, disabled, onChange }:
         role="switch"
         aria-checked={enabled}
         aria-labelledby={id}
+        aria-describedby={`${id}-what`}
         aria-busy={busy || undefined}
-        disabled={disabled || busy}
-        onClick={() => onChange(!enabled)}
-        className="-mr-2 inline-flex h-11 w-14 flex-none items-center justify-center rounded-control disabled:cursor-not-allowed disabled:opacity-60"
+        aria-disabled={disabled || busy || undefined}
+        onClick={() => {
+          if (!(disabled || busy)) onChange(!enabled);
+        }}
+        className="-mr-2 inline-flex h-11 w-14 flex-none items-center justify-center rounded-control aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
       >
         <span
           aria-hidden

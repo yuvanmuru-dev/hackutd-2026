@@ -79,7 +79,8 @@ export default function PortalSignIn() {
             <div>
               <p className="text-body font-semibold">Maya</p>
               <p className="text-[15px] text-ink-3 tabular">
-                (214) •••-••48 · Primary Account Holder
+                <span aria-hidden>(214) •••-••48</span>
+                <span className="sr-only">Phone number ending in 48</span> · Primary Account Holder
               </p>
             </div>
           </div>

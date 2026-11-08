@@ -57,9 +57,12 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
             if (ready) onRequest();
           }}
         >
-          <label className="flex flex-col gap-2">
-            <span className={LABEL}>Account PIN</span>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="tpin-input" className={LABEL}>
+              Account PIN
+            </label>
             <input
+              id="tpin-input"
               type="password"
               name="account_pin"
               inputMode="numeric"
@@ -75,7 +78,7 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
             <span id="tpin-help" className="text-[15px] text-ink-3">
               4 to 8 digits. Your PIN stays on this page.
             </span>
-          </label>
+          </div>
           <button
             type="submit"
             disabled={!ready || busy || disabled}
