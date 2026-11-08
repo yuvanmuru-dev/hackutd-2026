@@ -1,0 +1,167 @@
+{
+  "format_version": 1,
+  "synthetic": true,
+  "description": "Ten benign notices voluntarily forwarded by synthetic customers. This separate evaluation control set is not part of the frozen scenario split or training data. Links use reserved .example names and identify no real organization.",
+  "records": [
+    {
+      "text_id": "benign_text_01",
+      "category": "bill_reminder",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_01",
+        "user_id": "usr_maya",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:01:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "imessage",
+          "text": "Your mobile service bill is ready in the app. Review it whenever convenient."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_02",
+      "category": "delivery_update",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_02",
+        "user_id": "usr_dev",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:02:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "sms",
+          "text": "Delivery update: your parcel has arrived. No action is needed."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_03",
+      "category": "appointment_reminder",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_03",
+        "user_id": "usr_priya",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:03:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "imessage",
+          "text": "Reminder: your appointment is tomorrow. If your plans change, contact the office using the number you already have."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_04",
+      "category": "bank_statement_notice",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_04",
+        "user_id": "usr_marcus",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:04:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "sms",
+          "text": "Bank notice: your monthly statement is available in the app. This message does not require a reply."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_05",
+      "category": "utility_bill_notice",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_05",
+        "user_id": "usr_elena",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:05:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "imessage",
+          "text": "Your utility bill is available in your online account. Paper statements remain available."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_06",
+      "category": "community_class_update",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_06",
+        "user_id": "usr_maya",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:06:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "sms",
+          "text": "Community class update: tomorrow's session starts at the usual time. Please bring your registration confirmation."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_07",
+      "category": "requested_plan_confirmation",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_07",
+        "user_id": "usr_dev",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:07:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "imessage",
+          "text": "Your requested service plan change has been processed. You can review the details in the app."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_08",
+      "category": "payment_receipt",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_08",
+        "user_id": "usr_priya",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:08:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "sms",
+          "text": "Payment received. Thank you. A receipt is available in your account; no further action is needed."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_09",
+      "category": "delivery_status_link",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_09",
+        "user_id": "usr_marcus",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:09:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "imessage",
+          "text": "Your order is on the way. View the delivery update at https://parcel-demo.example/status."
+        }
+      }
+    },
+    {
+      "text_id": "benign_text_10",
+      "category": "library_pickup_link",
+      "label": "legit",
+      "event": {
+        "event_id": "evt_benign_text_10",
+        "user_id": "usr_elena",
+        "type": "message.forwarded",
+        "ts": "2026-11-07T20:10:00Z",
+        "source": "generator",
+        "data": {
+          "channel": "sms",
+          "text": "Library notice: your reserved book is ready. Pickup information is available at https://library-demo.example/pickup."
+        }
+      }
+    }
+  ]
+}
