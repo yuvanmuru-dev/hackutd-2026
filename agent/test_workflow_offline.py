@@ -36,6 +36,8 @@ class FakeNemotron:
         self.calls.append(model)
         if self.fail:
             raise RuntimeError("model down")
+        if isinstance(user, list):  # Nemotron VL reading a screenshot
+            return type("R", (), {"choices": [_Msg("T-Mobile: your account is locked. Verify now at t-mobile-secure-help.co")]})()
         if "Decide which tools to call" in sys_prompt:
             out = {"plan": "Check the call, protections and account history", "tools": ["call_context", "policy_lookup", "not_a_tool"]}
         elif "Turn tool results into short facts" in sys_prompt:
@@ -158,6 +160,17 @@ with TestClient(server.app) as c:
     outs = [m["text"] for m in d3["messages"] if m["direction"] == "out"]
     assert all(not tappable.search(t) for t in outs), outs
     assert any("[.]" in t for t in outs), outs   # the scam domain is named, safely
+
+    # ---- screenshot forwarded: Nemotron VL reads it, then the scam-text check runs on the text (D-047)
+    c.post("/demo/reset")
+    shot = {"event_id": f"evt_{time.time_ns()}", "user_id": "usr_maya", "type": "message.forwarded", "ts": "2026-11-07T21:00:00Z",
+            "source": "messaging", "call_id": None, "data": {"channel": "imessage", "image_url": "data:image/png;base64,iVBORw0KGgo="}}
+    cid_s = c.post("/events", json=shot).json()["case_id"]
+    ds = ok("CaseDetail", wait_status(c, cid_s, {"watching"}))
+    assert any(st["title"].startswith("Read from screenshot") for st in ds["steps"]), [st["title"] for st in ds["steps"]]
+    assert ds["threat"] == "scam_text" and any("[.]" in m["text"] for m in ds["messages"] if m["direction"] == "out")
+    assert any("Nemotron VL" in x for x in ds["data_used"])
+    assert any("vl" in m for m in fake.calls), fake.calls
 
     # ---- resilience: every model call fails -> deterministic fallbacks, run still completes
     llm.set_client(FakeNemotron(fail=True))
