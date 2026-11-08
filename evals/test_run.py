@@ -122,9 +122,11 @@ class ProtocolTests(unittest.TestCase):
         empty_fallback = {"prediction": {"model": "rules"},
                           "route": {"ml_called": True, "ml_error": None, "ml_returned_score": False}}
         self.assertFalse(run.final_model_ready(status, [good, empty_fallback]))
-        intentional_rules = {"prediction": {"model": "rules"},
+        intentional_rules = {"prediction": {"model": "rules"}, "trigger_type": "message.forwarded",
                              "route": {"ml_called": True, "ml_error": None, "ml_returned_score": True}}
         self.assertTrue(run.final_model_ready(status, [good, intentional_rules]))
+        risk_fallback = {**intentional_rules, "trigger_type": "sim_swap.requested"}
+        self.assertFalse(run.final_model_ready(status, [good, risk_fallback]))
 
     def test_control_commit_must_contain_the_actual_bytes(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -232,7 +232,9 @@ def percent(value):
 def final_model_ready(model_status: dict, rows: list[dict]) -> bool:
     return bool(rows) and model_status["module_present"] and not model_status["import_error"] \
         and all(row["route"]["ml_called"] and not row["route"]["ml_error"]
-                and row["route"].get("ml_returned_score") for row in rows) \
+                and row["route"].get("ml_returned_score")
+                and (not row["prediction"]["model"].lower().startswith("rules")
+                     or row.get("trigger_type") == "message.forwarded") for row in rows) \
         and any(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
 
 
