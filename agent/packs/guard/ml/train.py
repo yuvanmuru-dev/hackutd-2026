@@ -206,11 +206,14 @@ def main() -> None:
         "classes": CLASSES, "params": {k: v for k, v in PARAMS.items() if k != "n_jobs"},
         "calibration": {"method": calib["method"], "n": calib["n"]},
         "parity_with_xgboost": f"{parity}/{len(tX)}", "shap_top3_agreement": round(agree / len(tX), 3),
+        "evaluation_status": "Rule selection informed by dev-split failures; final evaluation on a sealed set (D-053). "
+                             "evals/split.json is the development set; its numbers are test-informed.",
         "feature_revisions": [
-            "Chosen after inspecting held-out failure families, so evals/run.py on this test set is optimistic for them:",
+            "Chosen after inspecting dev-split failure families (D-053a), so evals/run.py on evals/split.json is optimistic for them:",
             "1. Call features gated on the call being unverified (raw on-a-call / call-minutes were generator shortcuts; training had no legit calls).",
             "2. SIM swap store channel added (in-store swaps need ID). A remote-swap feature was tried and dropped: it became the only takeover reason.",
             "3. Serving rule in __init__.py: a threat whose calibrated probability is < 0.5 does not fire when the rules see nothing (reported as legit).",
+            "4. Rules floor counts >= 3 failed PIN attempts in 10 minutes as a bot burst (family pin_guess_burst was floored to takeover by new device + wrong region).",
         ],
         "versions": {"xgboost": xgb.__version__, "shap": shap.__version__, "python": sys.version.split()[0]},
     }

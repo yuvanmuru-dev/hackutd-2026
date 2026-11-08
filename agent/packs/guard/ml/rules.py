@@ -77,12 +77,15 @@ def facts(user_id: str, event: dict, history: list[dict]) -> dict:
     }
 
 
-def _bot(ev: list[dict], event: dict) -> tuple[int, int]:
+def _bot(ev: list[dict], event: dict) -> tuple[int, int, int]:
+    """Failed sign-ins, distinct sign-in regions and failed PIN attempts in the 10 minutes up to the trigger."""
     t = ts(event)
-    window = [e for e in ev if e["type"] == "login" and 0 <= (t - ts(e)).total_seconds() <= 600]
-    failed = sum(1 for e in window if e["data"].get("succeeded") is False)
-    regions = len({e["data"].get("region") for e in window if e["data"].get("region")})
-    return failed, regions
+    recent = [e for e in ev if 0 <= (t - ts(e)).total_seconds() <= 600]
+    logins = [e for e in recent if e["type"] == "login"]
+    failed = sum(1 for e in logins if e["data"].get("succeeded") is False)
+    regions = len({e["data"].get("region") for e in logins if e["data"].get("region")})
+    pin_failures = sum(1 for e in recent if e["type"] == "pin.attempt" and e["data"].get("ok") is False)
+    return failed, regions, pin_failures
 
 
 def score(user_id: str, event: dict, history: list[dict]) -> dict:
@@ -92,9 +95,14 @@ def score(user_id: str, event: dict, history: list[dict]) -> dict:
     def add(feature: str, w: float, text: str) -> None:
         reasons.append({"feature": feature, "contribution": w, "text": text})
 
-    failed, regions = _bot(f["events"], event)
-    if failed >= 3 or regions >= 3:  # an automated burst also looks like "new device, wrong region": check it first
-        add("failed_login_burst", 0.4, f"{failed} failed sign-ins from {regions} regions within 10 minutes")
+    failed, regions, pin_failures = _bot(f["events"], event)
+    if failed >= 3 or regions >= 3 or pin_failures >= 3:
+        # An automated burst also looks like "new device, wrong region", so check it first. A PIN-guessing
+        # burst followed by one failed login is a bot too (dev-set family pin_guess_burst, D-053a).
+        if pin_failures >= 3:
+            add("pin_guess_burst", 0.4, f"{pin_failures} wrong PIN attempts within 10 minutes")
+        if failed >= 3 or regions >= 3:
+            add("failed_login_burst", 0.4, f"{failed} failed sign-ins from {regions} regions within 10 minutes")
         p, threat = 0.85, "bot"
     elif f["new_device"] and f["region_match"] is False:
         add("new_device", 0.35, "A device never seen on this account")
