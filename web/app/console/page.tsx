@@ -67,7 +67,7 @@ export default function ConsolePage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
       <div className="flex flex-wrap items-center gap-4">
-        <Wordmark size={32} />
+        <Wordmark size={30} />
         <h1 className="text-title font-semibold tracking-tight">Demo console</h1>
         <button
           type="button"

@@ -1,6 +1,6 @@
 "use client";
 
-import { TGlyph } from "@/components/TGlyph";
+import { Wordmark } from "@/components/TGlyph";
 
 // First visit only. Plain words about what the behavior summary is and isn't.
 export function ConsentScreen({ onChoose }: { onChoose: (yes: boolean) => void }) {
@@ -9,7 +9,7 @@ export function ConsentScreen({ onChoose }: { onChoose: (yes: boolean) => void }
       aria-labelledby="consent-title"
       className="mx-auto max-w-2xl rounded-2xl border border-line bg-surface p-7 sm:p-10"
     >
-      <TGlyph size={44} />
+      <Wordmark size={36} />
       <h1 id="consent-title" className="mt-6 text-title font-semibold tracking-tight">
         Titan helps keep your number safe
       </h1>

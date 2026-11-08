@@ -49,9 +49,7 @@ type Props = {
 export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props) {
   return (
     <Modal labelledBy="pause-title" describedBy="pause-body">
-      <div className="text-ink-2">
-        <Wordmark size={30} />
-      </div>
+      <Wordmark size={28} />
       <h2 id="pause-title" tabIndex={-1} className={`mt-4 sm:mt-6 ${TITLE}`}>
         {screen.title}
       </h2>
@@ -88,7 +86,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
 export function CallingScreen({ caseId, onClose }: { caseId: string | null; onClose: () => void }) {
   return (
     <Modal labelledBy="calling-title" describedBy="calling-body">
-      <Wordmark size={30} />
+      <Wordmark size={28} />
       <h2 id="calling-title" tabIndex={-1} className={`mt-6 ${TITLE}`}>
         Titan is calling you now.
       </h2>

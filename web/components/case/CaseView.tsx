@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { TGlyph } from "@/components/TGlyph";
+import { Wordmark } from "@/components/TGlyph";
 import { getCase, subscribeCase, type Contract as C } from "@/lib/api/client";
 
 // Maya's own view of the incident ("the T-Life app view"). Light, calm, mobile-first. No links (D-012).
@@ -39,8 +39,7 @@ export function CaseView({ caseId }: { caseId: string }) {
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pt-8 pb-16 sm:px-8 sm:pt-14 lg:max-w-5xl">
       <div className="flex items-center gap-3">
-        <TGlyph size={36} />
-        <span className="text-lead font-semibold">Titan</span>
+        <Wordmark size={30} />
         {detail && (
           <span className="ml-auto text-ink-2 tabular">
             Case {detail.case_number}
