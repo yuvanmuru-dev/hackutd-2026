@@ -51,6 +51,29 @@ Then the agent checks the claims against real data, asks you before it acts, fol
 - [ ] The 2-minute video is queued in a tab as the fallback if anything fails. Switch to it without apologizing.
 - [ ] Hotspot on.
 
+## Rehearsal and judging runbook (Titan)
+**Roles** (decide once, keep them): **Maya** holds the demo iPhone and drives the portal laptop · **Scammer** calls Maya's number from a second phone · **Narrator** stands at the projector (dashboard) · **Console** runs `/console` backstage and watches the preflight.
+
+**T-10 min: set up (console person)**
+1. One machine runs everything: `MOCK=0 bash scripts/dev.sh` (add `DEMO_MODE=1` for judging). Karthik's messaging service must be running with his Photon credentials (it's what actually sends iMessages). Voice too, if the upgraded Twilio number is live.
+2. `python scripts/preflight.py` (or `--for judging`). Fix every ❌ before going on. Warnings are OK if you know why.
+3. `curl -X POST localhost:8000/demo/reset`. Open on the projector: `/guardian` (it waits for the case). On the portal laptop: `/portal/security`.
+4. Maya's phone: Messages open, sound on. Scammer's phone: Maya's number ready to dial.
+
+**The run (about 2 minutes)**
+| Beat | Who | Action | Judges see |
+|---|---|---|---|
+| 1 | Scammer | Calls Maya's demo number; Maya answers on speaker | Heads-up iMessage on Maya's phone; dashboard call bar "unverified" |
+| 2 | Maya | On the portal, turns off Port Out Protection | **Pause screen**; Maya taps "I'm doing this on my own" (shows a coached victim pushing through) |
+| 3 | Maya | Taps "Generate transfer PIN" | "Ready in 24 hours" hold; dashboard: Context → Risk → Verifier → Response light up; verdict "Coached victim" |
+| 4 | Narrator | Points at the dashboard | Port Out Protection re-locked, PIN held; alert iMessage arrives |
+| 5 | Maya | Doesn't reply (or replies NO) | Titan calls Maya as a second call (if voice is live); otherwise recovery questions arrive by text |
+| 6 | Maya | Answers YES to each recovery step | Steps check off on the dashboard |
+| 7 | Narrator | Shows Maya's phone / `/case` page | Incident summary: what happened, what Titan did, "spot it next time" |
+| 8 | Console | `POST /demo/play/t5` | "Reported number calling again" heads-up: the after-the-scam protection |
+
+**If something breaks**: switch the projector to the backup video without apologizing; or play the same beat from `/console` (Play T2) with DEMO_MODE on. Never claim a replay is live.
+
 ## Speed budget (engineering targets, see CONTRACTS.md)
 - Voice: first words < 2s (Nemotron Nano, short tool answers; `full_check` speaks while the run continues).
 - Web run: first step < 1.5s, full report < 25s live, < 8s in DEMO_MODE (cached tools, still real model calls).
