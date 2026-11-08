@@ -60,7 +60,9 @@ def ingest(store: Store, ev: dict) -> dict:
         case = _case_for_call(store, uid, suspicious_call["call_id"], "Coached during an unverified call")
         case["title"] = "Coached to turn off protection during a fake support call"
         out["case_id"] = case["case_id"]
-        already_ran = any(s["stage"] != "reach" or s["type"] != "message" for s in case["steps"])  # heads-up only so far?
+        # Both real and mock runs emit this entry marker. Face checks and
+        # other observational signals are not evidence that analysis ran.
+        already_ran = any(s["stage"] == "trigger" and s["type"] == "plan" for s in case["steps"])
         if not case["run_running"] and not already_ran:
             out["trigger"] = "coached"
         return out
