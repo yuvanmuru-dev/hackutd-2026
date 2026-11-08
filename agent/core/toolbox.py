@@ -85,12 +85,26 @@ def location_match(store: Store, user_id: str, **_):
             "source": {"name": "Login region vs line serving region (simulated carrier signal)", "record": f"events/{lines[-1]['event_id']}"}}
 
 
+def _rhythm_text(dist) -> str | None:
+    """Typing rhythm vs her on-device baseline (timing only, D-006: no key values ever leave the portal)."""
+    if not isinstance(dist, (int, float)) or isinstance(dist, bool) or dist < 0:
+        return None
+    if dist < 1:
+        return "typing matches her usual rhythm"
+    return f"typing rhythm {dist:.1f}× off her usual"
+
+
 def portal_signals(store: Store, user_id: str, **_):
     sig = _events(store, user_id, "portal.signals")
     d = sig[-1]["data"] if sig else None
     if not d:
         return {"summary": "No portal behavior recorded", "result": None, "source": {"name": "Portal behavior (derived)"}}
-    return {"summary": f"{round(d['hesitation_ms'] / 1000)} s hesitation · left the page {d['tab_switches']}× · paste into PIN: {'yes' if d['paste_into_pin'] else 'no'}",
+    summary = f"{round(d['hesitation_ms'] / 1000)} s hesitation · left the page {d['tab_switches']}× · paste into PIN: {'yes' if d['paste_into_pin'] else 'no'}"
+    rhythm = _rhythm_text(d.get("typing_rhythm_distance"))
+    if rhythm:
+        summary += f" · {rhythm}"
+    # Evidence for the agents and dashboards only: rules_score and the frozen ML pack (D-053) never read the rhythm.
+    return {"summary": summary,
             "result": d, "source": {"name": "Portal behavior (derived numbers)", "record": f"events/{sig[-1]['event_id']}"}}
 
 

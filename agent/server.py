@@ -307,7 +307,7 @@ async def play(scenario: str):
                    ev("login", {"device_hash": "h_maya_laptop", "region": "Dallas, TX", "new_device": False, "succeeded": True}, "portal"),
                    ev("portal.signals", {"session_id": "ses_demo_t2", "page_path": ["/portal", "/portal/security", "/portal/security/port-out"],
                                          "ms_per_step": [6200, 41000, 9800], "hesitation_ms": 41000, "paste_into_pin": False,
-                                         "tab_switches": 3, "pointer_speed": 0.42, "typing_rhythm_distance": None}, "portal"),
+                                         "tab_switches": 3, "pointer_speed": 0.42, "typing_rhythm_distance": 2.8}, "portal"),
                    ev("protection.changed", {"name": "port_out_protection", "enabled": False, "via": "portal"}, "portal"),
                    ev("transfer_pin.requested", {}, "portal")]
         elif scenario == "t1":

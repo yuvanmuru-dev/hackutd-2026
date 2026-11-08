@@ -31,7 +31,7 @@ login = {"event_id": "evt_t2_02", "user_id": U, "type": "login", "ts": ts(940), 
 portal_signals = {"event_id": "evt_t2_03", "user_id": U, "type": "portal.signals", "ts": ts(1030), "source": "portal", "call_id": CALL,
                   "data": {"session_id": "ses_t2", "page_path": ["/portal", "/portal/security", "/portal/security/port-out"],
                            "ms_per_step": [6200, 41000, 9800], "hesitation_ms": 41000, "paste_into_pin": False, "tab_switches": 3,
-                           "pointer_speed": 0.42, "typing_rhythm_distance": 1.1}}
+                           "pointer_speed": 0.42, "typing_rhythm_distance": 2.8}}
 protection_off = {"event_id": "evt_t2_04", "user_id": U, "type": "protection.changed", "ts": ts(1070), "source": "portal", "call_id": CALL,
                   "data": {"name": "port_out_protection", "enabled": False, "via": "portal"}}
 transfer_pin = {"event_id": "evt_t2_05", "user_id": U, "type": "transfer_pin.requested", "ts": ts(1145), "source": "portal", "call_id": CALL, "data": {}}
@@ -59,6 +59,7 @@ signals = [
     {"group": "location", "name": "same_region_as_line", "value": True, "baseline": True, "source": {"name": "Login region vs line region", "record": "events/evt_t2_02"}},
     {"group": "portal", "name": "hesitation_s", "value": 41, "baseline": 6, "source": {"name": "Portal behavior (derived)", "record": "events/evt_t2_03"}},
     {"group": "portal", "name": "tab_switches", "value": 3, "baseline": 0, "source": {"name": "Portal behavior (derived)", "record": "events/evt_t2_03"}},
+    {"group": "portal", "name": "typing_rhythm_distance", "value": 2.8, "baseline": 0, "source": {"name": "Portal behavior (derived, timing only)", "record": "events/evt_t2_03"}},
 ]
 
 verification = {"status": "verified", "claims_checked": 7, "claims_dropped": 0, "notes": ["Every claim matched a tool result.", "Confidence kept at high."]}
@@ -118,7 +119,7 @@ STEPS = [
     (1147, "context", "context", "tool_result", "On a call for 19 min · unverified (C) · never contacted her", {"tool": "call_context", "result": {"active": True, "minutes": 19, "attestation": "C", "seen_before": False}}),
     (1147, "context", "context", "tool_result", "Port Out Protection turned off 75 s ago, during the call", {"tool": "protection_status"}),
     (1147, "context", "context", "tool_result", "First transfer PIN in 4 years · her usual laptop · her usual area", {"tool": "account_history"}),
-    (1148, "context", "context", "signal", "Portal: 41 s hesitation on Security, left the page 3 times", {"signals": ["hesitation_s", "tab_switches"]}),
+    (1148, "context", "context", "signal", "Portal: 41 s hesitation on Security, left the page 3 times, typed 2.8× off her usual rhythm", {"signals": ["hesitation_s", "tab_switches", "typing_rhythm_distance"]}),
     (1148, "risk", "risk", "tool_call", "ml.score(usr_maya, evt_t2_05)", {"tool": "ml.score"}),
     (1149, "risk", "risk", "score", "Coached victim · 87% (calibrated) · it's really her", {"risk": risk}),
     (1150, "verifier", "verify", "verify", "7 claims checked against the data · 0 dropped", {"verification": verification}),
