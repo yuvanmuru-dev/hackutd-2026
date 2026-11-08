@@ -22,7 +22,7 @@ const CONFIG: Partial<Config> = {
     enabled: true,
     detector: { rotation: false, maxDetected: 1, return: false },
     mesh: { enabled: true },
-    iris: { enabled: false },
+    iris: { enabled: true }, // sharpens the eyelid points the blink check reads
     description: { enabled: true },
     emotion: { enabled: false },
     antispoof: { enabled: true },
@@ -34,6 +34,12 @@ const CONFIG: Partial<Config> = {
   gesture: { enabled: false },
   segmentation: { enabled: false },
 } as Partial<Config>;
+
+// human.detect() merges a per-call config into its own, so both passes set all three explicitly.
+const pass = (on: boolean) =>
+  ({ face: { description: { enabled: on }, antispoof: { enabled: on }, liveness: { enabled: on } } }) as Partial<Config>;
+const HEAVY = pass(true);
+const LIGHT = pass(false);
 
 let loading: Promise<Human> | null = null;
 
@@ -54,30 +60,73 @@ export function loadHuman(): Promise<Human> {
   return loading;
 }
 
-export type Scan = { embedding: number[]; score: number; liveness: number; antispoof: number };
+export type Scan = { embedding: number[]; score: number; liveness: number; antispoof: number; blinked: boolean };
+type Mesh = number[][];
+
+/** Eyelid gap over eye height, both eyes averaged (same mesh points as human's own "blink" gesture). */
+function eyeOpen(m: Mesh): number | null {
+  if (!m || m.length < 468) return null;
+  const r = (a: number, b: number, c: number, d: number) => Math.abs(m[a][1] - m[b][1]) / Math.max(1e-6, Math.abs(m[c][1] - m[d][1]));
+  return (r(374, 386, 443, 450) + r(145, 159, 223, 230)) / 2;
+}
 
 /**
- * Watch the video for `ms` and keep the strongest face. Liveness and anti-spoof take their best frame,
- * so one blink or a bad frame doesn't fail Maya. Returns null if no face was seen.
+ * Watch the video and keep the strongest face. With `blink`, also watch for one blink: the eyelid gap drops
+ * below 55% of this person's own open-eye level and comes back above 80%. A photo can't blink on request,
+ * which the bundled anti-spoof model alone couldn't tell apart on a laptop camera (live 0.78 vs photo 0.77).
+ * Without `blink` it runs for `ms`; with it, until a blink plus 1 s of frames, or `ms` at most.
  */
-export async function scan(video: HTMLVideoElement, ms: number, onTick?: (frac: number) => void): Promise<Scan | null> {
+export async function scan(
+  video: HTMLVideoElement,
+  ms: number,
+  onTick?: (frac: number) => void,
+  opts: { blink?: boolean; onBlink?: () => void } = {},
+): Promise<Scan | null> {
   const human = await loadHuman();
   const start = performance.now();
-  let best: Scan | null = null;
+  let best: Omit<Scan, "liveness" | "antispoof" | "blinked"> | null = null;
   let liveness = 0;
   let antispoof = 0;
+  let openMax = 0;
+  let closed = false;
+  let blinked = false;
+  let frames = 0;
+  let openMin = Infinity;
+  let lastHeavy = -Infinity;
   while (performance.now() - start < ms) {
-    const r = await human.detect(video);
+    // The blink check needs many frames a second, so the heavy models (face ID, liveness, anti-spoof) run about
+    // once every 700 ms (every 250 ms once she has blinked) and the light ones (detector, mesh, iris) run on every frame.
+    const heavy = !opts.blink || !best || performance.now() - lastHeavy > (blinked ? 250 : 700);
+    const r = await human.detect(video, heavy ? HEAVY : LIGHT);
+    if (heavy) lastHeavy = performance.now();
     const f = r.face[0];
-    if (f && f.embedding && f.embedding.length > 0) {
+    if (f && heavy && f.embedding && f.embedding.length > 0) {
       liveness = Math.max(liveness, f.live ?? 0);
       antispoof = Math.max(antispoof, f.real ?? 0);
-      if (!best || f.score > best.score) best = { embedding: Array.from(f.embedding), score: f.score, liveness: 0, antispoof: 0 };
+      if (!best || f.score > best.score) best = { embedding: Array.from(f.embedding), score: f.score };
     }
-    onTick?.(Math.min(1, (performance.now() - start) / ms));
-    await new Promise((res) => setTimeout(res, 60));
+    if (f) {
+      const open = opts.blink ? eyeOpen(f.mesh as Mesh) : null;
+      frames++;
+      if (open !== null) openMin = Math.min(openMin, open);
+      if (open !== null && !blinked) {
+        openMax = Math.max(openMax, open);
+        if (openMax > 0 && open < openMax * 0.55) closed = true;
+        else if (closed && open > openMax * 0.8) {
+          blinked = true;
+          opts.onBlink?.();
+        }
+      }
+    }
+    const elapsed = performance.now() - start;
+    onTick?.(Math.min(1, elapsed / ms));
+    // After the blink, keep sampling until liveness clears the brain's 0.8 bar too (or time runs out).
+    if (opts.blink && blinked && elapsed > 1000 && best && liveness >= 0.8) break;
+    await new Promise((res) => setTimeout(res, opts.blink ? 10 : 60));
   }
-  return best && { ...best, liveness, antispoof };
+  onTick?.(1);
+  if (opts.blink) console.debug("[face] blink check", { frames, ms: Math.round(performance.now() - start), openMax, openMin, blinked });
+  return best && { ...best, liveness, antispoof, blinked };
 }
 
 export async function similarity(a: number[], b: number[]): Promise<number> {
@@ -125,7 +174,10 @@ export async function verify(s: Scan): Promise<C.FaceResult | null> {
   if (!e) return null;
   const sim = Math.max(0, Math.min(1, await similarity(e.embedding, s.embedding)));
   const round = (n: number) => Math.round(Math.max(0, Math.min(1, n)) * 100) / 100;
-  return { match: sim >= MIN_SIMILARITY, similarity: round(sim), liveness: round(s.liveness), antispoof: round(s.antispoof) };
+  // antispoof: 1 when she blinked on request; otherwise the model's score, capped at 0.5 so a still image
+  // (which can't blink) never clears the brain's 0.8 bar.
+  const antispoof = s.blinked ? 1 : Math.min(s.antispoof, 0.5);
+  return { match: sim >= MIN_SIMILARITY, similarity: round(sim), liveness: round(s.liveness), antispoof: round(antispoof) };
 }
 
 // ---- camera

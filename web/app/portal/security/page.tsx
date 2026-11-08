@@ -22,6 +22,7 @@ import {
 import { consentGiven, resetFlow, setConsent, snapshot } from "@/lib/behavior/session";
 import { useBehavior } from "@/lib/behavior/useBehavior";
 import { FaceCheck } from "@/components/portal/face/FaceCheck";
+import { FaceConfirm } from "@/components/portal/face/FaceConfirm";
 import { FaceSetup } from "@/components/portal/face/FaceSetup";
 import { enrolled, FACE_CHECK, loadHuman } from "@/lib/face/engine";
 
@@ -29,7 +30,7 @@ const ORDER: ProtectionName[] = ["sim_protection", "port_out_protection", "scam_
 const subscribe = () => () => {};
 
 type Overlay =
-  | { kind: "pause"; name: ProtectionName; screen: NonNullable<C.CheckResponse["pause_screen"]>; reasons: string[]; face?: boolean }
+  | { kind: "pause"; name: ProtectionName; screen: NonNullable<C.CheckResponse["pause_screen"]>; reasons: string[]; face?: "check" | { checkId: string } }
   | { kind: "calling"; caseId: string | null }
   | null;
 
@@ -140,10 +141,10 @@ export default function SecurityPage() {
     if (overlay?.kind !== "pause") return;
     const name = overlay.name;
     if (choice === "doing_it_myself" && face === undefined && faceOn()) {
-      setOverlay({ ...overlay, face: true });
+      setOverlay({ ...overlay, face: "check" });
       return;
     }
-    if (overlay.face) setOverlay({ ...overlay, face: false });
+    if (overlay.face) setOverlay({ ...overlay, face: undefined });
     setChoiceBusy(choice === "on_call_help" ? "help" : "continue");
     try {
       const r = await check({
@@ -158,6 +159,9 @@ export default function SecurityPage() {
         setOverlay({ kind: "calling", caseId: r.case_id ?? null });
         finishFlow();
         load();
+      } else if (r.decision === "allow" && face) {
+        // Face check passed: one last "are you sure?" before anything changes.
+        setOverlay({ ...overlay, face: { checkId: r.check_id } });
       } else if (r.decision === "allow") {
         await apply(name, r.check_id);
       } else if (r.decision === "pause" && r.pause_screen) {
@@ -310,7 +314,29 @@ export default function SecurityPage() {
           busy={choiceBusy}
           onHelp={() => choose("on_call_help")}
           onContinue={() => choose("doing_it_myself")}
-          faceCheck={overlay.face ? <FaceCheck onDone={(f) => choose("doing_it_myself", f)} /> : undefined}
+          faceCheck={
+            overlay.face === "check" ? (
+              <FaceCheck onDone={(f) => choose("doing_it_myself", f)} />
+            ) : overlay.face ? (
+              <FaceConfirm
+                name={overlay.name}
+                busy={choiceBusy !== null}
+                onCancel={() => {
+                  setOverlay(null);
+                  finishFlow();
+                }}
+                onContinue={async () => {
+                  if (overlay.kind !== "pause" || typeof overlay.face !== "object") return;
+                  setChoiceBusy("continue");
+                  try {
+                    await apply(overlay.name, overlay.face.checkId);
+                  } finally {
+                    setChoiceBusy(null);
+                  }
+                }}
+              />
+            ) : undefined
+          }
         />
       )}
       {overlay?.kind === "calling" && <CallingScreen caseId={overlay.caseId} onClose={() => setOverlay(null)} />}

@@ -1,6 +1,6 @@
 "use client";
 
-// The ~3 s face check that runs after Maya taps "I'm doing this on my own" (D-007). It proves the person is Maya;
+// The face check (a few seconds, one blink) that runs after Maya taps "I'm doing this on my own" (D-007). It proves the person is Maya;
 // it does not prove nobody is coaching her, so Titan keeps watching the call either way.
 // Any failure to run (camera blocked, library or models fail) returns null and the portal carries on as today.
 import { useEffect, useRef, useState } from "react";
@@ -8,13 +8,14 @@ import { FaceCamera } from "@/components/portal/face/FaceCamera";
 import { closeCamera, loadHuman, openCamera, scan, verify } from "@/lib/face/engine";
 import type { Contract as C } from "@/lib/api/client";
 
-const SCAN_MS = 3000;
+const SCAN_MS = 6000; // at most; ends about 1 s after a blink
 const START_TIMEOUT_MS = 15000;
 
 export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => void }) {
   const video = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
   const [scanning, setScanning] = useState(false);
+  const [blinked, setBlinked] = useState(false);
   const done = useRef(onDone);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => v
       stream = s;
       if (over) return closeCamera(s, el);
       setScanning(true);
-      const r = await scan(el, SCAN_MS, setProgress);
+      const r = await scan(el, SCAN_MS, setProgress, { blink: true, onBlink: () => setBlinked(true) });
       finish(r ? await verify(r) : null);
     })().catch(() => finish(null));
     return () => {
@@ -47,9 +48,9 @@ export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => v
   return (
     <div className="mt-8">
       <p className="text-body font-semibold">Quick face check</p>
-      <p className="mt-1 text-[16px] leading-6 text-ink-2">Checking it’s you. This stays on your device.</p>
+      <p className="mt-1 text-[16px] leading-6 text-ink-2">Look at the camera and blink slowly once. This stays on your device.</p>
       <div className="mt-4">
-        <FaceCamera video={video} progress={progress} label={scanning ? "Look at the camera…" : "Starting the camera…"} />
+        <FaceCamera video={video} progress={progress} label={!scanning ? "Starting the camera…" : blinked ? "Got it. One moment…" : "Look at the camera and blink slowly once."} />
       </div>
     </div>
   );
