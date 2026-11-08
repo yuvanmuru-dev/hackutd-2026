@@ -6,7 +6,9 @@ Presentation status: **provisional; final model run pending**.
 
 Rules-only results are provisional. The final post-model run of this script is the source for Devpost/video numbers; do not substitute training scores.
 
-Scorer source on main: `76aa44084ee735571777f24f87c168a85c28df9b`. Evaluation checkout: `b1172f5e868180797914df475d46f16373b913a6`.
+Model training audit: **test_informed**. Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence. See model_audit.md; a Lane 1 decision is pending before independent model claims.
+
+Scorer source on main: `76aa44084ee735571777f24f87c168a85c28df9b`. Evaluation checkout: `008498fb70f3b9a647d1b2168e43f9cdb7b904af`.
 Dataset SHA-256: `d459ebe50ba0c968d86815cc82476294cf67a105b6dfcfaf69e58028feece105`. Split SHA-256: `2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6`.
 Scored 137 test cases; train=163, test=137. All 36 hard negatives and the entire code_relay family are held out.
 
