@@ -39,6 +39,15 @@ class Settings:
     llm_base_url: str = "https://integrate.api.nvidia.com/v1"
     llm_model: str = "nvidia/nemotron-3.5-lightning-30b-a3b"
     guard_model: str = "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
+    voice_transport: str = "livekit"
+    conversation_enabled: bool = False
+    livekit_url: str = ""
+    livekit_key: str = ""
+    livekit_secret: str = ""
+    livekit_trunk: str = ""
+    photon_number: str = ""
+    photon_project: str = ""
+    photon_secret: str = ""
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -69,6 +78,15 @@ class Settings:
             llm_base_url=os.getenv("VOICE_LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/"),
             llm_model=os.getenv("NEMOTRON_VOICE_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
             guard_model=os.getenv("VOICE_GUARD_MODEL", "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"),
+            voice_transport=os.getenv("VOICE_TRANSPORT", "livekit"),
+            conversation_enabled=enabled("VOICE_CONVERSATION_ENABLED"),
+            livekit_url=os.getenv("LIVEKIT_URL", ""),
+            livekit_key=os.getenv("LIVEKIT_API_KEY", ""),
+            livekit_secret=os.getenv("LIVEKIT_API_SECRET", ""),
+            livekit_trunk=os.getenv("LIVEKIT_SIP_OUTBOUND_TRUNK_ID", ""),
+            photon_number=os.getenv("PHOTON_PHONE_NUMBER", ""),
+            photon_project=os.getenv("PHOTON_PROJECT_ID", ""),
+            photon_secret=os.getenv("PHOTON_SECRET_KEY", ""),
         )
 
     def missing(self, *, forwarding: bool = False, speech: bool = False) -> list[str]:
@@ -105,7 +123,32 @@ class Settings:
         return errors
 
     def conversation_missing(self) -> list[str]:
-        errors = self.missing(forwarding=True, speech=True)
+        if self.voice_transport == "livekit":
+            required = {"LIVEKIT_URL": self.livekit_url, "LIVEKIT_API_KEY": self.livekit_key,
+                "LIVEKIT_API_SECRET": self.livekit_secret, "LIVEKIT_SIP_OUTBOUND_TRUNK_ID": self.livekit_trunk,
+                "PHOTON_PHONE_NUMBER": self.photon_number, "MAYA_PHONE_NUMBER": self.maya_number,
+                "OUTBOUND_ALLOWLIST": self.allowlist, "HASH_SALT": self.hash_salt}
+            if self.tts_provider == "elevenlabs":
+                required.update(ELEVENLABS_API_KEY=self.elevenlabs_key, ELEVENLABS_VOICE_ID=self.elevenlabs_voice)
+            elif self.tts_provider == "magpie":
+                required.update(MAGPIE_VOICE_ID=self.magpie_voice)
+            errors = [name for name, value in required.items() if not value]
+            if self.tts_provider not in {"elevenlabs", "magpie"}:
+                errors.append("TTS_PROVIDER must be elevenlabs or magpie")
+            origin = urlsplit(self.livekit_url)
+            if origin.scheme != "wss" or not origin.hostname or origin.username or origin.query or origin.fragment or origin.path not in {"", "/"}:
+                errors.append("LIVEKIT_URL must be a WSS origin")
+            try:
+                if phone(self.maya_number) not in self.allowlist:
+                    errors.append("MAYA_PHONE_NUMBER must be in OUTBOUND_ALLOWLIST")
+                if phone(self.photon_number) == self.maya_number:
+                    errors.append("Photon line must differ from the teammate destination")
+            except ValueError:
+                errors.append("Photon and teammate numbers must use E.164")
+        else:
+            errors = self.missing(forwarding=True, speech=True)
+            if self.voice_transport != "twilio":
+                errors.append("VOICE_TRANSPORT must be livekit or twilio")
         if not self.nvidia_key:
             errors.append("NVIDIA_API_KEY")
         if not self.llm_model:

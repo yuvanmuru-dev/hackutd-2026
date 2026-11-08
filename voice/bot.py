@@ -129,7 +129,8 @@ async def run_probe(websocket, start: dict, settings: Settings):
         emit("bridge.session_finished", stage="transport", duration_ms=round((time.monotonic() - started) * 1000))
 
 
-async def run_conversation(websocket, start: dict, settings: Settings, conversation, initial_plan):
+async def run_conversation(websocket, start: dict, settings: Settings, conversation, initial_plan,
+                           *, transport_override=None, ready=None, answered=None):
     """Only an authenticated, call-bound intervention grant reaches this pipeline."""
     from loguru import logger
     logger.remove()
@@ -154,7 +155,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
 
     started = time.monotonic()
     cid = conversation.request["case_id"]
-    transport = FastAPIWebsocketTransport(websocket, params=FastAPIWebsocketParams(
+    transport = transport_override or FastAPIWebsocketTransport(websocket, params=FastAPIWebsocketParams(
         audio_in_enabled=True, audio_out_enabled=True, add_wav_header=False, session_timeout=300,
         serializer=TwilioFrameSerializer(stream_sid=start["streamSid"], call_sid=start["callSid"],
             account_sid=settings.account_sid, auth_token=settings.auth_token)))
@@ -254,29 +255,77 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
         params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=8000, enable_metrics=True))
     runner = WorkerRunner(handle_sigint=False)
 
-    @transport.event_handler("on_client_connected")
-    async def connected(transport, websocket):
-        # The initial plan passed guard checks before the phone was dialed.
-        await worker.queue_frames([TTSSpeakFrame(line) for line in initial_plan.lines])
+    if transport_override is None:
+        @transport.event_handler("on_client_connected")
+        async def connected(transport, websocket):
+            await worker.queue_frames([TTSSpeakFrame(line) for line in initial_plan.lines])
+    else:
+        @transport.event_handler("on_connected")
+        async def connected(transport):
+            ready.set()
+
+        @transport.event_handler("on_disconnected")
+        async def room_disconnected(transport):
+            await runner.cancel()
 
     @transport.event_handler("on_client_disconnected")
     async def disconnected(transport, websocket):
         await runner.cancel()
 
-    @transport.event_handler("on_session_timeout")
-    async def timeout(transport, websocket):
-        await runner.cancel()
+    if transport_override is None:
+        @transport.event_handler("on_session_timeout")
+        async def timeout(transport, websocket):
+            await runner.cancel()
 
     @worker.event_handler("on_pipeline_error")
     async def pipeline_error(worker, frame):
         emit("voice.pipeline_error", case_id=cid, category=frame.category.value)
 
+    import asyncio
+    greeting_task = None
+    if answered is not None:
+        async def greet_after_answer():
+            await answered.wait()
+            await worker.queue_frames([TTSSpeakFrame(line) for line in initial_plan.lines])
+        greeting_task = asyncio.create_task(greet_after_answer())
     try:
         await runner.add_workers(worker)
         await runner.run()
     finally:
+        if greeting_task:
+            greeting_task.cancel()
+            await asyncio.gather(greeting_task, return_exceptions=True)
         await audit.flush()
         emit("voice.session_finished", case_id=cid, duration_ms=round((time.monotonic()-started)*1000))
+
+
+async def run_room_probe(transport, settings, ready, answered):
+    """Short, TTS-only teammate probe; no approval or incoming audio processing."""
+    import asyncio
+    from pipecat.frames.frames import EndFrame, TTSSpeakFrame
+    from pipecat.pipeline.pipeline import Pipeline
+    from pipecat.pipeline.worker import PipelineParams, PipelineWorker, ProcessorUnusablePolicy
+    from pipecat.workers.runner import WorkerRunner
+    worker = PipelineWorker(Pipeline([transport.input(), make_tts(settings), transport.output()]),
+        enable_rtvi=False, processor_unusable_policy=ProcessorUnusablePolicy.CANCEL,
+        params=PipelineParams(audio_out_sample_rate=8000))
+    runner = WorkerRunner(handle_sigint=False)
+    @transport.event_handler("on_connected")
+    async def connected(transport):
+        ready.set()
+    @transport.event_handler("on_disconnected")
+    async def disconnected(transport):
+        await runner.cancel()
+    async def greet():
+        await answered.wait()
+        await worker.queue_frames([TTSSpeakFrame(GREETING), EndFrame()])
+    greeting = asyncio.create_task(greet())
+    try:
+        await runner.add_workers(worker)
+        await runner.run()
+    finally:
+        greeting.cancel()
+        await asyncio.gather(greeting, return_exceptions=True)
 
 
 if __name__ == "__main__":

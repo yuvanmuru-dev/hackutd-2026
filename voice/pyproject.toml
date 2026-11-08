@@ -10,7 +10,7 @@ dependencies = [
   "python-dotenv==1.2.4",
   "twilio==9.13.0",
   "uvicorn[standard]==0.54.0",
-  "pipecat-ai[nvidia,elevenlabs,websocket]==1.15.0",
+  "pipecat-ai[nvidia,elevenlabs,websocket,livekit]==1.15.0",
 ]
 
 [dependency-groups]

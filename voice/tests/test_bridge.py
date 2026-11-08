@@ -20,7 +20,7 @@ MAYA = "+12025550102"
 TWILIO = "+12025550103"
 ACCOUNT = "AC" + "0" * 32
 SID = "CA" + "1" * 32
-SETTINGS = Settings(public_url="https://voice.example.test", account_sid=ACCOUNT,
+SETTINGS = Settings(voice_transport="twilio", conversation_enabled=True, public_url="https://voice.example.test", account_sid=ACCOUNT,
                     auth_token="synthetic-test-token", twilio_number=TWILIO, maya_number=MAYA,
                     allowlist=frozenset({CALLER, MAYA}), hash_salt="synthetic-test-salt",
                     probe_enabled=True, elevenlabs_key="synthetic-key", elevenlabs_voice="synthetic-voice")

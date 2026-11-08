@@ -79,7 +79,11 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
         async with httpx.AsyncClient(base_url=settings.brain_url, timeout=20) as client:
             app.state.brain = brain or Brain(client)
             app.state.models = model_provider or NvidiaModels(client, settings)
-            app.state.calls = call_provider or TwilioCalls(client, settings)
+            if settings.voice_transport == "livekit":
+                from livekit_calls import LiveKitCalls
+                app.state.calls = call_provider or LiveKitCalls(settings)
+            else:
+                app.state.calls = call_provider or TwilioCalls(client, settings)
             app.state.tasks = set()
             emit("voice.started", port=8100, milestone="bridge", intervention_ready=False)
             try:
@@ -197,6 +201,13 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
             await app.state.models.verify()
             await (asr_check or verify_asr)(settings)
             entry.plan = await entry.conversation.begin()
+            if settings.voice_transport == "livekit":
+                await app.state.brain.delivery(cid, "Titan voice room preparing; the Photon call is not yet confirmed.")
+                await app.state.calls.run(entry.conversation.request["user_id"], entry.conversation, entry.plan)
+                entry.finished = True
+                entry.status = "completed"
+                await app.state.brain.delivery(cid, "Titan voice session ended; see case transcripts for delivered speech.")
+                return
             entry.expires = time.monotonic() + 120
             sid = await app.state.calls.place(entry.conversation.request["user_id"], token)
             async with lock:
@@ -228,6 +239,8 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
                 or any(h in request.headers for h in ["cf-ray", "cf-connecting-ip", "x-forwarded-for",
                     "x-forwarded-host", "x-forwarded-proto", "forwarded"])):
             raise HTTPException(403, "Only the local brain may request an outbound call")
+        if not settings.conversation_enabled:
+            raise HTTPException(503, "Conversation calls are disabled until the brain approval-boundary integration gate passes")
         body = bytearray()
         async for chunk in request.stream():
             body.extend(chunk)

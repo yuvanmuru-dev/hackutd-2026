@@ -86,3 +86,43 @@ Latest retry reached the service at 19:00:02 CST on 2026-11-07. Sanitized log: `
 Checked current official Twilio documentation: https://www.twilio.com/docs/usage/trials/try-out-voice#blocked-verbs explicitly lists `<Stream>`, `<Dial><Number>` and `<Dial><Sip>` as stripped/blocked during trial. Thus the observed failure is an unsigned webhook rejection, and Media Streams/forwarding also have a documented trial restriction. No numeric provider error code was exposed; none is invented.
 
 Sent QUESTION FOR LANE 1 requesting an existing upgraded account/number or an upgrade performed by Yuvan, as required by D-046. No purchase/upgrade or security bypass was performed. Preserve the current Cloudflare tunnel for the next configured attempt. The separate brain approval-boundary issue remains unresolved.
+
+## D-050 Route 3 checkpoint (current)
+
+Active transport is now Photon -> LiveKit SIP -> Pipecat; no Twilio calls, forwarding or public tunnel are used for this route. User supplied LiveKit credentials and Photon line in voice/.env. LiveKit authentication passed. Normalized the supplied ten-digit US line formatting to E.164 locally without printing it. Provisioned one `Titan Photon D-050` outbound trunk: sip.spectrum.photon.codes:5061, TLS, existing Photon project ID/secret, supplied project line. Saved generated trunk ID and VOICE_TRANSPORT=livekit in ignored voice/.env. No purchases, new Photon project, inbound dispatch rule or account upgrade.
+
+Implementation: livekit_calls.py owns the API/room/SIP lifecycle; bot.py reuses the existing conversation pipeline with a LiveKitTransport, with a separate short greeting-only probe. A room-scoped token and max_participants=2 isolate the bot/customer. The bot must join before CreateSIPParticipant; greeting waits for answer. Dialing is cancelled if the bot exits. Ring timeout=30s, call cap=180s; failures/cancellation delete the room. No recording/egress or LiveKit inference is enabled. Same brain HTTP contracts, redaction, NVIDIA intent/Safety Guard and explicit approvals.
+
+Actual live result: THREE short greeting-only call attempts failed before answer with `SipCallError`, `failed_precondition`, SIP **503 Service Unavailable**. Last sanitized reason: unexpected status from INVITE response: sip status: 503: Service Unavailable. The bot did join the room before each attempt. No incoming audio transcription or approval was performed. Read-only DNS resolution and TLS verification for the approved Photon endpoint pass. Read-only LiveKit room listing after failures: **Remaining Titan rooms: 0**. This does not prove the phone rang, Photon caller ID appeared or phone audio worked.
+
+Sent QUESTION FOR LANE 1: Karthik must confirm the configured Photon caller line belongs to the same D-040 project, the secret is current, and SIP voice is enabled/available, then inspect provider-side SIP logs. LiveKit's official 503 guidance points to endpoint/provider configuration. No more blind call retries. Optional inbound Photon routing remains unimplemented. D-050 fallback requires Lane 1's decision.
+
+Current runtime: restarted `.venv/Scripts/python.exe bot.py`, PID 61292, port 8100, session 65298. Legacy Twilio probe disabled. VOICE_CONVERSATION_ENABLED=false makes /internal/call return 503 until the brain boundary is fixed; probe CLI remains available without any approvals. The prior bridge process was already gone when restart was attempted; no unrelated process was stopped.
+
+Commands actually run:
+- `uv sync --cache-dir .cache/uv`: resolved 89 packages; installed livekit 1.2.1, livekit-api 1.2.2, livekit-protocol 1.1.31, tenacity 9.2.1 and types-protobuf. Lockfile updated inside voice/.
+- `.venv/Scripts/python.exe livekit_setup.py --provision`: created approved Photon TLS outbound trunk; saved trunk ID/transport selection locally; LIVEKIT CHECK PASS.
+- `.venv/Scripts/python.exe livekit_setup.py --probe`: SIP 503, three attempts as described above. ElevenLabs voice discovery passed before each attempt. No successful spoken exchange claimed.
+- `.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25`: **49 passed, 1 upstream deprecation warning in 31.59s**. New tests cover bot-before-dial ordering, allowlisting, cleanup after dial failures, cancellation if the bot dies during dialing, no Twilio/tunnel configuration requirement and the conversation interlock.
+- `.venv/Scripts/python.exe ../scripts/validate_contracts.py`: **PASS 57 fixtures/events valid**.
+- `.venv/Scripts/python.exe scripts/check_brain_approval_boundary.py`: still FAIL for both transcript and customer.reply (each can approve an uncorrelated action). D-050 did not resolve that separate brain issue. No brain files were edited.
+
+Official pricing checked: https://livekit.com/pricing currently lists 1,000 included Build-plan third-party SIP minutes; 50 minutes refers to LiveKit US local inbound calling, not the Photon trunk. Photon allowances are separate. Keep tests short and confirm actual account limits. User requested no computer use; all Route 3 work used code/API/docs only.
+
+## D-054 merged and verified
+
+PR #60 is now merged; fetched/rebased onto origin/main **99d6eed**, preserving all uncommitted Route 3 edits. During the first rebase, old historical commits 00cad89/fa3faa4 duplicated already-applied local commits: verified matching stable patch IDs e46c4bed6fa0650f915e558a0cd3c79659ad1b49 and 36d7806ed87cafabb31bc5b8bfc53563dfd42b26, then dropped only their duplicate replays. The Route 3 autostash reapplied cleanly. No tests, hooks or checks were skipped or weakened.
+
+Ran `.venv/Scripts/python.exe scripts/check_brain_approval_boundary.py` against the newly merged actual brain code: **PASS transcript: audit/reply did not approve; explicit voice decision advanced one text question** and **PASS customer.reply: audit/reply did not approve; explicit voice decision advanced one text question**. The earlier approval blocker is resolved by D-054. No brain files were edited by Lane 4.
+
+Lane 1 chose option A for Photon SIP 503: Karthik checks project-owned line, current secret, line voice/SIP status and Photon logs; someone on site/event Discord asks Photon's sponsor team. Thirty-minute assisted investigation window; Yuvan selects Route 1 upgrade or text-only if unresolved. No more blind calls were attempted after that instruction. No messages were sent externally by this agent. VOICE_CONVERSATION_ENABLED remains false to prevent automated attempts while provider investigation is pending. Enable it only for a coordinated test after provider readiness is confirmed.
+
+Final checks after rebasing PR #60: `.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25` -> **49 passed, 1 upstream warning in 31.06s**; `.venv/Scripts/python.exe ../scripts/validate_contracts.py` -> **PASS 57 fixtures/events valid**; `.venv/Scripts/python.exe smoke.py --offline` -> both TTS factories constructed and OFFLINE PASS. Compilation and a targeted configured-secret comparison against candidate voice source/docs/template passed (not a gitleaks scan); `git diff --check` has no whitespace errors. Changes remain local/uncommitted inside voice/. The last runtime health check found voice HTTP 200 and /internal/call interlock HTTP 503; no brain process was listening on 8000 at that check. Provider investigation, live phone audio and latency remain unverified.
+
+## PR publication checks
+
+Release verification: voice pytest **49 passed, 1 upstream warning in 22.39s**; D-054 integration gate **PASS** for transcript and customer.reply; contract validator **PASS 57 fixtures/events valid**. Downloaded official Gitleaks v8.30.1 into ignored voice/.cache and verified its release checksum. `gitleaks git --staged --redact --no-banner` and `gitleaks git --log-opts="origin/main..HEAD" --redact --no-banner` both report **no leaks found**. No secrets or live environment files are staged.
+
+Known CI blocker: `python scripts/check_lane.py lane/voice origin/main` flags two existing negative-test inputs in voice/tests/test_conversation.py (unsafe opening and password-request rejection tests) as D-012 production prompts. The checks/tests were not weakened or bypassed; Lane 1 must approve a test-aware guardrail correction. Publishing as a draft with this failure explicit.
+
+Credential clarification for sponsor support: the supplied PHOTON_SECRET_KEY is a Photon 2.0 Project API key, currently passed to SIP auth_password per the supplied setup. It is not a separately generated outbound SIP password or a Stable project secret. SIP credential compatibility remains unverified and should be checked alongside Photon-side 503 logs. No credential, project identifier or sending number is included here.

@@ -1,3 +1,54 @@
+# D-050 current route: Photon + LiveKit SIP
+
+The active route is **Photon line -> LiveKit outbound SIP trunk -> isolated LiveKit room -> Pipecat bot**. No Twilio account, Twilio Media Streams, forwarding or public tunnel is required for this route. The older bridge notes below are retained for the Lane 1-approved fallback only.
+
+Current live result: LiveKit authenticates, the Photon TLS trunk exists, and the bot joins before dialing. Greeting-only calls currently fail with **SIP 503 Service Unavailable** before answer. This is not a successful phone bridge. Karthik/Lane 1 must check Photon line ownership, project credentials and SIP availability. Do not keep retrying blindly.
+
+## Route 3 configuration
+
+Use only ignored `voice/.env`; `.env.example` contains the names and defaults:
+
+- `VOICE_TRANSPORT=livekit`
+- `LIVEKIT_URL` (WSS origin), `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
+- `LIVEKIT_SIP_OUTBOUND_TRUNK_ID` (provisioning saves the generated ID)
+- `PHOTON_PROJECT_ID`, `PHOTON_SECRET_KEY` (the team's D-040 project)
+- `PHOTON_PHONE_NUMBER` (that project's owned iMessage line in E.164)
+- `MAYA_PHONE_NUMBER`, `OUTBOUND_ALLOWLIST`, `HASH_SALT`
+- Existing NVIDIA/ElevenLabs settings and D-035 Lightning model settings.
+- `VOICE_CONVERSATION_ENABLED=false` until the brain approval-boundary gate passes.
+
+Install with `uv sync --locked --cache-dir .cache/uv`. The lock now includes the Pipecat LiveKit extra. The application remains Pipecat; LiveKit supplies room transport and SIP, not inference or another agent framework.
+
+From `voice/`:
+
+```powershell
+.venv/Scripts/python.exe livekit_setup.py --provision
+.venv/Scripts/python.exe livekit_setup.py --check
+.venv/Scripts/python.exe livekit_setup.py --probe
+```
+
+`--provision` creates/reuses only the configured Photon TLS/5061 trunk and saves its ID locally. It does not buy a number or change the Photon account. The trunk uses `sip.spectrum.photon.codes:5061`, TLS, project ID as username and project secret as password. Registration is not used. Keep certificate verification enabled.
+
+**`--probe` places one real call to Maya's configured allowlisted number.** It joins the bot first, waits for the SIP participant to answer, speaks the labeled bridge greeting and ends. It does not transcribe incoming audio or approve anything. Confirm the audible result with the teammate before reporting success. Check the actual project allowances; LiveKit's pricing page currently lists 1,000 Build-plan third-party SIP minutes, distinct from its 50 included US local inbound minutes. Photon usage is separate. Keep probes short.
+
+## Route 3 lifecycle and safety
+
+The same contract `POST /internal/call` validates case ownership, dedupes identical work and starts the guarded conversation in a background task. The LiveKit provider checks the configured trunk endpoint/TLS/line, creates a random two-participant room, and gives the bot a room-scoped, five-minute token. Only after the bot connects does it call `CreateSIPParticipant` with Maya's allowlisted destination and Photon caller ID. Greeting waits for `wait_until_answered` to complete. Ring timeout is 30 seconds; call duration is capped at three minutes. A bot failure during dialing cancels the request and deletes the room; normal completion, failures and cancellation all clean up the room and client.
+
+Transcript and approval HTTP calls remain unchanged. Nemotron ASR -> Lightning intent interpretation (thinking disabled) -> guarded ElevenLabs Flash output remains the conversation pipeline. No recording is enabled. The local worker shares the same redaction, interruption and one-question approval controls across transports.
+
+**D-054 approval fix is verified:** after PR #60 merged, `.venv/Scripts/python.exe scripts/check_brain_approval_boundary.py` passes both transcript and customer.reply cases. Audit text cannot approve; one explicit voice decision advances one recovery question. `VOICE_CONVERSATION_ENABLED=false` still interlocks dispatch with HTTP 503 while Photon SIP 503 is investigated, preventing automatic retries. Enable it only when the provider is ready for a coordinated call test. The greeting probe does not use approval paths.
+
+For the scam beat, use the console's simulated carrier `call.started` event while the scammer calls Maya's actual phone (D-050); no forwarding or scam audio collection is needed. Optional Photon inbound SIP/LiveKit dispatch is not implemented in this milestone.
+
+Runtime: `.venv/Scripts/python.exe bot.py`, localhost:8100. LiveKit outbound rooms use outbound WSS/WebRTC; no cloudflared restart is required. Health retains the existing bridge identity for compatibility and does not claim phone readiness. Legacy signed Twilio code remains available only as a fallback; the legacy probe is disabled in the current environment.
+
+References: [Pipecat LiveKit transport](https://docs.pipecat.ai/api-reference/server/services/transport/livekit), [LiveKit SIP API](https://docs.livekit.io/reference/telephony/sip-api/), [Photon outbound SIP](https://photon.codes/docs/spectrum-ts/providers/voice/outbound-calls), [LiveKit SIP troubleshooting](https://docs.livekit.io/reference/telephony/troubleshooting/), [LiveKit pricing](https://livekit.com/pricing).
+
+---
+
+## Historical Twilio bridge notes (superseded by D-050)
+
 # Titan voice
 
 Lane 4 owns `voice/`. The service implements signed Twilio webhooks, metadata-only forwarding, a TTS bridge probe and local `POST /internal/call`. Titan's conversation uses Pipecat 1.15, Nemotron streaming ASR, Nemotron 3.5 Lightning (D-035), NVIDIA Safety Guard and ElevenLabs Flash v2.5. Magpie is the configured TTS fallback. English, Windows, no GPU, teammate numbers only.
