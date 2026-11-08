@@ -10,15 +10,16 @@ from test_conversation import VOICE_SETTINGS
 
 LK = replace(VOICE_SETTINGS, voice_transport="livekit", livekit_url="wss://synthetic.livekit.cloud",
     livekit_key="synthetic-key", livekit_secret="synthetic-secret-for-token-signing",
-    livekit_trunk="ST_synthetic", photon_number="+12025550103")
+    livekit_trunk="ST_synthetic", photon_number="+12025550103",
+    photon_sip_username="synthetic-sip-user", photon_sip_password="synthetic-sip-password")
 
 
 def client():
     from livekit import api
     lk = SimpleNamespace(sip=AsyncMock(), room=AsyncMock())
     lk.sip.list_outbound_trunk.return_value = SimpleNamespace(items=[api.SIPOutboundTrunkInfo(
-        sip_trunk_id=LK.livekit_trunk, address="sip.spectrum.photon.codes:5061",
-        transport=api.SIP_TRANSPORT_TLS, numbers=[LK.photon_number])])
+        sip_trunk_id=LK.livekit_trunk, address="sip.photon.codes:5061",
+        transport=api.SIP_TRANSPORT_TLS, numbers=[LK.photon_number], auth_username=LK.photon_sip_username)])
     return lk
 
 
@@ -78,6 +79,33 @@ def test_livekit_disallowed_number_never_touches_provider():
 
 def test_livekit_configuration_requires_no_twilio_or_tunnel():
     assert replace(LK, account_sid="", auth_token="", twilio_number="", public_url="").conversation_missing() == []
+
+
+def test_project_api_key_is_rejected_as_sip_password():
+    assert any("not an API key" in error for error in
+        replace(LK, photon_sip_password="pho_sk_synthetic").conversation_missing())
+
+
+def test_provision_updates_configured_trunk_with_dedicated_sip_auth(monkeypatch):
+    import livekit_setup
+    from livekit import api
+    lk = client()
+    lk.aclose = AsyncMock()
+    current = lk.sip.list_outbound_trunk.return_value.items[0]
+    current.address = "sip.spectrum.photon.codes:5061"
+    current.auth_username = "old-project-api-user"
+    lk.sip.update_outbound_trunk_fields.return_value = api.SIPOutboundTrunkInfo(
+        sip_trunk_id=LK.livekit_trunk, address="sip.photon.codes:5061",
+        transport=api.SIP_TRANSPORT_TLS, numbers=[LK.photon_number], auth_username=LK.photon_sip_username)
+    monkeypatch.setattr(livekit_setup.Settings, "from_env", lambda: LK)
+    monkeypatch.setattr(livekit_setup.api, "LiveKitAPI", lambda *args: lk)
+    monkeypatch.setattr(livekit_setup, "set_key", lambda *args: None)
+    assert asyncio.run(livekit_setup.main("provision")) == 0
+    lk.sip.update_outbound_trunk_fields.assert_awaited_once_with(LK.livekit_trunk,
+        address="sip.photon.codes:5061", transport=api.SIP_TRANSPORT_TLS,
+        numbers=[LK.photon_number], auth_username=LK.photon_sip_username, auth_password=LK.photon_sip_password)
+    lk.sip.create_outbound_trunk.assert_not_awaited()
+    lk.aclose.assert_awaited_once()
 
 
 def test_bot_failure_while_dialing_cancels_call_and_deletes_room():

@@ -32,8 +32,9 @@ class LiveKitCalls:
         try:
             trunks = await lk.sip.list_outbound_trunk(api.ListSIPOutboundTrunkRequest())
             trunk = next((t for t in trunks.items if t.sip_trunk_id == s.livekit_trunk), None)
-            if (trunk is None or trunk.address != "sip.spectrum.photon.codes:5061"
-                    or trunk.transport != api.SIP_TRANSPORT_TLS or s.photon_number not in trunk.numbers):
+            if (trunk is None or trunk.address != "sip.photon.codes:5061"
+                    or trunk.transport != api.SIP_TRANSPORT_TLS or s.photon_number not in trunk.numbers
+                    or trunk.auth_username != s.photon_sip_username):
                 raise ValueError("Configured trunk is not the approved Photon TLS line")
             await lk.room.create_room(api.CreateRoomRequest(name=room, max_participants=2,
                 empty_timeout=30, departure_timeout=10))

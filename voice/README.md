@@ -2,7 +2,7 @@
 
 The active route is **Photon line -> LiveKit outbound SIP trunk -> isolated LiveKit room -> Pipecat bot**. No Twilio account, Twilio Media Streams, forwarding or public tunnel is required for this route. The older bridge notes below are retained for the Lane 1-approved fallback only.
 
-Current live result: LiveKit authenticates, the Photon TLS trunk exists, and the bot joins before dialing. Greeting-only calls currently fail with **SIP 503 Service Unavailable** before answer. This is not a successful phone bridge. Karthik/Lane 1 must check Photon line ownership, project credentials and SIP availability. Do not keep retrying blindly.
+Current live result: after Photon support supplied the new endpoint, voice-enabled caller ID and generated SIP credentials, the single authorized greeting-only probe completed without SIP error. The teammate confirmed both ringing and the audible Titan bridge-test greeting on the second authorized probe. Earlier shared-line/project-API-key attempts returned SIP 503; those settings are obsolete.
 
 ## Route 3 configuration
 
@@ -11,7 +11,8 @@ Use only ignored `voice/.env`; `.env.example` contains the names and defaults:
 - `VOICE_TRANSPORT=livekit`
 - `LIVEKIT_URL` (WSS origin), `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
 - `LIVEKIT_SIP_OUTBOUND_TRUNK_ID` (provisioning saves the generated ID)
-- `PHOTON_PROJECT_ID`, `PHOTON_SECRET_KEY` (the team's D-040 project)
+- `PHOTON_SIP_USERNAME`, `PHOTON_SIP_PASSWORD` (separately generated under the voice Default profile; select SHA-256 and Enable outbound)
+- `PHOTON_PROJECT_ID`, `PHOTON_SECRET_KEY` remain project API credentials and are never used as SIP authentication.
 - `PHOTON_PHONE_NUMBER` (that project's owned iMessage line in E.164)
 - `MAYA_PHONE_NUMBER`, `OUTBOUND_ALLOWLIST`, `HASH_SALT`
 - Existing NVIDIA/ElevenLabs settings and D-035 Lightning model settings.
@@ -27,7 +28,7 @@ From `voice/`:
 .venv/Scripts/python.exe livekit_setup.py --probe
 ```
 
-`--provision` creates/reuses only the configured Photon TLS/5061 trunk and saves its ID locally. It does not buy a number or change the Photon account. The trunk uses `sip.spectrum.photon.codes:5061`, TLS, project ID as username and project secret as password. Registration is not used. Keep certificate verification enabled.
+`--provision` updates the explicitly configured trunk in place with `sip.photon.codes:5061`, TLS, the voice-enabled caller ID and dedicated outbound SIP username/password. Without a configured ID it creates/reuses a matching trunk and saves its ID locally. It never substitutes the Photon project API key; known API-key values are rejected. It does not buy a number or enable a Photon profile. Enable outbound on the Default profile with SHA-256 selected first; inbound can remain disabled. Registration is not used. Keep certificate verification enabled.
 
 **`--probe` places one real call to Maya's configured allowlisted number.** It joins the bot first, waits for the SIP participant to answer, speaks the labeled bridge greeting and ends. It does not transcribe incoming audio or approve anything. Confirm the audible result with the teammate before reporting success. Check the actual project allowances; LiveKit's pricing page currently lists 1,000 Build-plan third-party SIP minutes, distinct from its 50 included US local inbound minutes. Photon usage is separate. Keep probes short.
 

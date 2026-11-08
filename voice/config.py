@@ -48,6 +48,8 @@ class Settings:
     photon_number: str = ""
     photon_project: str = ""
     photon_secret: str = ""
+    photon_sip_username: str = ""
+    photon_sip_password: str = ""
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -87,6 +89,8 @@ class Settings:
             photon_number=os.getenv("PHOTON_PHONE_NUMBER", ""),
             photon_project=os.getenv("PHOTON_PROJECT_ID", ""),
             photon_secret=os.getenv("PHOTON_SECRET_KEY", ""),
+            photon_sip_username=os.getenv("PHOTON_SIP_USERNAME", ""),
+            photon_sip_password=os.getenv("PHOTON_SIP_PASSWORD", ""),
         )
 
     def missing(self, *, forwarding: bool = False, speech: bool = False) -> list[str]:
@@ -126,13 +130,17 @@ class Settings:
         if self.voice_transport == "livekit":
             required = {"LIVEKIT_URL": self.livekit_url, "LIVEKIT_API_KEY": self.livekit_key,
                 "LIVEKIT_API_SECRET": self.livekit_secret, "LIVEKIT_SIP_OUTBOUND_TRUNK_ID": self.livekit_trunk,
-                "PHOTON_PHONE_NUMBER": self.photon_number, "MAYA_PHONE_NUMBER": self.maya_number,
+                "PHOTON_PHONE_NUMBER": self.photon_number, "PHOTON_SIP_USERNAME": self.photon_sip_username,
+                "PHOTON_SIP_PASSWORD": self.photon_sip_password, "MAYA_PHONE_NUMBER": self.maya_number,
                 "OUTBOUND_ALLOWLIST": self.allowlist, "HASH_SALT": self.hash_salt}
             if self.tts_provider == "elevenlabs":
                 required.update(ELEVENLABS_API_KEY=self.elevenlabs_key, ELEVENLABS_VOICE_ID=self.elevenlabs_voice)
             elif self.tts_provider == "magpie":
                 required.update(MAGPIE_VOICE_ID=self.magpie_voice)
             errors = [name for name, value in required.items() if not value]
+            if self.photon_sip_password.startswith(("pho_sk_", "pho_ask_")) or (
+                    self.photon_sip_password and self.photon_sip_password == self.photon_secret):
+                errors.append("PHOTON_SIP_PASSWORD must be the generated outbound SIP password, not an API key")
             if self.tts_provider not in {"elevenlabs", "magpie"}:
                 errors.append("TTS_PROVIDER must be elevenlabs or magpie")
             origin = urlsplit(self.livekit_url)

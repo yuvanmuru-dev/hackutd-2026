@@ -21,22 +21,35 @@ async def main(mode):
         await LiveKitCalls(s).run("usr_maya")
         print("PROBE SESSION ENDED: confirm the audible greeting with the teammate; no conversation approval attempted")
         return 0
-    if not all([s.livekit_url, s.livekit_key, s.livekit_secret, s.photon_project, s.photon_secret, s.photon_number]):
+    if not all([s.livekit_url, s.livekit_key, s.livekit_secret, s.photon_sip_username, s.photon_sip_password, s.photon_number]):
         raise ValueError("LiveKit/Photon provisioning configuration is incomplete")
+    if s.photon_sip_password.startswith(("pho_sk_", "pho_ask_")) or s.photon_sip_password == s.photon_secret:
+        raise ValueError("Use the generated outbound SIP password, not a Photon API key")
     phone(s.photon_number)
     lk = api.LiveKitAPI(s.livekit_url, s.livekit_key, s.livekit_secret)
     try:
         trunks = await lk.sip.list_outbound_trunk(api.ListSIPOutboundTrunkRequest())
-        matches = [t for t in trunks.items if t.address == "sip.spectrum.photon.codes:5061"
+        candidates = list(trunks.items)
+        configured = next((t for t in trunks.items if t.sip_trunk_id == s.livekit_trunk), None)
+        if s.livekit_trunk and configured is None:
+            raise ValueError("Configured outbound trunk was not found; no replacement trunk created")
+        if mode == "provision" and configured is not None:
+            configured = await lk.sip.update_outbound_trunk_fields(s.livekit_trunk,
+                address="sip.photon.codes:5061", transport=api.SIP_TRANSPORT_TLS,
+                numbers=[s.photon_number], auth_username=s.photon_sip_username, auth_password=s.photon_sip_password)
+            print("Updated configured Photon TLS trunk with generated outbound SIP credentials")
+            candidates = [configured]
+        matches = [t for t in candidates if t.address == "sip.photon.codes:5061"
             and t.transport == api.SIP_TRANSPORT_TLS and s.photon_number in t.numbers
-            and t.auth_username == s.photon_project]
+            and t.auth_username == s.photon_sip_username
+            and (not s.livekit_trunk or t.sip_trunk_id == s.livekit_trunk)]
         if len(matches) > 1:
             raise ValueError("Multiple matching Photon trunks; select the intended trunk locally")
         if not matches and mode == "provision":
             trunk = await lk.sip.create_outbound_trunk(api.CreateSIPOutboundTrunkRequest(
                 trunk=api.SIPOutboundTrunkInfo(name="Titan Photon D-050",
-                    address="sip.spectrum.photon.codes:5061", transport=api.SIP_TRANSPORT_TLS,
-                    numbers=[s.photon_number], auth_username=s.photon_project, auth_password=s.photon_secret)))
+                    address="sip.photon.codes:5061", transport=api.SIP_TRANSPORT_TLS,
+                    numbers=[s.photon_number], auth_username=s.photon_sip_username, auth_password=s.photon_sip_password)))
             matches = [trunk]
             print("Created approved Photon TLS outbound trunk")
         if not matches:
