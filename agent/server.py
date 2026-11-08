@@ -40,7 +40,7 @@ TOOLS = [  # what the Context/Risk agents can call (Lane 2a/2b implement; names 
 ]
 
 
-def _start(case_id: str, trigger: str):
+def _start(case_id: str, trigger: str, trig: dict | None = None):
     case = store.cases[case_id]
     if trigger in ("heads_up", "repeat_heads_up"):
         mock_runs.heads_up(store, case, repeat=trigger == "repeat_heads_up")
@@ -48,8 +48,8 @@ def _start(case_id: str, trigger: str):
     if MOCK:
         task = asyncio.create_task(mock_runs.replay(store, case, trigger))
     else:  # real Nemotron workflow
-        trig = next((e for e in sorted(store.events.values(), key=lambda e: e["ts"], reverse=True)
-                     if e["user_id"] == case["user_id"] and (not case["call_id"] or e.get("call_id") == case["call_id"])), None)
+        trig = trig or next((e for e in sorted(store.events.values(), key=lambda e: e["ts"], reverse=True)
+                             if e["user_id"] == case["user_id"] and (not case["call_id"] or e.get("call_id") == case["call_id"])), None)
         trig = trig or {"event_id": new_id("evt"), "user_id": case["user_id"], "type": "transfer_pin.requested", "ts": iso(now()),
                         "source": "brain", "call_id": case["call_id"], "data": {}}
         task = asyncio.create_task(workflow.run(store, case, trigger, trig))
@@ -147,8 +147,13 @@ async def check(request: Request):
             case = _case_for_call(store, req["user_id"], call["call_id"], "Customer asked for help during an unverified call")
             res["case_id"] = case["case_id"]
             case["help_requested"] = True  # Titan calls right away instead of waiting for a text reply
+            # Analyze what she was actually doing (turning a protection off mid-call), not her newest portal event
+            # (a login or behavior summary). Not stored: the change was blocked, so it never happened.
+            attempt = {"event_id": new_id("evt"), "user_id": req["user_id"], "type": "protection.changed", "ts": iso(now()),
+                       "source": "pause_screen", "call_id": call["call_id"],
+                       "data": {"name": req.get("protection") or "port_out_protection", "enabled": False, "via": "portal"}}
             if not case["run_running"]:
-                _start(case["case_id"], "coached")
+                _start(case["case_id"], "coached", attempt)
             else:
                 workflow.notify(case["case_id"], {"help_requested": True})
     return require("CheckResponse", res)
