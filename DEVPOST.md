@@ -53,7 +53,7 @@ All LLM reasoning uses NVIDIA-hosted models. Current model choices follow the te
 | Context, response writing, and reply reading | `nvidia/nemotron-3.5-lightning-30b-a3b` | Fast interaction; thinking is disabled with `chat_template_kwargs.enable_thinking=false`. |
 | Model-written outbound text | `nvidia/llama-3.1-nemotron-safety-guard-8b-v3` | Safety screening alongside deterministic rules. Fixed recovery questions retain their action-specific wording. |
 | Policy retrieval | NeMo Retriever | Retrieve relevant policy passages; unavailable retrieval is disclosed and has a local policy fallback. |
-| Screenshot understanding | Nemotron VL integration | Planned brain-side reading of images the customer deliberately forwards; not claimed as live-verified in this draft. |
+| Screenshot understanding | `nvidia/nemotron-3.5-super-vl-120b-a12b` | Brain-side reading of images the customer deliberately forwards (D-047); implemented and covered by isolated workflow tests, not claimed as live-verified in this draft. |
 | Voice | Nemotron ASR and Lightning | Speech recognition and conversation. ElevenLabs Flash is the default TTS; Magpie is the NVIDIA TTS fallback. Voice integration needs its own end-to-end verification. |
 
 ## Synthetic data and privacy by design
@@ -92,7 +92,7 @@ We also learned that the most useful intervention may be a small one at the righ
 
 ## What's next
 
-The immediate integration priorities are follow-up monitoring for a reported number that calls again and forwarding customer-selected screenshots to the brain's Nemotron VL reader. The next demo pass must verify those paths and the remaining recovery steps and summary together. Supabase and the SMS fallback are deferred so the team can focus on the verified iMessage experience.
+Follow-up monitoring and screenshot forwarding are implemented: the watcher posts repeat-call metadata and the brain labels reported numbers; messaging forwards images without text and the brain reads them through Nemotron VL. Isolated tests cover the repeat-scam heads-up and screenshot workflow. The next phone demo must verify those paths and the remaining recovery steps and summary together. Supabase and the SMS fallback are deferred so the team can focus on the verified iMessage experience.
 
 Beyond the hackathon, we would evaluate on independently designed scenarios and hard negatives, measure calibrated risk and false-positive rates, strengthen identity and authorization controls, add durable case storage, and test accessibility and recovery wording with customers. Any real carrier integration would require a separate authorized deployment.
 

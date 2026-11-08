@@ -43,7 +43,7 @@ export class Service {
         // partial group failures, so already accepted images are not duplicated.
         await this.brain.event({ event_id: `evt_photon_${hash}_image_${index}`, user_id: match.user,
           type: 'message.forwarded', ts: message.createdAt, source: 'messaging',
-          data: { channel: message.platform, image_url, ...(text ? { text } : {}) } });
+          data: { channel: message.platform, image_url } });
       }
     } else if (text.trim().toLowerCase() === 'ping') {
       await this.transport.hello(message, match.route);

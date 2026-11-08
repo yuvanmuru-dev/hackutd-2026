@@ -47,8 +47,8 @@ call; choose a new ID only to simulate another distinct call. The brain's
 POST /events is idempotent on that ID. `scam_label` starts false: the brain, not
 this worker, resolves the report and labels the call.
 
-The intended brain-side label and follow-up heads-up are being integrated by
-Lane 1. A successful event POST alone does not verify that customer message.
+The brain-side label and follow-up heads-up are implemented in D-047 / PR #51.
+A successful event POST alone does not verify receipt on the customer phone.
 
 ## Metadata queue for a scripted call source
 
@@ -85,3 +85,16 @@ Tests use the real contract fixture and fake HTTP/brain clients. They cover
 report approval and expiry, call/user/hash matching, restart deduplication,
 ambiguous delivery retries, and the exact POST /events payload. They send no
 real messages or calls.
+
+To exercise this worker's generated event against the actual brain routes,
+including the reported-number label and heads-up, use the isolated integration
+check with the brain's existing dependencies:
+
+```sh
+cd agent
+uv run --no-project --with-requirements requirements.txt python ../watcher/scripts/check_brain.py
+```
+
+It uses MOCK fixture replay in a separate process, blocks external HTTP and live
+delivery, and verifies that replaying the same event creates no second heads-up.
+It neither restarts nor resets the running demo brain.

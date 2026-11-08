@@ -70,8 +70,9 @@ This prevents the brain test's scripted approvals from texting a live line.
 
 Under D-045, Supabase and the Twilio SMS fallback are deferred. The watcher is
 in watcher/ and screenshot transport is described below. Brain-side image
-reading and reported-number labeling remain Lane 1's integrations; transport
-tests do not establish a vision verdict or follow-up heads-up on the phone.
+reading and reported-number labeling are merged in D-047 / PR #51. Isolated
+tests cover those brain paths; they do not establish a live vision verdict or
+follow-up heads-up received on the phone.
 
 Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404. D-035/D-039 now prefer Lightning, verified live with HTTP 200 and thinking disabled. Production reply interpretation is in the brain. This does not establish free-form recovery approvals end to end.
 
@@ -105,9 +106,10 @@ checked, followed by the file signature. The bytes stay in memory.
 
 Each image is posted as the existing `message.forwarded` Event with
 `data.image_url` set to a `data:image/png;base64,...` or JPEG data URL. The brain
-does not need Photon credentials to fetch it. A caption is included as
-`data.text`. This creates a forwarded-content case even during recovery; a
-caption such as YES is never routed as a recovery approval.
+does not need Photon credentials to fetch it. Per D-047, the event contains
+**no text field**, even if Photon grouped a caption with the image. The brain
+reads the screenshot through Nemotron VL. This creates a forwarded-content case
+even during recovery; a caption such as YES is never a recovery approval.
 
 Grouped images use stable per-image event IDs derived from the provider message
 ID and part index. If the second image fails after the first was accepted,

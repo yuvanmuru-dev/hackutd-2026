@@ -241,7 +241,7 @@ test('a forwarded screenshot with YES caption becomes image data, never a recove
   const posts = h.calls.filter(c => c.path === '/events');
   assert.equal(posts.length, 1);
   assert.equal(posts[0].body.type, 'message.forwarded');
-  assert.equal(posts[0].body.data.text, 'YES');
+  assert.equal(Object.hasOwn(posts[0].body.data, 'text'), false, 'D-047: images must not carry text');
   assert.equal(valid('Event', posts[0].body), true);
   assert.match(posts[0].body.data.image_url, /^data:image\/png;base64,/);
   assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
