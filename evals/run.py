@@ -190,13 +190,15 @@ def evaluate(split: dict, rows: dict[str, dict], audit: dict):
         at = store_module.parse(next(e["ts"] for e in scenario["events"]
                                     if e["event_id"] == scenario["trigger_event_id"]))
         for name, fn, output in (("rules", toolbox.rules_score, baseline), ("brain", toolbox.score, active)):
-            route = {"ml_called": False, "ml_error": None}
+            route = {"ml_called": False, "ml_error": None, "ml_returned_score": False}
             original = getattr(module, "score", None) if module else None
 
             def observed(*args, **kwargs):
                 route["ml_called"] = True
                 try:
-                    return original(*args, **kwargs)
+                    value = original(*args, **kwargs)
+                    route["ml_returned_score"] = isinstance(value, dict) and bool(value.get("threat"))
+                    return value
                 except Exception as exc:
                     route["ml_error"] = type(exc).__name__
                     raise
@@ -226,8 +228,14 @@ def percent(value):
 
 def final_model_ready(model_status: dict, rows: list[dict]) -> bool:
     return bool(rows) and model_status["module_present"] and not model_status["import_error"] \
-        and all(row["route"]["ml_called"] and not row["route"]["ml_error"] for row in rows) \
-        and all(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
+        and all(row["route"]["ml_called"] and not row["route"]["ml_error"]
+                and row["route"].get("ml_returned_score") for row in rows) \
+        and any(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
+
+
+def independent_split(split_sha256: str, audit: dict) -> bool:
+    return not (audit.get("status") == "test_informed"
+                and audit.get("affected_split_sha256") == split_sha256)
 
 
 def report(result: dict) -> str:
@@ -235,6 +243,7 @@ def report(result: dict) -> str:
     lines = ["# Independent Titan evaluation", "", f"Mode: **{meta['mode']}**.", "",
              f"Presentation status: **{'final independent model run' if meta['final_model_run'] else 'provisional; final model run pending'}**.", "",
              "Rules-only results are provisional. The final post-model run of this script is the source for Devpost/video numbers; do not substitute training scores.", "",
+             f"Model training audit: **{result['training_audit'].get('status', 'not recorded')}**. {result['training_audit'].get('reason', '')} See model_audit.md; a Lane 1 decision is pending before independent model claims.", "",
              f"Scorer source on main: `{meta['main_commit']}`. Evaluation checkout: `{meta['evaluation_commit']}`.",
              f"Dataset SHA-256: `{meta['dataset_sha256']}`. Split SHA-256: `{meta['split_sha256']}`.",
              f"Scored {len(result['predictions'])} test cases; train={meta['train_count']}, test={meta['test_count']}. All 36 hard negatives and the entire code_relay family are held out.",
@@ -315,15 +324,19 @@ def main():
     rule_names = lambda name: name.lower().startswith("rules")
     names = summary["model_counts"]
     actual_model = any(not rule_names(name) for name in names)
-    mode = ("mixed model and rules fallback" if actual_model and any(rule_names(n) for n in names)
+    mode = ("hybrid model and rules" if actual_model and any(rule_names(n) for n in names)
             else "model" if actual_model else "rules only (model rerun pending)")
     ready = actual_model and final_model_ready(model_status, active + benign_active) and benign_on_main
     if args.require_model and not ready:
         raise RuntimeError("Final run requires a model on every route without errors, and benign controls on main")
+    training_audit = json.loads(OUT.joinpath("model_audit.json").read_text())
+    independent = independent_split(file_hash(SPLIT), training_audit)
+    if args.require_model and not independent:
+        raise RuntimeError("This test split informed model tuning; see evals/model_audit.md and the pending Lane 1 decision")
     agent = ROOT / "agent"
     scorer_paths = list((agent / "core").glob("*.py")) + list((agent / "packs/guard").glob("*.py"))
     result = {"provenance": {
-        "mode": mode, "final_model_run": bool(args.require_model and ready),
+        "mode": mode, "final_model_run": bool(args.require_model and ready and independent),
         "main_commit": git("rev-parse", "origin/main"),
         "evaluation_commit": git("rev-parse", "HEAD"), "dataset_sha256": split["dataset"]["sha256"],
         "split_sha256": file_hash(SPLIT), "train_count": len(split["train"]), "test_count": len(split["test"]),
@@ -332,7 +345,8 @@ def main():
         "history_hashes": hashes((agent / "packs/guard/data/history").glob("*.jsonl")),
         "personas_sha256": file_hash(agent / "packs/guard/data/personas.json"),
         "audit": audit, "fallback_errors": dict(Counter(r["route"]["ml_error"] for r in active + benign_active if r["route"]["ml_error"]))},
-        "model_status": model_status, "brain": summary, "rules": rules,
+        "model_status": model_status, "training_audit": training_audit,
+        "brain": summary, "rules": rules,
         "benign_texts": {"sha256": file_hash(benign_path), "source_commit": benign_commit,
                          "on_main": benign_on_main, "brain": benign_summary(benign_active),
                          "rules": benign_summary(benign_rules)},

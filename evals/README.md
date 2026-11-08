@@ -31,6 +31,9 @@ python3 evals/run.py --require-model
 ```
 
 Only that post-model independent run should supply Devpost/video numbers.
+`model_audit.md` records a discovered test-informed feature/rule revision in PR
+#57. The runner refuses a final independent claim on that affected split until
+Lane 1 resolves the evaluation protocol. Provisional comparisons remain labeled.
 `agent/packs/guard/data/benign_texts.json` adds ten separate evaluation-only
 forwarded-text controls. They never enter the frozen split or training. Their
 scam-text false-positive rate has its own table and denominator. Before the data
