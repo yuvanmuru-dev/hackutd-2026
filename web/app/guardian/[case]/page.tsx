@@ -12,7 +12,7 @@ function CaseFromParams({ params }: { params: Promise<{ case: string }> }) {
 // Not async: params are read under Suspense so the shell prerenders (Cache Components).
 export default function GuardianCasePage({ params }: PageProps<"/guardian/[case]">) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#f5f5f5]" />}>
       <CaseFromParams params={params} />
     </Suspense>
   );

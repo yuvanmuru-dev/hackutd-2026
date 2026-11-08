@@ -1,60 +1,441 @@
-/* Guardian projector screen. Dark, true-neutral, scoped to .guardian (root theme stays light).
-   Same restraint as the portal, set larger for distance: #000 ground, #111 panel with a 1px line,
-   12px radius, one accent (T-Mobile magenta) on the live stage, the risky moment and the verdict rule.
-   No glow, no tinted cards, no entrance animations: things change state in place. */
+/* Guardian projector screen, 1920x1080. LIGHT, T-Mobile: #F5F5F5 ground, white panels, ink #141414,
+   magenta #E20074 as the only accent and only ever on ONE thing (the step happening now).
+   Projector floor: nothing under 20px; body text uses two sizes (22 and 20). One clock (see story.ts).
+   The drawer (D) reuses the agent/verdict/data panels on the same tokens. */
 .guardian {
-  --g-ground: #000000;
-  --g-surface: #111111;
-  --g-surface-2: #1c1c1c;
-  --g-line: #262626;
-  --g-line-strong: #3a3a3a;
-  --g-ink: #f5f5f5;
-  --g-ink-2: #b4b4b4;
-  --g-ink-3: #8f8f8f;
-  /* T-Mobile magenta (D-044): #E20074 for fills and marks, a lifted #FF3D9A for text on dark (#E20074 fails as text). */
+  --g-ground: #f5f5f5;
+  --g-surface: #ffffff;
+  --g-surface-2: #f0f0f0;
+  --g-line: #e6e6e6;
+  --g-line-strong: #c4c4c4;
+  --g-ink: #141414;
+  --g-ink-2: #555555;
+  --g-ink-3: #6e6e6e;
   --g-brand: #e20074;
-  --g-accent: #ff3d9a;
-  --g-positive: #45c47f;
-  --g-notice: #f0b443;
+  --g-accent: #ba0060; /* magenta as text on white (6.4:1) */
+  --g-positive: #1d7a48;
+  --g-notice: #8a4b06;
+  --g-imessage: #0a6cdb; /* iMessage blue, darkened so white text passes at 22px */
+  --g-gray-bubble: #e9e9eb;
 
-  color-scheme: dark;
+  color-scheme: light;
   background: var(--g-ground);
   color: var(--g-ink);
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.4;
   min-height: 100vh;
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- the screen ---------- */
+.g-screen {
+  box-sizing: border-box;
+  height: 100vh;
+  min-height: 720px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  padding: 36px 64px 28px;
+}
+.g-top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 56px;
+}
+.g-rule {
+  width: 1px;
+  height: 32px;
+  background: #d4d4d4;
+}
+.g-meta {
+  font-size: 22px;
+  color: var(--g-ink-2);
+}
+.g-chip {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--g-surface);
+  border: 1px solid #d4d4d4;
+  font-size: 22px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.g-chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--g-ink);
+}
+.g-chip[data-tone="safe"] {
+  color: var(--g-positive);
+}
+.g-chip[data-tone="safe"] .g-chip-dot {
+  background: var(--g-positive);
+}
+
+.g-headline {
+  margin: 0;
+  max-width: 1600px;
+  font-size: clamp(36px, 2.4vw, 46px);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  animation: g-swap 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes g-swap {
+  from {
+    opacity: 0.2;
+  }
+}
+
+.g-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  gap: 48px;
+}
+
+/* the story: four big steps */
+.g-story {
+  margin: 0;
+  padding: 8px 40px;
+  list-style: none;
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 16px;
+  min-height: 0;
+}
+.g-step-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 0;
+  border-bottom: 1px solid var(--g-line);
+}
+.g-step-row:last-child {
+  border-bottom: 0;
+}
+.g-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  font-size: 26px;
+  font-weight: 800;
+  box-sizing: border-box;
+  border: 2px solid #c4c4c4;
+  color: var(--g-ink-3);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+.g-step-row[data-state="done"] .g-num {
+  background: var(--g-ink);
+  border-color: var(--g-ink);
+  color: #ffffff;
+}
+.g-step-row[data-state="now"] .g-num {
+  background: var(--g-brand);
+  border-color: var(--g-brand);
+  color: #ffffff;
+}
+.g-row-title {
+  margin: 0;
+  font-size: clamp(26px, 1.6vw, 30px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.g-row-line {
+  margin: 6px 0 0;
+  font-size: 22px;
+  color: var(--g-ink-2);
+}
+.g-step-row[data-state="now"] .g-row-line {
+  color: var(--g-ink);
+}
+.g-step-row[data-state="next"] .g-row-title,
+.g-step-row[data-state="next"] .g-row-line {
+  color: var(--g-ink-3);
+}
+
+/* the phone: an iMessage thread on Maya's side */
+.g-phone {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 40px;
+  overflow: hidden;
+}
+.g-phone-head {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 0 14px;
+  background: #fafafa;
+  border-bottom: 1px solid #ededed;
+}
+.g-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #e0e0e0;
+  color: var(--g-ink-2);
+  font-size: 20px;
+  font-weight: 700;
+}
+.g-phone-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.g-thread {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 28px 24px;
+  overflow: hidden;
+}
+/* pushes the thread to the bottom like a phone; overflow then shows at the bottom, where useFit can see it */
+.g-thread-spacer {
+  flex: 1 0 0;
+}
+.g-bubble {
+  margin: 0;
+  flex: none;
+  max-width: 82%;
+  padding: 12px 20px;
+  font-size: 22px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.g-bubble[data-from="titan"] {
+  align-self: flex-start;
+  background: var(--g-gray-bubble);
+  border-radius: 24px 24px 24px 8px;
+}
+.g-bubble[data-from="maya"] {
+  align-self: flex-end;
+  background: var(--g-imessage);
+  color: #ffffff;
+  border-radius: 24px 24px 8px 24px;
+}
+.g-sys {
+  flex: none;
+  align-self: center;
+  margin: 6px 0;
+  font-size: 20px;
+  color: var(--g-ink-2);
+  text-align: center;
+}
+.g-delivered {
+  flex: none;
+  align-self: flex-end;
+  margin: -4px 4px 0 0;
+  font-size: 20px;
+  color: var(--g-ink-3);
+}
+.g-typing {
+  display: inline-flex;
+  gap: 8px;
+  padding: 18px 22px;
+}
+.g-typing span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #8a8a8e;
+  animation: g-type 1.2s ease-in-out infinite;
+}
+.g-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.g-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes g-type {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+/* bottom strip: how Titan decided, one line */
+.g-strip {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  min-height: 60px;
+  padding: 6px 12px 6px 28px;
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 12px;
+  font-size: 20px;
+  color: var(--g-ink-2);
+  white-space: nowrap;
+}
+.g-strip-lead {
+  color: var(--g-ink);
+  font-weight: 600;
+}
+.g-decided {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.g-decided li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.g-decided li svg[aria-hidden] {
+  color: var(--g-ink-3);
+  margin-right: 4px;
+}
+.g-strip-push {
+  margin-left: auto;
+}
+.g-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--g-line-strong);
+  border-radius: 8px;
+  background: var(--g-surface);
+  color: var(--g-ink);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.g-key:hover {
+  background: var(--g-surface-2);
+}
+.g-key kbd {
+  font: inherit;
+  padding: 0 8px;
+  border: 1px solid var(--g-line-strong);
+  border-radius: 6px;
+}
+
+/* ---------- the detail drawer (D) ---------- */
+.g-drawer {
+  margin: 0 0 0 auto;
+  width: min(1240px, 100vw);
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--g-line);
+  background: var(--g-ground);
+  color: var(--g-ink);
+  box-shadow: -16px 0 40px rgb(0 0 0 / 0.12);
+  font-size: 20px;
+}
+.g-drawer::backdrop {
+  background: rgb(20 20 20 / 0.35);
+}
+.g-drawer-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  background: var(--g-ground);
+  border-bottom: 1px solid var(--g-line);
+}
+.g-drawer-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+.g-drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 32px 40px;
+}
+.g-drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+/* projector floor inside the drawer too */
+.g-drawer .g-label,
+.g-drawer .g-step-kind,
+.g-drawer .g-pill,
+.g-drawer [class*="text-[17px]"],
+.g-drawer [class*="text-[18px]"] {
+  font-size: 20px;
+}
+.g-drawer .g-step-title {
+  margin: 2px 0 0;
+  font-size: 20px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.g-drawer .g-scroll {
+  max-height: none;
+  overflow: visible;
+}
+
+/* ---------- panels reused by the drawer ---------- */
 .g-panel {
   background: var(--g-surface);
   border: 1px solid var(--g-line);
   border-radius: 12px;
 }
-
 .g-label {
   color: var(--g-ink-3);
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.3;
 }
-
-/* Status beside a value: tone is the text colour only, on one neutral fill. */
 .g-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 28px;
+  min-height: 32px;
   padding: 0 12px;
   border-radius: 999px;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
   background: var(--g-surface-2);
   color: var(--g-ink-2);
-  white-space: nowrap;
-}
-.g-pill[data-tone="live"] {
-  color: var(--g-accent);
 }
 .g-pill[data-tone="positive"] {
   color: var(--g-positive);
@@ -62,143 +443,49 @@
 .g-pill[data-tone="notice"] {
   color: var(--g-notice);
 }
-
-.g-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: currentColor;
-  flex: none;
-}
-
-/* ---- call bar */
-.g-track {
-  position: relative;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--g-surface-2);
-}
-.g-track-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: 999px;
-  background: var(--g-line-strong);
-}
-.g-marker {
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
-  border-radius: 999px;
-  background: var(--g-ink-2);
-  border: 3px solid var(--g-surface);
-}
-.g-marker[data-risky="true"] {
-  background: var(--g-brand);
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border-radius: 3px;
-  transform: rotate(45deg);
-}
-
-/* ---- pipeline */
 .g-stage {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-}
-.g-stage[data-state="idle"] h2 {
-  color: var(--g-ink-2);
-}
-/* The stage working right now: a 2px magenta edge, no tint and no layout shift. */
-.g-stage[data-state="active"] {
-  box-shadow: inset 0 0 0 2px var(--g-brand);
 }
 .g-stage-num {
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 700;
   background: var(--g-surface-2);
   color: var(--g-ink-2);
+}
+.g-stage[data-state="done"] .g-stage-num {
+  background: var(--g-ink);
+  color: #ffffff;
 }
 .g-stage[data-state="active"] .g-stage-num {
   background: var(--g-brand);
   color: #ffffff;
 }
-.g-stage[data-state="done"] .g-stage-num {
-  background: transparent;
-  color: var(--g-positive);
-  box-shadow: inset 0 0 0 2px var(--g-positive);
-}
-
 .g-step-kind {
   color: var(--g-ink-3);
-  font-size: 15px;
   font-weight: 600;
-}
-.g-step[data-type="tool_call"] .g-step-title {
-  font-size: 16px;
-  color: var(--g-ink-2);
-  overflow-wrap: anywhere;
 }
 .g-step[data-type="score"] .g-step-title,
 .g-step[data-type="verify"] .g-step-title {
   font-weight: 700;
 }
-.g-step[data-type="error"] .g-step-title {
-  color: var(--g-ink-2);
-}
-
-/* ---- verdict */
-.g-verdict {
-  transition: opacity 200ms ease;
-}
-.g-verdict[data-revealed="true"] {
-  border-top: 3px solid var(--g-brand);
-}
 .g-verdict-threat {
-  font-size: clamp(28px, 1.8vw, 34px);
-  line-height: 1.1;
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.15;
   font-weight: 700;
-  letter-spacing: -0.01em;
 }
-
-/* ---- conversation: a ledger, not chat bubbles. Who and channel on the left, the words on the right. */
-.g-msg {
-  display: grid;
-  grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
-  gap: 2px 16px;
-  padding: 10px 0;
-  border-top: 1px solid var(--g-line);
-  font-size: 17px;
-  line-height: 1.4;
-}
-.g-msg:first-child {
-  border-top: 0;
-}
-.g-msg-who {
-  color: var(--g-ink-3);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-.g-msg[data-dir="out"] .g-msg-who {
-  color: var(--g-accent);
-}
-
-/* ---- recovery checklist: a bare glyph in the status colour */
 .g-check {
   display: inline-grid;
   place-items: center;
   width: 22px;
   height: 22px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   flex: none;
   color: var(--g-ink-3);
@@ -210,23 +497,17 @@
 .g-check[data-status="awaiting_approval"] {
   color: var(--g-notice);
 }
-
 .g-scroll {
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Edge fade so a cut-off list visibly continues: a projector shows no scrollbar. Function, not decoration. */
-  mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 28px), transparent 100%);
-  padding-block: 16px 28px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--g-line-strong) transparent;
 }
 
-.g-diamond {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin: 0 8px 2px 2px;
-  background: var(--g-brand);
-  border-radius: 2px;
-  transform: rotate(45deg);
+@media (prefers-reduced-motion: reduce) {
+  .g-headline,
+  .g-typing span {
+    animation: none;
+  }
+  .g-num {
+    transition: none;
+  }
 }

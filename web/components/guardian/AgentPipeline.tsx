@@ -32,7 +32,7 @@ function stageState(view: GuardianView, agent: PipelineAgent): StageState {
   return "done";
 }
 
-export function AgentPipeline({ view }: { view: GuardianView }) {
+export function AgentPipeline({ view, all = false }: { view: GuardianView; all?: boolean }) {
   return (
     <section aria-label="Four agents, in order" className="grid min-h-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[minmax(0,1fr)] lg:gap-4">
       {PIPELINE.map((p, i) => {
@@ -57,12 +57,12 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
                 {steps.length === 0 && (
                   <li className="text-[var(--g-ink-3)]">{view.done ? "Not needed for this case" : "Waiting"}</li>
                 )}
-                {steps.length > SHOWN && (
+                {!all && steps.length > SHOWN && (
                   <li className="g-label">
                     {steps.length - SHOWN} earlier {steps.length - SHOWN === 1 ? "step" : "steps"}
                   </li>
                 )}
-                {steps.slice(-SHOWN).map((s) => (
+                {(all ? steps : steps.slice(-SHOWN)).map((s) => (
                   <li key={s.seq} className="g-step" data-type={s.type}>
                     <p className="g-step-title leading-snug">
                       <span className="g-step-kind">{KIND[s.type] ?? s.type} </span>
