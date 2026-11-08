@@ -38,6 +38,9 @@ class Settings:
     magpie_voice: str = ""
     llm_base_url: str = "https://integrate.api.nvidia.com/v1"
     llm_model: str = "nvidia/nemotron-3.5-lightning-30b-a3b"
+    nano_base_url: str = ""
+    nano_model: str = ""
+    nano_key: str = ""
     guard_model: str = "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
     voice_transport: str = "livekit"
     conversation_enabled: bool = False
@@ -79,6 +82,9 @@ class Settings:
             magpie_voice=os.getenv("MAGPIE_VOICE_ID", ""),
             llm_base_url=os.getenv("VOICE_LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/"),
             llm_model=os.getenv("NEMOTRON_VOICE_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
+            nano_base_url=os.getenv("NEMOTRON_NANO_BASE_URL", "").rstrip("/"),
+            nano_model=os.getenv("NEMOTRON_NANO_SELF_MODEL", ""),
+            nano_key=os.getenv("NEMOTRON_NANO_SELF_KEY", ""),
             guard_model=os.getenv("VOICE_GUARD_MODEL", "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"),
             voice_transport=os.getenv("VOICE_TRANSPORT", "livekit"),
             conversation_enabled=enabled("VOICE_CONVERSATION_ENABLED"),

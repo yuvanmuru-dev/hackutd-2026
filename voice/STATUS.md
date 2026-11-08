@@ -250,3 +250,14 @@ Cleanup diagnostic: after the watchdog's intentional room deletion, the provider
 
 
 User report for case_17941239680007: the phone rang and Titan was audible; the first YES was acknowledged with an appropriate response, and the call cut off after the second YES. This confirms live speech output and the disclosure exchange. The call was deliberately capped by the test watchdog, so the cutoff must not be reported as a recurrence of the earlier SIP 403. The case audit still records zero voice-approved recovery actions. No additional call is authorized or queued.
+
+
+## D-063 contextual Nemotron conversation (no local voice service)
+
+Implemented on current main after merged #71/#70. Each non-fast-path turn supplies verified facts, the pending action label, up to eight redacted user/assistant messages (four exchanges), and current words to Nemotron. Strict JSON intents yes/no/unclear/question/end/secret; bounded one/two-sentence reply. Brev nano-role env settings supported with hosted Lightning fallback, thinking disabled, JSON response format and bounded timeouts. Hosted key is not sent to custom primary endpoints.
+
+Natural agreement may decide only the fully heard current safer recovery step. Exact YES/NO remains a fast path. Completed-action exclusion and explicit brain decision endpoint remain; looser/unsupported action kinds cannot be approved. Questions get model prose plus a fixed current-step question; unclear gets one confirmation. Generated prose passes speech_policy, the existing Safety Guard moderation protocol, and a separate Nemotron grounding check. Model/guard failures fall back to guarded templates; if templates cannot be moderated either, fail closed. Model yes/no acknowledgement text is discarded; only the guarded actual brain-result acknowledgement is spoken.
+
+Hosted synthetic validation exposed malformed unquoted JSON and rejection caused by extending Safety Guard's JSON protocol. Fixed using valid JSON examples plus response_format=json_object and keeping moderation's protocol unchanged; grounding is a separate bounded Nemotron check. Hosted synthetic identity reply passed JSON/moderation/grounding; a fixture-only conversation with actual hosted Nemotron and Safety Guard interpreted 'yeah sure' and invoked exactly one mocked decision. No real brain/account action, voice service or phone call was used. Brev network availability is not verified locally; fallback routing is covered offline. Actual phone latency/approval awaits Yuvan's single coordinated test. Local validation finished around 08:35 America/Chicago, before the 09:30 target. An earlier commentary incorrectly converted UTC; corrected before handoff. Do not request an extra test if the one call has already been used.
+
+Final D-063 local checks: 75 voice tests passed (one upstream warning, 23.98s); approval-boundary PASS transcript/customer.reply; contracts PASS 57 fixtures/events valid; staged Gitleaks scan no leaks found.
