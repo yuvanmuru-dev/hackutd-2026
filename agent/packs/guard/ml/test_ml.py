@@ -47,6 +47,20 @@ def main() -> None:
     ev, hist = trigger_and_history(hn)
     check("hard negative: long call with daughter", score(hn["user_id"], ev, hist), "legit")
 
+    # reasons must be true for the case: T1 names the new device, the hard negative never claims one
+    t1 = score("usr_maya", swap, [login, swap])
+    feats = [r["feature"] for r in t1["top_reasons"]]
+    assert "new_device" in feats or "region_mismatch" in feats, t1
+    hn_out = score(hn["user_id"], *trigger_and_history(hn))
+    assert all(r["feature"] not in ("new_device", "region_mismatch") or r["contribution"] <= 0 or hn_out["threat"] == "legit"
+               for r in hn_out["top_reasons"]), hn_out
+    if (AGENT / "packs/guard/ml/models/risk.json").exists():
+        assert t1["model"] == "ml+rules", t1
+        print(f"  ok model: ml+rules, calibrated={t1['calibrated']}, T1 reasons {[r['text'] for r in t1['top_reasons']]}")
+        t2_out = score(t2["user_id"], *trigger_and_history(t2))
+        print(f"  ok T2 reasons {[r['text'] for r in t2_out['top_reasons']]}")
+        print(f"  ok hard negative reasons {[r['text'] for r in hn_out['top_reasons']]}")
+
     # history without the trigger, and out of order, must give the same answer
     ev, hist = trigger_and_history(t2)
     a = score(t2["user_id"], ev, list(reversed([e for e in hist if e["event_id"] != ev["event_id"]])))
