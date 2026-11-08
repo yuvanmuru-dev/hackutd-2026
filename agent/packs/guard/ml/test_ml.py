@@ -41,6 +41,8 @@ def main() -> None:
     check("T3 scam text via score()", score("usr_maya", t3, [t3]), "scam_text", 0.9)
     check("T3 scam text via score_text()", score_text(t3["data"]["text"]), "scam_text", 0.9)
     check("plain text", score_text("Dinner at 7? Love, Mom"), "legit")
+    check("code request, no link", score_text("Account support: reply with the one-time login code we just sent."), "scam_text", 0.8)
+    check("legit code mention", score_text("The garage code is 4471, see you Sunday"), "legit")
     check("empty text (screenshot only)", score_text(""), "legit")
 
     hn = fixture("scenario.hard_negative_daughter.json")
