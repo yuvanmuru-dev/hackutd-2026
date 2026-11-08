@@ -1,0 +1,80 @@
+{
+  "scenario_id": "scn_gen_0208",
+  "user_id": "usr_dev",
+  "label": "bot",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0208_05",
+  "events": [
+    {
+      "event_id": "evt_gen_0208_01",
+      "user_id": "usr_dev",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:09:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0208_02",
+      "user_id": "usr_dev",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:10:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0208_03",
+      "user_id": "usr_dev",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:11:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0208_04",
+      "user_id": "usr_dev",
+      "type": "pin.attempt",
+      "ts": "2026-11-07T22:12:00Z",
+      "source": "generator",
+      "data": {
+        "ok": false,
+        "channel": "portal"
+      }
+    },
+    {
+      "event_id": "evt_gen_0208_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T22:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0208_05",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T22:14:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_bot_device_gen_0208",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": false
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261315,
+    "variant": "pin_guess_burst"
+  }
+}

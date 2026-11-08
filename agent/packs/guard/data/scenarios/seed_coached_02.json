@@ -1,0 +1,102 @@
+{
+  "scenario_id": "scn_seed_coached_02",
+  "user_id": "usr_dev",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_coached_02_05",
+  "events": [
+    {
+      "event_id": "evt_seed_coached_02_01",
+      "user_id": "usr_dev",
+      "type": "call.started",
+      "ts": "2026-11-07T16:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_seed_coached_02",
+        "caller_name": "T-Mobile Care",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
+      "event_id": "evt_seed_coached_02_02",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T16:16:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_dev_phone",
+        "region": "Austin, TX",
+        "new_device": false,
+        "succeeded": true
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
+      "event_id": "evt_seed_coached_02_03",
+      "user_id": "usr_dev",
+      "type": "portal.signals",
+      "ts": "2026-11-07T16:17:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_seed_coached_02",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/port-out"
+        ],
+        "ms_per_step": [
+          6800,
+          25000,
+          10500
+        ],
+        "hesitation_ms": 25000,
+        "paste_into_pin": false,
+        "tab_switches": 2,
+        "pointer_speed": 0.44999999999999996,
+        "typing_rhythm_distance": 0.88
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
+      "event_id": "evt_seed_coached_02_04",
+      "user_id": "usr_dev",
+      "type": "protection.changed",
+      "ts": "2026-11-07T16:19:00Z",
+      "source": "generator",
+      "data": {
+        "name": "port_out_protection",
+        "enabled": false,
+        "via": "portal"
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
+      "event_id": "evt_seed_coached_02_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:20:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_seed_coached_02"
+    },
+    {
+      "event_id": "evt_seed_coached_02_05",
+      "user_id": "usr_dev",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T16:21:00Z",
+      "source": "generator",
+      "data": {},
+      "call_id": "call_seed_coached_02"
+    }
+  ],
+  "generator": {
+    "seed": 20261109,
+    "variant": "fake_support_port_out"
+  }
+}

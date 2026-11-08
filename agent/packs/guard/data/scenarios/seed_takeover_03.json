@@ -1,0 +1,72 @@
+{
+  "scenario_id": "scn_seed_takeover_03",
+  "user_id": "usr_priya",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_takeover_03_03",
+  "events": [
+    {
+      "event_id": "evt_seed_takeover_03_01",
+      "user_id": "usr_priya",
+      "type": "login",
+      "ts": "2026-11-07T15:00:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_takeover_device_03",
+        "region": "Denver, CO",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_seed_takeover_03_02",
+      "user_id": "usr_priya",
+      "type": "portal.signals",
+      "ts": "2026-11-07T15:01:00Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_takeover_03",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/security/sim"
+        ],
+        "ms_per_step": [
+          1100,
+          900,
+          800
+        ],
+        "hesitation_ms": 250,
+        "paste_into_pin": false,
+        "tab_switches": 0,
+        "pointer_speed": 0.85,
+        "typing_rhythm_distance": 1.6
+      }
+    },
+    {
+      "event_id": "evt_seed_takeover_03_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T15:01:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      }
+    },
+    {
+      "event_id": "evt_seed_takeover_03_03",
+      "user_id": "usr_priya",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T15:02:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_takeover_device_03",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 1103,
+    "variant": "remote_sim_swap_after_portal_path"
+  }
+}

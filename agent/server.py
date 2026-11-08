@@ -42,8 +42,8 @@ TOOLS = [  # what the Context/Risk agents can call (Lane 2a/2b implement; names 
 
 def _start(case_id: str, trigger: str):
     case = store.cases[case_id]
-    if trigger == "heads_up":
-        mock_runs.heads_up(store, case)
+    if trigger in ("heads_up", "repeat_heads_up"):
+        mock_runs.heads_up(store, case, repeat=trigger == "repeat_heads_up")
         return
     if MOCK:
         task = asyncio.create_task(mock_runs.replay(store, case, trigger))
@@ -263,7 +263,8 @@ async def reset():
 
 @app.post("/demo/play/{scenario}")
 async def play(scenario: str):
-    """Inject a scenario's events with real timing compressed. t2 = coached victim, t1 = takeover, t3 = scam text."""
+    """Inject a scenario's events with real timing compressed. t2 = coached victim, t1 = takeover, t3 = scam text,
+    t5 = the number reported in t2 calls back (run t2 first and approve 'report the number')."""
     uid = "usr_maya"
 
     def ev(typ, data, source="console"):
@@ -275,12 +276,18 @@ async def play(scenario: str):
                    ev("call.started", {"direction": "in", "other_number_hash": "h_8f2c19", "caller_name": "T-Mobile Support",
                                        "attestation": "C", "seen_before": False, "scam_label": False}, "voice"),
                    ev("login", {"device_hash": "h_maya_laptop", "region": "Dallas, TX", "new_device": False, "succeeded": True}, "portal"),
+                   ev("portal.signals", {"session_id": "ses_demo_t2", "page_path": ["/portal", "/portal/security", "/portal/security/port-out"],
+                                         "ms_per_step": [6200, 41000, 9800], "hesitation_ms": 41000, "paste_into_pin": False,
+                                         "tab_switches": 3, "pointer_speed": 0.42, "typing_rhythm_distance": None}, "portal"),
                    ev("protection.changed", {"name": "port_out_protection", "enabled": False, "via": "portal"}, "portal"),
                    ev("transfer_pin.requested", {}, "portal")]
         elif scenario == "t1":
             seq = [ev("line.region", {"region": "Dallas, TX"}, "voice"),
                    ev("login", {"device_hash": "h_unknown_win11", "region": "Lagos, NG", "new_device": True, "succeeded": True}, "portal"),
                    ev("sim_swap.requested", {"new_device_hash": "h_unknown_esim", "channel": "portal"}, "portal")]
+        elif scenario == "t5":  # the reported number calls back ("we can recover your money")
+            seq = [ev("call.started", {"direction": "in", "other_number_hash": "h_8f2c19", "caller_name": "Fraud Recovery Dept",
+                                       "attestation": "C", "seen_before": True, "scam_label": False}, "voice")]
         elif scenario == "t3":
             seq = [ev("message.forwarded", {"channel": "imessage", "text": "T-Mobile: your account is locked. Verify now at t-mobile-secure-help.co", "from_hash": "h_31aa02"}, "messaging")]
         else:
@@ -292,8 +299,8 @@ async def play(scenario: str):
                 _start(out["case_id"], out["trigger"])
             await asyncio.sleep(1.0)
 
-    if scenario not in ("t1", "t2", "t3"):
-        raise HTTPException(404, {"error": "scenario must be t1, t2 or t3"})
+    if scenario not in ("t1", "t2", "t3", "t5"):
+        raise HTTPException(404, {"error": "scenario must be t1, t2, t3 or t5"})
     task = asyncio.create_task(run())
     _tasks.add(task)
     task.add_done_callback(_tasks.discard)

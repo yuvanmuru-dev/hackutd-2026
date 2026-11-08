@@ -1,0 +1,345 @@
+{
+  "description": "Labeled synthetic registration data for demo scam domains only; no live RDAP or URLhaus claim.",
+  "entries": [
+    {
+      "domain": "mytmobile-help.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#mytmobile-help.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0142.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0142.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0145.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0145.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0146.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0146.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0148.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0148.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0149.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0149.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0153.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0153.example"
+      }
+    },
+    {
+      "domain": "t-mobile-billing-0155.example",
+      "registered_days_ago": 4,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-billing-0155.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0141.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0141.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0144.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0144.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0150.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0150.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0151.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0151.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0152.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0152.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0154.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0154.example"
+      }
+    },
+    {
+      "domain": "t-mobile-help-0159.example",
+      "registered_days_ago": 2,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-help-0159.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0231.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0231.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0232.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0232.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0233.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0233.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0234.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0234.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0235.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0235.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0236.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0236.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0237.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0237.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0238.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0238.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0239.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0239.example"
+      }
+    },
+    {
+      "domain": "t-mobile-recovery-0240.example",
+      "registered_days_ago": 5,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-recovery-0240.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0143.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0143.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0147.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0147.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0156.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0156.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0157.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0157.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0158.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0158.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-0160.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-0160.example"
+      }
+    },
+    {
+      "domain": "t-mobile-secure-help.co",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure-help.co"
+      }
+    },
+    {
+      "domain": "t-mobile-secure.example",
+      "registered_days_ago": 3,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#t-mobile-secure.example"
+      }
+    },
+    {
+      "domain": "tmobile-transfer.example",
+      "registered_days_ago": 6,
+      "registrar": "Titan Synthetic Registrar",
+      "lookalike_of": "t-mobile.com",
+      "source": {
+        "name": "Synthetic demo registry (simulated RDAP)",
+        "record": "packs/guard/data/synthetic_registry.json#tmobile-transfer.example"
+      }
+    }
+  ]
+}

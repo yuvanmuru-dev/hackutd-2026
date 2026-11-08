@@ -1,0 +1,36 @@
+{
+  "scenario_id": "scn_gen_0280",
+  "user_id": "usr_elena",
+  "label": "legit",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0280_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0280_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T22:22:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0280_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T22:23:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_elena_phone",
+        "region": "San Antonio, TX",
+        "new_device": false,
+        "succeeded": true
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261387,
+    "variant": "routine_account_visit"
+  }
+}

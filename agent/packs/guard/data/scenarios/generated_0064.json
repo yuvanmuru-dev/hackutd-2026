@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0064",
+  "user_id": "usr_maya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0064_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0064_01",
+      "user_id": "usr_maya",
+      "type": "call.started",
+      "ts": "2026-11-07T22:25:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0064",
+        "caller_name": "T-Mobile Support",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0064"
+    },
+    {
+      "event_id": "evt_gen_0064_line_region",
+      "user_id": "usr_maya",
+      "type": "line.region",
+      "ts": "2026-11-07T22:34:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0064"
+    },
+    {
+      "event_id": "evt_gen_0064_02",
+      "user_id": "usr_maya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T22:35:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0064"
+    },
+    {
+      "event_id": "evt_gen_0064_03",
+      "user_id": "usr_maya",
+      "type": "login",
+      "ts": "2026-11-07T22:43:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0064",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0064"
+    }
+  ],
+  "generator": {
+    "seed": 20261171,
+    "variant": "code_relay"
+  }
+}

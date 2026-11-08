@@ -1,0 +1,59 @@
+{
+  "scenario_id": "scn_gen_0038",
+  "user_id": "usr_elena",
+  "label": "takeover",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0038_03",
+  "events": [
+    {
+      "event_id": "evt_gen_0038_01",
+      "user_id": "usr_elena",
+      "type": "login",
+      "ts": "2026-11-07T16:09:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_new_device_gen_0038",
+        "region": "Seattle, WA",
+        "new_device": true,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0038_02",
+      "user_id": "usr_elena",
+      "type": "protection.changed",
+      "ts": "2026-11-07T16:10:00Z",
+      "source": "generator",
+      "data": {
+        "name": "sim_protection",
+        "enabled": false,
+        "via": "app"
+      }
+    },
+    {
+      "event_id": "evt_gen_0038_line_region",
+      "user_id": "usr_elena",
+      "type": "line.region",
+      "ts": "2026-11-07T16:11:59Z",
+      "source": "generator",
+      "data": {
+        "region": "San Antonio, TX"
+      }
+    },
+    {
+      "event_id": "evt_gen_0038_03",
+      "user_id": "usr_elena",
+      "type": "sim_swap.requested",
+      "ts": "2026-11-07T16:12:00Z",
+      "source": "generator",
+      "data": {
+        "new_device_hash": "h_new_device_gen_0038",
+        "channel": "portal"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261145,
+    "variant": "protection_off_swap"
+  }
+}

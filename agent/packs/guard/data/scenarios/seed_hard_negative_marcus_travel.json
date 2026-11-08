@@ -1,0 +1,69 @@
+{
+  "scenario_id": "scn_seed_hn_marcus_travel",
+  "user_id": "usr_marcus",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_seed_hn_marcus_03",
+  "events": [
+    {
+      "event_id": "evt_seed_hn_marcus_01",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-11-07T18:12:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_marcus_phone",
+        "region": "Seattle, WA",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_marcus_02",
+      "user_id": "usr_marcus",
+      "type": "portal.signals",
+      "ts": "2026-11-07T18:13:15Z",
+      "source": "generator",
+      "data": {
+        "session_id": "ses_seed_hn_marcus",
+        "page_path": [
+          "/portal",
+          "/portal/security",
+          "/portal/transfer-pin"
+        ],
+        "ms_per_step": [
+          4600,
+          5100,
+          7200
+        ],
+        "hesitation_ms": 2400,
+        "paste_into_pin": false,
+        "tab_switches": 0,
+        "pointer_speed": 0.53,
+        "typing_rhythm_distance": 0.19
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_marcus_travel_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T18:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Seattle, WA"
+      }
+    },
+    {
+      "event_id": "evt_seed_hn_marcus_03",
+      "user_id": "usr_marcus",
+      "type": "transfer_pin.requested",
+      "ts": "2026-11-07T18:14:00Z",
+      "source": "generator",
+      "data": {}
+    }
+  ],
+  "generator": {
+    "seed": 3401,
+    "variant": "marcus_usual_device_new_state"
+  }
+}

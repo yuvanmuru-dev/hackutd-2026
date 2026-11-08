@@ -1,0 +1,51 @@
+{
+  "scenario_id": "scn_seed_code_relay_03",
+  "user_id": "usr_priya",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_seed_code_relay_03_02",
+  "events": [
+    {
+      "event_id": "evt_seed_code_relay_03_01",
+      "user_id": "usr_priya",
+      "type": "call.started",
+      "ts": "2026-11-07T20:00:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_relay_caller_03",
+        "caller_name": "T-Mobile Security",
+        "attestation": "none",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_seed_code_relay_03"
+    },
+    {
+      "event_id": "evt_seed_code_relay_03_line_region",
+      "user_id": "usr_priya",
+      "type": "line.region",
+      "ts": "2026-11-07T20:09:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Houston, TX"
+      },
+      "call_id": "call_seed_code_relay_03"
+    },
+    {
+      "event_id": "evt_seed_code_relay_03_02",
+      "user_id": "usr_priya",
+      "type": "otp.sent",
+      "ts": "2026-11-07T20:10:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_seed_code_relay_03"
+    }
+  ],
+  "generator": {
+    "seed": 1203,
+    "variant": "code_relay"
+  }
+}

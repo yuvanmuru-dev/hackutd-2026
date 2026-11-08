@@ -9,8 +9,8 @@ import os
 import time
 
 os.environ.update(MOCK="0", REPLY_TIMEOUT_S="0.3", RECOVERY_TIMEOUT_S="5", NVIDIA_API_KEY="test", SAFETY_MODEL="")
-os.environ.pop("MESSAGING_URL", None)
-os.environ.pop("VOICE_URL", None)
+# Set (not pop): load_dotenv() never overrides an existing variable, so agent/.env can't re-enable real sends.
+os.environ.update(MESSAGING_URL="", VOICE_URL="", SAFETY_MODEL="", URLHAUS_AUTH_KEY="")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -36,6 +36,8 @@ class FakeNemotron:
         self.calls.append(model)
         if self.fail:
             raise RuntimeError("model down")
+        if isinstance(user, list):  # Nemotron VL reading a screenshot
+            return type("R", (), {"choices": [_Msg("T-Mobile: your account is locked. Verify now at t-mobile-secure-help.co")]})()
         if "Decide which tools to call" in sys_prompt:
             out = {"plan": "Check the call, protections and account history", "tools": ["call_context", "policy_lookup", "not_a_tool"]}
         elif "Turn tool results into short facts" in sys_prompt:
@@ -104,8 +106,10 @@ with TestClient(server.app) as c:
     score_step = next(s for s in d["steps"] if s["type"] == "score")
     assert score_step["data"]["decision"] == "hold_and_alert", score_step   # rules floor beat the lenient model
     assert d["verification"]["claims_dropped"] >= 1, d["verification"]      # "$5,000 from bank_records" dropped
-    assert any(s["type"] == "error" and "link" in s["title"] for s in d["steps"]), "guard should block the link"
-    assert all("http" not in m["text"] for m in d["messages"]), "no link may reach the customer"
+    import re as _re
+    tappable = _re.compile(r"https?://|www\.|\b[a-z0-9-]+\.(com|net|org|co|io)\b", _re.I)
+    assert all(not tappable.search(m["text"]) for m in d["messages"] if m["direction"] == "out"), \
+        [m["text"] for m in d["messages"] if m["direction"] == "out" and tappable.search(m["text"])]   # links defanged (D-012)
     kinds = {a["kind"]: a["status"] for a in d["actions"]}
     assert kinds.get("relock") == "applied" and kinds.get("hold_transfer_pin") == "applied", kinds
     st = c.get("/protections/usr_maya").json()
@@ -118,6 +122,22 @@ with TestClient(server.app) as c:
                                                          "text": "I told him my PIN.", "agent": "voice"}).json())
     pending = [a for a in c.get(f"/cases/{cid}").json()["actions"] if a["status"] == "awaiting_approval"]
     assert len(pending) >= 3, pending
+    # the brain texts recovery questions one at a time (D-042); a YES by text approves the step it asked about
+    steps_sent = [o["payload"] for o in c.get("/demo/outbox").json() if o["kind"] == "send" and o["payload"]["kind"] == "recovery_step"]
+    assert len(steps_sent) == 1 and steps_sent[0]["action_id"] == pending[0]["action_id"], steps_sent
+    ev = {"event_id": f"evt_{time.time_ns()}", "user_id": "usr_maya", "type": "customer.reply", "ts": "2026-11-07T21:00:00Z",
+          "source": "messaging", "call_id": None, "data": {"channel": "imessage", "text": "YES", "case_id": cid}}
+    assert c.post("/events", json=ev).json()["accepted"]
+    for _ in range(100):
+        acts = {a["action_id"]: a for a in c.get(f"/cases/{cid}").json()["actions"]}
+        if acts[pending[0]["action_id"]]["status"] == "applied":
+            break
+        time.sleep(0.05)
+    assert acts[pending[0]["action_id"]]["status"] == "applied" and acts[pending[0]["action_id"]]["approved_via"] == "sms"
+    time.sleep(0.2)
+    steps_sent = [o["payload"] for o in c.get("/demo/outbox").json() if o["kind"] == "send" and o["payload"]["kind"] == "recovery_step"]
+    assert len(steps_sent) == 2 and steps_sent[1]["action_id"] == pending[1]["action_id"], steps_sent
+    pending = pending[1:]
     for a in pending[:-1]:
         ok("Action", c.post(f"/actions/{a['action_id']}/approve", json={"via": "voice"}).json())
     c.post(f"/actions/{pending[-1]['action_id']}/reject", json={"via": "voice"})
@@ -137,7 +157,20 @@ with TestClient(server.app) as c:
     t3 = next(x for x in c.get("/cases").json() if x["title"].startswith("Forwarded"))
     d3 = ok("CaseDetail", wait_status(c, t3["case_id"], {"watching"}))
     assert d3["threat"] == "scam_text" and any(m["direction"] == "out" for m in d3["messages"])
-    assert all("http" not in m["text"] and ".co" not in m["text"] for m in d3["messages"] if m["direction"] == "out")
+    outs = [m["text"] for m in d3["messages"] if m["direction"] == "out"]
+    assert all(not tappable.search(t) for t in outs), outs
+    assert any("[.]" in t for t in outs), outs   # the scam domain is named, safely
+
+    # ---- screenshot forwarded: Nemotron VL reads it, then the scam-text check runs on the text (D-047)
+    c.post("/demo/reset")
+    shot = {"event_id": f"evt_{time.time_ns()}", "user_id": "usr_maya", "type": "message.forwarded", "ts": "2026-11-07T21:00:00Z",
+            "source": "messaging", "call_id": None, "data": {"channel": "imessage", "image_url": "data:image/png;base64,iVBORw0KGgo="}}
+    cid_s = c.post("/events", json=shot).json()["case_id"]
+    ds = ok("CaseDetail", wait_status(c, cid_s, {"watching"}))
+    assert any(st["title"].startswith("Read from screenshot") for st in ds["steps"]), [st["title"] for st in ds["steps"]]
+    assert ds["threat"] == "scam_text" and any("[.]" in m["text"] for m in ds["messages"] if m["direction"] == "out")
+    assert any("Nemotron VL" in x for x in ds["data_used"])
+    assert any("vl" in m for m in fake.calls), fake.calls
 
     # ---- resilience: every model call fails -> deterministic fallbacks, run still completes
     llm.set_client(FakeNemotron(fail=True))

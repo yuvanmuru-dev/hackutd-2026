@@ -1,0 +1,48 @@
+{
+  "scenario_id": "scn_gen_0244",
+  "user_id": "usr_marcus",
+  "label": "legit",
+  "hard_negative": true,
+  "trigger_event_id": "evt_gen_0244_01",
+  "events": [
+    {
+      "event_id": "evt_gen_0244_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T22:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Phoenix, AZ"
+      }
+    },
+    {
+      "event_id": "evt_gen_0244_01",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-11-07T22:14:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_marcus_phone",
+        "region": "Phoenix, AZ",
+        "new_device": false,
+        "succeeded": true
+      }
+    },
+    {
+      "event_id": "evt_gen_0244_02",
+      "user_id": "usr_marcus",
+      "type": "protection.changed",
+      "ts": "2026-11-07T22:19:00Z",
+      "source": "generator",
+      "data": {
+        "name": "scam_block",
+        "enabled": true,
+        "via": "app"
+      }
+    }
+  ],
+  "generator": {
+    "seed": 20261351,
+    "variant": "travel_login"
+  }
+}

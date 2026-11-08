@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0070",
+  "user_id": "usr_marcus",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0070_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0070_01",
+      "user_id": "usr_marcus",
+      "type": "call.started",
+      "ts": "2026-11-07T16:30:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0070",
+        "caller_name": "T-Mobile Account Care",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0070"
+    },
+    {
+      "event_id": "evt_gen_0070_line_region",
+      "user_id": "usr_marcus",
+      "type": "line.region",
+      "ts": "2026-11-07T16:39:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Dallas, TX"
+      },
+      "call_id": "call_gen_0070"
+    },
+    {
+      "event_id": "evt_gen_0070_02",
+      "user_id": "usr_marcus",
+      "type": "otp.sent",
+      "ts": "2026-11-07T16:40:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0070"
+    },
+    {
+      "event_id": "evt_gen_0070_03",
+      "user_id": "usr_marcus",
+      "type": "login",
+      "ts": "2026-11-07T16:48:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0070",
+        "region": "Boston, MA",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0070"
+    }
+  ],
+  "generator": {
+    "seed": 20261177,
+    "variant": "code_relay"
+  }
+}

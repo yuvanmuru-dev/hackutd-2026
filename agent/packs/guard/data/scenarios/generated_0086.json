@@ -1,0 +1,65 @@
+{
+  "scenario_id": "scn_gen_0086",
+  "user_id": "usr_dev",
+  "label": "coached",
+  "hard_negative": false,
+  "trigger_event_id": "evt_gen_0086_02",
+  "events": [
+    {
+      "event_id": "evt_gen_0086_01",
+      "user_id": "usr_dev",
+      "type": "call.started",
+      "ts": "2026-11-07T16:09:00Z",
+      "source": "generator",
+      "data": {
+        "direction": "in",
+        "other_number_hash": "h_caller_gen_0086",
+        "caller_name": "T-Mobile Support",
+        "attestation": "B",
+        "seen_before": false,
+        "scam_label": false
+      },
+      "call_id": "call_gen_0086"
+    },
+    {
+      "event_id": "evt_gen_0086_line_region",
+      "user_id": "usr_dev",
+      "type": "line.region",
+      "ts": "2026-11-07T16:13:59Z",
+      "source": "generator",
+      "data": {
+        "region": "Austin, TX"
+      },
+      "call_id": "call_gen_0086"
+    },
+    {
+      "event_id": "evt_gen_0086_02",
+      "user_id": "usr_dev",
+      "type": "otp.sent",
+      "ts": "2026-11-07T16:14:00Z",
+      "source": "generator",
+      "data": {
+        "purpose": "login"
+      },
+      "call_id": "call_gen_0086"
+    },
+    {
+      "event_id": "evt_gen_0086_03",
+      "user_id": "usr_dev",
+      "type": "login",
+      "ts": "2026-11-07T16:27:00Z",
+      "source": "generator",
+      "data": {
+        "device_hash": "h_relay_device_gen_0086",
+        "region": "Miami, FL",
+        "new_device": true,
+        "succeeded": true
+      },
+      "call_id": "call_gen_0086"
+    }
+  ],
+  "generator": {
+    "seed": 20261193,
+    "variant": "code_relay"
+  }
+}
