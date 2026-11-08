@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import "@/components/guardian/guardian.css";
 import { GuardianScreen } from "@/components/guardian/GuardianScreen";
-import { TGlyph } from "@/components/TGlyph";
+import { GuardianMark } from "@/components/guardian/GuardianMark";
 import { getCases } from "@/lib/api/client";
 
 type State = "looking" | "none" | "down";
@@ -32,7 +32,7 @@ export default function GuardianIndex() {
 
   return (
     <main className="guardian flex flex-col items-center justify-center gap-6 p-8 text-center">
-      <TGlyph size={64} tone="accent" title="Titan" />
+      <GuardianMark size={56} />
       <h1 className="text-balance text-[36px] font-semibold tracking-tight">
         {state === "looking" ? "Finding the latest case…" : "Waiting for a case"}
       </h1>

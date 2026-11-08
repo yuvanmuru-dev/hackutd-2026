@@ -1,4 +1,4 @@
-import { TGlyph } from "@/components/TGlyph";
+import { GuardianMark } from "./GuardianMark";
 import type { Contract as C } from "@/lib/api/client";
 import type { GuardianView } from "./derive";
 
@@ -23,10 +23,7 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
   const name = detail?.user.name ?? "Maya";
   return (
     <header className="flex flex-wrap items-center gap-x-6 gap-y-3">
-      <div className="flex items-center gap-3">
-        <TGlyph size={40} tone="accent" title="Titan" />
-        <span className="hidden text-[22px] font-semibold tracking-tight sm:inline">Titan Guardian</span>
-      </div>
+      <GuardianMark size={36} />
       <div className="hidden h-8 w-px bg-[var(--g-line)] lg:block" aria-hidden />
       <div className="min-w-[min(100%,420px)] flex-1">
         <h1 className="line-clamp-2 text-balance text-[20px] font-semibold leading-tight tracking-tight sm:text-[28px]">
