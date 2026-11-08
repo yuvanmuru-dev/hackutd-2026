@@ -19,7 +19,7 @@ import {
   type Contract as C,
   type ProtectionName,
 } from "@/lib/api/client";
-import { consentGiven, resetFlow, setConsent, snapshot } from "@/lib/behavior/session";
+import { consentGiven, notePaused, resetFlow, setConsent, snapshot } from "@/lib/behavior/session";
 import { useBehavior } from "@/lib/behavior/useBehavior";
 import { FaceCheck } from "@/components/portal/face/FaceCheck";
 import { FaceConfirm } from "@/components/portal/face/FaceConfirm";
@@ -85,7 +85,7 @@ export default function SecurityPage() {
   const finishFlow = useCallback(() => {
     if (!consent) return;
     const data = snapshot();
-    resetFlow("/portal/security");
+    resetFlow("/portal/security", true); // learns her typing baseline only if no pause screen or hold was shown
     postEvent({ event_id: newEventId(), user_id: MAYA, type: "portal.signals", ts: nowIso(), source: "portal", call_id: null, data }).catch(
       () => {},
     );
@@ -183,7 +183,10 @@ export default function SecurityPage() {
     try {
       const r = await requestTransferPin();
       setState(r.protections);
-      if (r.check.decision === "hold") setHeld({ until: r.check.hold_until ?? null });
+      if (r.check.decision === "hold") {
+        notePaused();
+        setHeld({ until: r.check.hold_until ?? null });
+      }
       finishFlow();
     } catch {
       setDown(true);
@@ -191,6 +194,11 @@ export default function SecurityPage() {
       setBusy(null);
     }
   }
+
+  // A pause screen in this flow: don’t learn her typing baseline from it.
+  useEffect(() => {
+    if (consent && overlay?.kind === "pause") notePaused();
+  }, [consent, overlay?.kind]);
 
   const shield = !!state?.shield_mode;
 

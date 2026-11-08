@@ -242,6 +242,11 @@ def portal_signals(store, user_id: str, session_id: str | None = None, **_) -> d
     summary = (f"{round(data['hesitation_ms'] / 1000)} s hesitation"
                f" · {data['tab_switches']} tab switch(es)"
                f" · paste into PIN: {'yes' if data['paste_into_pin'] else 'no'}")
+    # Typing rhythm vs her on-device baseline (timing only, D-006). Evidence for agents and dashboards;
+    # risk scoring (rules_score, frozen ML pack D-053) never reads it.
+    rhythm = data.get("typing_rhythm_distance")
+    if isinstance(rhythm, (int, float)) and not isinstance(rhythm, bool) and rhythm >= 0:
+        summary += " · typing matches her usual rhythm" if rhythm < 1 else f" · typing rhythm {rhythm:.1f}× off her usual"
     return _answer(summary, data, "Portal behavior (derived numbers)", f"events/{event['event_id']}")
 
 
