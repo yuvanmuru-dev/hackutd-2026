@@ -134,7 +134,27 @@ class Run:
         return msg
 
     # ------------------------------------------------------------------ stages
+    async def read_screenshot(self):
+        """A forwarded screenshot (image_url, no text): Nemotron VL reads it; the text then goes through check_message."""
+        d = self.trigger.get("data", {})
+        if self.threat != "scam_text" or not d.get("image_url") or d.get("text"):
+            return
+        self.step("context", "context", "tool_call", "read_screenshot (Nemotron VL)", {"tool": "read_screenshot"})
+        try:
+            text, model = await self.call(agents.read_screenshot, d["image_url"])
+        except Exception as e:  # noqa: BLE001
+            text, model = "", None
+            self.step("context", "context", "error", f"Couldn't read the screenshot ({type(e).__name__})", {})
+        shown = defang(text)[:140] + ("…" if len(text) > 140 else "")
+        self.results["read_screenshot"] = {"summary": f"Read from screenshot: \"{shown}\"" if text else "Screenshot unreadable",
+                                           "result": {"text": text, "model": model},
+                                           "source": {"name": "Forwarded screenshot, read by Nemotron VL"}}
+        self.step("context", "context", "tool_result", self.results["read_screenshot"]["summary"],
+                  {"tool": "read_screenshot", "result": {"chars": len(text), "model": model}, "source": self.results["read_screenshot"]["source"]})
+        self.trigger = {**self.trigger, "data": {**d, "text": text}}
+
     async def context(self):
+        await self.read_screenshot()
         catalog = [{"name": n, "description": (f.__doc__ or n).strip().split("\n")[0]} for n, f in toolbox.tools().items()]
         required = REQUIRED_TOOLS.get(self.threat, REQUIRED_TOOLS["coached"])
         try:
@@ -161,7 +181,8 @@ class Run:
         for n, out in zip(names, outs):
             self.results[n] = out
             self.step("context", "context", "tool_result", out["summary"], {"tool": n, "result": out.get("result"), "source": out.get("source")})
-        self.case["data_used"] = [DATA_USED[n] for n in names if n in DATA_USED]
+        self.case["data_used"] = [DATA_USED[n] for n in names if n in DATA_USED] + \
+            (["The screenshot she forwarded (read by Nemotron VL)"] if "read_screenshot" in self.results else [])
         try:
             f, model = await self.call(agents.context_facts, self.trigger, self.results)
             self.facts = [x for x in f.get("facts", []) if x.get("tool") in self.results]
@@ -433,6 +454,8 @@ def apply_decision(store: Store, case: dict, action: dict, approve: bool, via: s
         store.transfer_pins[uid] = {"status": "revoked", "hold_until": None}
     elif action["kind"] == "release_hold":
         store.transfer_pins[uid] = {"status": "active", "hold_until": None}
+    elif action["kind"] == "report_number":
+        store.report_number(case)
     store.add_step(case, new_id("run"), "voice" if via == "voice" else "messaging" if via == "sms" else "system", "recover", "approved",
                    f"Approved via {via}: {action['description']}", {"action_id": action["action_id"]})
     return action

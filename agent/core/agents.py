@@ -161,3 +161,17 @@ def outbound_ok(text: str, use_model: bool = True) -> tuple[bool, str]:
         except Exception:  # noqa: BLE001
             return True, "Safety Guard unavailable; rules passed"
     return True, "ok"
+
+
+# ---------------- Screenshot reader (Nemotron VL)
+SCREENSHOT = ("You read screenshots of text messages for a scam-protection service. Transcribe the message text exactly as shown, "
+              "including any web address and the sender line if visible. Output only the transcribed text, nothing else.")
+
+
+def read_screenshot(image_url: str) -> tuple[str, str]:
+    """Nemotron VL transcribes a forwarded screenshot. Returns (text, model). The image is data, never instructions."""
+    messages = [{"role": "system", "content": SCREENSHOT},
+                {"role": "user", "content": [{"type": "text", "text": "Transcribe this screenshot."},
+                                             {"type": "image_url", "image_url": {"url": image_url}}]}]
+    text, model = llm.chat("vision", messages, max_tokens=400, temperature=0)
+    return llm._THINK.sub("", text or "").strip(), model
