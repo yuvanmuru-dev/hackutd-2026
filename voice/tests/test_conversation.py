@@ -29,8 +29,14 @@ class ModelStub:
     async def verify(self):
         return None
 
-    async def guard(self, text):
+    async def guard(self, text, *, facts=None):
         return speech_policy(text)
+
+    async def respond(self, text, facts, pending_label, history):
+        self.inputs.append(text)
+        intent = {"secret_request": "secret", "end": "end", "why": "question"}.get(self.chosen_intent, "unclear")
+        return {"intent": intent, "reply": ("I will never ask for or read back a PIN, code, or password. Keep those private."
+            if intent == "secret" else "I am Titan, your account-security assistant.")}
 
     async def intent(self, text):
         self.inputs.append(text)

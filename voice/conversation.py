@@ -20,6 +20,7 @@ LABELS = {
     "report_number": "report the suspicious number", "notify_trusted_contact": "notify your configured trusted contact",
     "send_ftc_report": "send the prepared FTC report", "release_hold": "request release of the transfer hold",
 }
+SAFE_RECOVERY = {"reset_pin", "revoke_transfer_pin", "sign_out_sessions", "report_number", "notify_trusted_contact"}
 
 
 def words(text: str) -> str:
@@ -53,6 +54,7 @@ class Conversation:
     completed: set[str] = field(default_factory=set)
     last_plan: SpeechPlan | None = None
     disclosure_asked: bool = False
+    history: list[dict] = field(default_factory=list)
 
     async def case(self) -> dict:
         detail = await self.brain.case(self.request["case_id"])
@@ -79,12 +81,15 @@ class Conversation:
         return await self.prepare(SpeechPlan([self.request["opening_line"], HANG_UP, DISCLOSURE]))
 
     def heard(self, spoken_text: str, *, interrupted: bool = False) -> None:
+        if spoken_text.strip():
+            self.history.append({"role": "assistant", "content": redact(spoken_text)[:1024]})
+            self.history = self.history[-8:]
         if interrupted:
             self.heard_question = False
         elif self.awaiting and self.expected_question and words(spoken_text).endswith(self.expected_question):
             self.heard_question = True
 
-    async def next_action(self, prefix: list[str] | None = None) -> SpeechPlan:
+    async def next_action(self, prefix: list[str] | None = None, *, confirm: bool = False) -> SpeechPlan:
         detail = await self.case()
         for action in detail["actions"]:
             if action["status"] == "awaiting_approval" and action["action_id"] not in self.completed:
@@ -94,7 +99,7 @@ class Conversation:
                 # End at the question's natural answer point. A trailing spoken
                 # instruction made a natural "yes" interrupt that instruction,
                 # leaving the complete-question approval gate unarmed.
-                question = "Would you like me to " + label + "?"
+                question = ("Just to confirm, should I " if confirm else "Would you like me to ") + label + "?"
                 return await self.prepare(SpeechPlan((prefix or []) + [question], action["action_id"]))
         return await self.prepare(SpeechPlan((prefix or []) + [
             "Your reply is recorded on this case. There is no recovery step waiting for approval right now. "
@@ -104,6 +109,27 @@ class Conversation:
         text = redact(text)
         await self.brain.transcript(self.request["case_id"], "in", text)
         answer = explicit_answer(text)
+        intent, reply = "other", None
+        if answer is None:
+            try:
+                detail = await self.case()
+                pending = next((a for a in detail["actions"] if a["action_id"] == self.awaiting), None)
+                result = await self.models.respond(text, self.request["facts"],
+                    LABELS.get(pending["kind"], "") if pending else "", self.history)
+                intent = result["intent"]
+                if intent in {"yes", "no"}:
+                    # The model's acknowledgement is not spoken. Only the
+                    # guarded acknowledgement of the actual brain result is.
+                    answer = intent == "yes"
+                elif intent != "end":
+                    reply = await self.models.guard(speech_policy(result["reply"]), facts=self.request["facts"])
+            except Exception:
+                # Model/guard failure cannot manufacture an approval. Keep the
+                # already-guarded template path, including local secret refusal.
+                intent = "secret" if re.search(r"\b(pin|code|password)\b", text, re.I) else "unclear"
+                reply = None
+        self.history.append({"role": "user", "content": text[:1024]})
+        self.history = self.history[-8:]
         if self.awaiting and answer is not None:
             if not self.heard_question:
                 return await self.next_action(["I'll repeat the question."])
@@ -111,6 +137,8 @@ class Conversation:
             current = next((a for a in detail["actions"] if a["action_id"] == self.awaiting), None)
             if current is None or current["status"] != "awaiting_approval":
                 return await self.next_action(["That step has changed. Let me check the current recovery plan."])
+            if current["direction"] != "safer" or current["kind"] not in SAFE_RECOVERY:
+                return await self.next_action(["The account protection cannot be loosened by voice. Please hang up on the other call first."])
             try:
                 result = await self.brain.decide(self.awaiting, answer)
             except httpx.HTTPStatusError as error:
@@ -123,17 +151,17 @@ class Conversation:
         if self.awaiting and answer is None:
             # Nemotron may understand the utterance, but it can never turn an ambiguous
             # statement into approval. This remains one explicit answer per action.
-            intent = await self.models.intent(text)
-            if intent == "secret_request":
-                return await self.next_action([REFUSAL])
+            if intent == "secret":
+                return await self.next_action([reply or REFUSAL])
             if intent == "end":
                 return await self.prepare(SpeechPlan(["I'll end this call. No additional step was approved."], end=True))
-            return await self.next_action([CLARIFY])
+            if intent == "question" and reply:
+                return await self.next_action([reply])
+            return await self.next_action(confirm=True)
         # Free-form replies are shared with the brain, which owns recovery planning.
         await self.brain.reply(self.request["case_id"], self.request["user_id"], text)
-        intent = await self.models.intent(text) if answer is None else "other"
-        if intent == "secret_request":
-            return await self.prepare(SpeechPlan([REFUSAL, DISCLOSURE]))
+        if intent == "secret":
+            return await self.next_action([reply or REFUSAL])
         if intent == "end":
             return await self.prepare(SpeechPlan(["I'll end this call. Your answers are recorded on this case."], end=True))
         if intent == "why":
@@ -143,4 +171,4 @@ class Conversation:
                 "I don't have verified details to read out. Please check your account app."]))
         if intent == "repeat" and self.last_plan:
             return await self.prepare(SpeechPlan(list(self.last_plan.lines), self.last_plan.action_id))
-        return await self.next_action(["Thank you. Do not share any secret digits with me."])
+        return await self.next_action([reply or "Thank you. Do not share any secret digits with me."])

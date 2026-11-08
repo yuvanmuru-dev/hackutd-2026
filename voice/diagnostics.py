@@ -11,7 +11,7 @@ def provider_diagnostics(error, settings):
     if not isinstance(error, ServerError):
         return {}
     fields = ("account_sid", "auth_token", "elevenlabs_key", "nvidia_key",
-              "livekit_key", "livekit_secret", "photon_project", "photon_secret",
+              "livekit_key", "livekit_secret", "nano_key", "photon_project", "photon_secret",
               "photon_sip_username", "photon_sip_password", "maya_number",
               "photon_number", "twilio_number", "hash_salt")
     private = {str(getattr(settings, field, "")) for field in fields}
