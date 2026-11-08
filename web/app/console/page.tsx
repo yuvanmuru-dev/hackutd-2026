@@ -83,7 +83,7 @@ export default function ConsolePage() {
         </p>
       )}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
         <section aria-labelledby="play-title" className="rounded-2xl border border-line bg-surface p-6">
           <h2 id="play-title" className="text-lead font-semibold">
             Scenarios

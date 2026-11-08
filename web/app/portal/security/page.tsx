@@ -170,7 +170,7 @@ export default function SecurityPage() {
 
   return (
     <PortalShell signedIn current="Security">
-      <h1 className="text-[clamp(32px,5vw,40px)] font-bold leading-tight tracking-[-0.02em]">Security</h1>
+      <h1 className="text-title font-bold tracking-[-0.02em]">Security</h1>
       <p className="mt-2 text-lead text-ink-2">Protections that keep your phone number yours.</p>
 
       {/* Always mounted so screen readers announce changes; empty when there is nothing to say. */}
