@@ -47,4 +47,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python test_loop_offline.py && python test_mock_offline.py && python test_workflow_offline.py
+      - run: python test_loop_offline.py && python test_mock_offline.py && python test_workflow_offline.py && python test_demo_mode_offline.py
