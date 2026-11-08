@@ -26,7 +26,9 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
     ? `Your Transfer PIN will be ready in 24 hours.${holdUntil ? ` It unlocks ${fmtWhen(holdUntil)}.` : ""}`
     : pin.status === "active"
       ? "Your Transfer PIN is active."
-      : "";
+      : pin.status === "revoked"
+        ? "Your last Transfer PIN was cancelled. You can request a new one."
+        : "";
 
   return (
     <div>
@@ -50,11 +52,22 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
           Your Transfer PIN is active.
         </p>
       ) : (
+        <>
+          {pin.status === "revoked" && (
+            <div className={`${NOTE} mt-4 border-ink`}>
+              <p className="font-semibold">Your last Transfer PIN was cancelled.</p>
+              <p className="mt-1 text-ink-2">
+                You asked Titan to cancel it after that call, so it can’t be used. You can request a new one.
+              </p>
+            </div>
+          )}
         <form
           className="flex flex-col gap-4 py-5"
           onSubmit={(e) => {
             e.preventDefault();
-            if (ready) onRequest();
+            if (!ready) return;
+            setValue(""); // the account PIN doesn't stay in the field once it's been used
+            onRequest();
           }}
         >
           <div className="flex flex-col gap-2">
@@ -87,6 +100,7 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
             {busy ? "Requesting…" : "Request Transfer PIN"}
           </button>
         </form>
+        </>
       )}
     </div>
   );
