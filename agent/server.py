@@ -146,8 +146,11 @@ async def check(request: Request):
         if call:  # customer tapped "I'm on a call: help me": Titan steps in now
             case = _case_for_call(store, req["user_id"], call["call_id"], "Customer asked for help during an unverified call")
             res["case_id"] = case["case_id"]
+            case["help_requested"] = True  # Titan calls right away instead of waiting for a text reply
             if not case["run_running"]:
                 _start(case["case_id"], "coached")
+            else:
+                workflow.notify(case["case_id"], {"help_requested": True})
     return require("CheckResponse", res)
 
 

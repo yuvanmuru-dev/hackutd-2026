@@ -29,10 +29,28 @@ export interface Story {
   deliveredId: string | null;
   typing: boolean;
   chip: string;
-  chipTone: "live" | "safe";
+  chipTone: "live" | "safe" | "failed";
+  /** The brain's error title when the run failed. */
+  failed: string | null;
 }
 
 const ms = (iso: string) => Date.parse(iso);
+
+/** "Maya just …" for each risky event a call can carry. */
+function riskySentence(e: C.Event): string {
+  switch (e.type) {
+    case "protection.changed":
+      return `Maya just turned off ${markerLabel(e).replace(/ off$/, "")}`;
+    case "transfer_pin.requested":
+      return "Maya just requested a Transfer PIN";
+    case "sim_swap.requested":
+      return "Someone just asked to move Maya’s number to a new SIM";
+    case "otp.sent":
+      return "A login code was just sent to Maya";
+    default:
+      return `${markerLabel(e)} happened`;
+  }
+}
 
 /** Short, projector-sized names for what Titan did (lower case: they follow a "·"). */
 const SHORT: Partial<Record<C.Action["kind"], string>> = {
@@ -98,9 +116,7 @@ export function storyOf(detail: C.CaseDetail | null, head: C.Case | null, view: 
         ? "A caller claiming to be T-Mobile is on the line with Maya."
         : "An unverified caller is on the line with Maya."
       : `${head?.title ?? detail?.title ?? "Something unusual is happening on Maya’s account"}.`.replace(/\.\.$/, "."),
-    2: call && firstRisk
-      ? `Maya just ${firstRisk.type === "protection.changed" ? `turned off ${markerLabel(firstRisk).replace(/ off$/, "")}` : firstRisk.type === "transfer_pin.requested" ? "requested a Transfer PIN" : markerLabel(firstRisk).toLowerCase()} during that call.`
-      : "Something risky just happened on Maya’s account.",
+    2: call && firstRisk ? `${riskySentence(firstRisk)} during that call.` : "Something risky just happened on Maya’s account.",
     3:
       done.some((a) => a.kind === "relock") && done.some((a) => a.kind === "hold_transfer_pin")
         ? "Titan stepped in: protection is back on, the PIN is held."
@@ -164,9 +180,12 @@ export function storyOf(detail: C.CaseDetail | null, head: C.Case | null, view: 
     steps,
     thread: items,
     deliveredId,
-    typing: !view.done && view.activeAgent === "response",
-    chip: stage === 4 ? "Safe · watching 24 h" : "In progress",
-    chipTone: stage === 4 ? "safe" : "live",
+    // Titan is writing only while the Response agent is the latest thing that happened: once its text is
+    // sent (a messaging step) or it is waiting for Maya, the dots stop.
+    typing: !view.done && !view.awaiting && view.steps.at(-1)?.agent === "response",
+    failed: view.failed ? productCase(view.failed.title) : null,
+    chip: view.failed ? "Run ended after an error" : stage === 4 ? "Safe · watching 24 h" : "In progress",
+    chipTone: view.failed ? "failed" : stage === 4 ? "safe" : "live",
   };
 }
 
@@ -177,7 +196,8 @@ export function decidedOf(detail: C.CaseDetail | null, view: GuardianView) {
   return [
     { label: "Context", value: "", ok: view.columns.context.length > 0 && (view.columns.risk.length > 0 || view.done) },
     { label: "Risk", value: risk ? `${Math.round(risk.probability * 100)}%` : "", ok: !!risk },
-    { label: "Verifier", value: v ? `${v.claims_checked - v.claims_dropped}/${v.claims_checked}` : "", ok: v?.status === "verified" },
-    { label: "Response", value: "", ok: view.done },
+    // MOCK cases may carry the verify step without a verification object: the step alone counts as checked.
+    { label: "Verifier", value: v ? `${v.claims_checked - v.claims_dropped}/${v.claims_checked}` : "", ok: v ? v.status === "verified" : view.verified },
+    { label: "Response", value: "", ok: view.done && !view.failed },
   ];
 }

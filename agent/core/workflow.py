@@ -288,9 +288,13 @@ class Run:
     async def reach_and_wait(self):
         self.case["status"] = "awaiting_reply"
         timeout = _t("REPLY_TIMEOUT_S", 60)
-        self.step("system", "await", "plan", f"Waiting for {self.store.users[self.uid]['name']}'s reply ({int(timeout)} s)", {"timeout_s": timeout})
-        items = await _wait(self.case["case_id"], timeout)
-        reply = next((i for i in items if i.get("direction") == "in" and i.get("channel") in TYPED_CHANNELS), None)
+        asked = bool(self.case.get("help_requested"))  # she tapped "I'm on a call: help me": call now, don't wait for a text
+        items = []
+        if not asked:
+            self.step("system", "await", "plan", f"Waiting for {self.store.users[self.uid]['name']}'s reply ({int(timeout)} s)", {"timeout_s": timeout})
+            items = await _wait(self.case["case_id"], timeout)
+            asked = any(i.get("help_requested") for i in items)
+        reply = None if asked else next((i for i in items if i.get("direction") == "in" and i.get("channel") in TYPED_CHANNELS), None)
         intent = await self.call(agents.read_reply, reply["text"], "Was this your idea?") if reply else None
         if intent and intent["intent"] == "yes":
             if self.store.suspicious(self.store.active_call(self.uid)):
@@ -299,7 +303,7 @@ class Run:
                 return "hold"
             self.step("response", "await", "plan", "She confirmed it was her and she's off the call: no call needed", {"intent": intent})
             return "released"
-        why = "No reply" if not reply else f"She replied: {intent['intent']}"
+        why = "She asked for help on the pause screen" if asked else ("No reply" if not reply else f"She replied: {intent['intent']}")
         self.step("response", "reach", "call", f"{why} · Titan is calling {self.store.users[self.uid]['name']}", {"purpose": "scam_intervention"})
         w = getattr(self, "call_words", {}) or {}
         outbound.place_call(self.store, {
