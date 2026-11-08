@@ -1,5 +1,5 @@
 {
- "split_source": "origin/lane/evals:evals/split.json",
+ "split_source": "evals/split.json",
  "split_sha256": "2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6",
  "dataset": {
   "commit": "8e6407aa2fdad2795b78ab16912fc74b81845ee6",

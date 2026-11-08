@@ -45,6 +45,7 @@ def load_split() -> tuple[dict, bytes, str]:
         raw = subprocess.run(["git", "-C", str(REPO), "show", "origin/lane/evals:evals/split.json"],
                              capture_output=True, check=True).stdout
         src = "origin/lane/evals:evals/split.json"
+    raw = raw.replace(b"\r\n", b"\n")  # hash the committed bytes, not a Windows autocrlf checkout
     split = json.loads(raw)
     if split.get("format_version") != 1 or not isinstance(split.get("train"), list):
         sys.exit(f"refusing to train: unexpected split format in {src}")

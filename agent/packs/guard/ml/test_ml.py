@@ -44,6 +44,12 @@ def main() -> None:
     check("code request, no link", score_text("Account support: reply with the one-time login code we just sent."), "scam_text", 0.8)
     check("legit code mention", score_text("The garage code is 4471, see you Sunday"), "legit")
     check("empty text (screenshot only)", score_text(""), "legit")
+    # D-052: pressure alone, or a link alone, is low "worth a look"; money rails are a scam
+    check("urgency alone", score_text("Your bill is due. Act now to avoid a late fee in the app."), "legit")
+    check("link alone", score_text("Your package shipped: https://track.example-carrier.com/abc"), "legit")
+    check("urgent + unofficial link", score_text("Account suspended. Verify now: https://acct-help.net/x"), "scam_text", 0.7)
+    check("money ask", score_text("To keep service on, buy two gift cards and send the numbers."), "scam_text", 0.8)
+    check("official link", score_text("Your bill is ready: https://www.t-mobile.com/bill. Act now"), "legit")
 
     hn = fixture("scenario.hard_negative_daughter.json")
     ev, hist = trigger_and_history(hn)
