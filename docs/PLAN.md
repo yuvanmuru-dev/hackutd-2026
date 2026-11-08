@@ -85,4 +85,4 @@ The dashboard is the "under the hood" view. What the judges should remember is M
 Only data T-Mobile already holds, read only at the trigger moment, reduced to yes/no or buckets. Never call or message content, never location history, never contact lists. All data is synthetic. Face check is optional and runs on the device.
 
 ## Name: Titan
-The first "T" is styled after the T-Mobile T. **Branding caution:** T-Mobile's T logo and its magenta are trademarks. Inside a T-Mobile-sponsored track, showing it as "Titan, built for T-Mobile" in the pitch is reasonable, but in the app UI use our own T glyph in a magenta-like color, not the official logo file, so nothing looks like we're impersonating T-Mobile.
+The first "T" is the T-Mobile T (D-044): this is T-Mobile's hackathon track and the project is non-commercial. Use the official asset, and the Devpost says "Hackathon prototype built for the T-Mobile track; not affiliated with or endorsed by T-Mobile."

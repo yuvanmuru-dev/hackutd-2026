@@ -24,7 +24,7 @@ You build what **Maya touches**: the carrier account portal where the scammer ta
 | `POST /demo/play/{t1,t2,t3}`, `POST /demo/reset`, `POST /events` | console buttons | |
 
 ## Build order (each milestone ends with a check)
-1. **Scaffold, push within 45 min** (unblocks 3a): `npx create-next-app@latest web --ts --tailwind --app --eslint --no-src-dir --import-alias "@/*"`; layout + theme tokens (neutral, magenta-like accent, our own "T" glyph component); `web/lib/api/client.ts` (fetch wrapper with `NEXT_PUBLIC_BRAIN_URL`, typed with contract types; SSE helper `subscribeCase(id, onStep, onCase)` for 3a). Check: `cd web && npm run build` passes; push; tell 3a.
+1. **Scaffold, push within 45 min** (unblocks 3a): `npx create-next-app@latest web --ts --tailwind --app --eslint --no-src-dir --import-alias "@/*"`; layout + theme tokens (neutral, magenta-like accent, the T-Mobile "T" for Titan (D-044)); `web/lib/api/client.ts` (fetch wrapper with `NEXT_PUBLIC_BRAIN_URL`, typed with contract types; SSE helper `subscribeCase(id, onStep, onCase)` for 3a). Check: `cd web && npm run build` passes; push; tell 3a.
 2. **Portal + Security page:** login (fake, pick Maya), Security page with SIM Protection, Port Out Protection, Scam Block toggles, "Generate transfer PIN", account PIN field. Check: toggles reflect `GET /protections`.
 3. **Pause screen flow (the most important screen):** toggle off → `POST /check {action:"protection_off", protection, portal_signals}` → if `pause`, show `pause_screen.title/body` with two buttons. "I'm on a call: help me" → `POST /check` with `customer_choice:"on_call_help"` → show "Titan is calling you now" + link to `/case/{case_id}`. "I'm doing this on my own" → `POST /check` with `customer_choice:"doing_it_myself"` → `POST /protections/...` with that `check_id`. Check: run `curl -X POST localhost:8000/events -H 'content-type: application/json' -d @contracts/fixtures/event.call_started.json`, then try to turn Port Out Protection off → pause screen appears; without the call → no pause.
 4. **Transfer PIN hold:** show "Your PIN will be ready in 24 hours" on `hold`. Check: same as above.
@@ -34,7 +34,7 @@ You build what **Maya touches**: the carrier account portal where the scammer ta
 8. **Optional, last:** face check toggle with `@vladmandic/human` (descriptor in IndexedDB only; blink challenge) → `face.result` event + `face` in `/check`. Cut if behind.
 
 ## Decisions already made (DECISIONS.md)
-D-003 customer is the star · D-004 no T-Mobile logo · D-006 derived numbers only · D-007 face optional · D-012 no links · D-018 Next.js + Tailwind v4.
+D-003 customer is the star · D-044 T-Mobile "T" allowed (official asset) · D-006 derived numbers only · D-007 face optional · D-012 no links · D-018 Next.js + Tailwind v4.
 
 ## Stop and ask Lane 1 if...
 - you need a field or endpoint that isn't in CONTRACTS.md (don't invent one; don't call Nemotron from the web).
