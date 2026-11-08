@@ -164,12 +164,27 @@ def rules_score(store: Store, user_id: str, event: dict) -> dict:
         reasons.append({"feature": feature, "contribution": w, "text": text})
 
     if event["type"] == "message.forwarded":
-        cm = check_message(store, event["data"].get("text", ""))["result"]
-        p = 0.9 if cm["lookalike_domains"] else 0.6 if cm["urgent_language"] else 0.2
+        text = event["data"].get("text", "")
+        cm = check_message(store, text)["result"]
+        # D-052: pressure wording alone is not a scam. Scam needs a lookalike, a non-official link, or a request for secrets/money.
+        official = ("t-mobile.com", "tmobile.com")
+        links = [d for d in cm["domains"] if not d.endswith(official)]
+        asks = re.search(r"(?i)\b(verification code|one[- ]time code|passcode|password|\bPIN\b|gift ?cards?|wire (?:money|transfer)|"
+                         r"crypto|bitcoin|zelle|venmo|cash ?app|send (?:money|payment))", text)
         if cm["lookalike_domains"]:
+            p = 0.9
             add("lookalike_domain", 0.5, f"{cm['lookalike_domains'][0]} imitates T-Mobile")
+        elif asks:
+            p = 0.8
+            add("asks_for_secret_or_money", 0.4, "Asks for a code, PIN, password or money")
+        elif links:
+            p = 0.6
+            add("unknown_link", 0.3, f"Link to {links[0]}, not an official T-Mobile site")
+        else:
+            p = 0.35 if cm["urgent_language"] else 0.2
         if cm["urgent_language"]:
-            add("urgent_language", 0.2, "Pressure language (locked, verify now)")
+            add("urgent_language", 0.2 if p >= 0.5 else 0.1,
+                "Pressure language (locked, verify now)" + ("" if p >= 0.5 else ": worth a look, but not a scam by itself"))
         return {"threat": "scam_text" if p >= 0.5 else "legit", "probability": p, "calibrated": False, "confidence": _conf(p),
                 "anomaly": None, "top_reasons": reasons or [{"feature": "none", "contribution": 0, "text": "Nothing suspicious found"}], "model": "rules"}
 
