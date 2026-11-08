@@ -87,6 +87,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate frozen split without rewriting it")
     args = parser.parse_args()
+    if SPLIT.exists() and not args.check:
+        raise SystemExit("split.json is frozen; use --check. Changing it requires an explicit new split decision.")
     split = json.loads(SPLIT.read_text()) if args.check else build()
     validate(split)
     if not args.check:
