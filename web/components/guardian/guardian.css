@@ -8,8 +8,10 @@
   --g-ink: #f5f5f5;
   --g-ink-2: #b8b8b8;
   --g-ink-3: #949494;
-  --g-accent: #ff4fa6;
-  --g-accent-soft: #3a1328;
+  /* T-Mobile magenta (D-044): #E20074 for fills, a lifted #FF3D9A for text on dark (5.5-6:1). */
+  --g-brand: #e20074;
+  --g-accent: #ff3d9a;
+  --g-accent-soft: #3b0a22;
   --g-positive: #45c47f;
   --g-positive-soft: #13291c;
   --g-notice: #f0b443;
@@ -103,7 +105,7 @@
   border: 3px solid var(--g-surface);
 }
 .g-marker[data-risky="true"] {
-  background: var(--g-accent);
+  background: var(--g-brand);
 }
 
 /* ---- pipeline */
@@ -119,8 +121,8 @@
 }
 .g-stage[data-state="active"] {
   opacity: 1;
-  border-color: var(--g-accent);
-  background: #1a1016;
+  border-color: var(--g-brand);
+  background: #1c0a13;
 }
 .g-stage[data-state="done"] {
   opacity: 1;
@@ -140,8 +142,8 @@
     color 400ms ease;
 }
 .g-stage[data-state="active"] .g-stage-num {
-  background: var(--g-accent);
-  color: #1a0010;
+  background: var(--g-brand);
+  color: #ffffff;
 }
 .g-stage[data-state="done"] .g-stage-num {
   background: var(--g-positive-soft);
@@ -195,7 +197,7 @@
   opacity: 0.55;
 }
 .g-verdict[data-revealed="true"] {
-  border-color: var(--g-accent);
+  border-color: var(--g-brand);
 }
 .g-verdict-threat {
   font-size: clamp(34px, 2.4vw, 46px);
