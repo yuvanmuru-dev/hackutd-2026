@@ -1,27 +1,22 @@
-import { TGlyph } from "@/components/TGlyph";
+import Image from "next/image";
 
-/** Titan Guardian lockup on black: T-Mobile's T is the first letter of "Titan" (T + "itan"). */
+/**
+ * Titan Guardian logo on black: the approved artwork with "Guardian" in white
+ * (web/public/brand/titan-guardian-dark.png, 1190x496). `size` is roughly the "Titan" cap height.
+ */
 export function GuardianMark({ size = 36, product = true }: { size?: number; product?: boolean }) {
+  const height = Math.round(size * (product ? 1.55 : 1.15));
+  const src = product ? "/brand/titan-guardian-dark.png" : "/brand/titan.png";
+  const ratio = product ? 1190 / 496 : 1189 / 371;
   return (
-    <span
-      role="img"
-      aria-label={product ? "Titan Guardian" : "Titan"}
-      className="inline-flex flex-none items-end font-extrabold leading-[0.74] tracking-[-0.035em] text-white"
-      style={{ fontSize: Math.round(size * 1.39) }}
-    >
-      <TGlyph size={size} title="" />
-      <span aria-hidden style={{ marginLeft: Math.max(1, Math.round(size * 0.03)) }}>
-        itan
-      </span>
-      {product && (
-        <span
-          aria-hidden
-          className="hidden font-semibold tracking-[-0.01em] text-[var(--g-ink-2)] sm:inline"
-          style={{ fontSize: "0.5em", marginLeft: "0.45em", lineHeight: 1, paddingBottom: "0.04em" }}
-        >
-          Guardian
-        </span>
-      )}
-    </span>
+    <Image
+      src={src}
+      alt={product ? "Titan Guardian" : "Titan"}
+      width={Math.round(height * ratio)}
+      height={height}
+      priority
+      className="block flex-none select-none"
+      style={{ height, width: "auto" }}
+    />
   );
 }
