@@ -12,7 +12,8 @@ LANES = {
     "lane/spine": ["agent/server.py", "agent/core/*", "agent/test_*", "agent/requirements.txt", "agent/.env.example",
                    "contracts/*", "docs/*", "scripts/*", ".github/*", "*.md", ".gitignore"],
     "lane/data": ["agent/packs/guard/*", "agent/cache/*"],
-    "lane/ml": ["agent/packs/guard/ml/*", "evals/*"],
+    "lane/ml": ["agent/packs/guard/ml/*"],
+    "lane/evals": ["evals/*"],
     "lane/web-guardian": ["web/app/guardian/*", "web/components/guardian/*"],
     "lane/web-portal": ["web/*"],
     "lane/voice": ["voice/*"],
@@ -75,7 +76,11 @@ def main():
     for path, text in added_lines(base):
         if path.startswith("docs/") or path.endswith(".md") or path == "scripts/check_lane.py":
             continue
+        is_test = "/tests/" in "/" + path or path.rsplit("/", 1)[-1].startswith("test_")
         for rx, msg in FORBIDDEN:
+            # tests may quote a forbidden ask to prove the guard rejects it; model/endpoint rules still apply
+            if is_test and "D-012" in msg:
+                continue
             if re.search(rx, text):
                 problems.append(f"{path}: {msg}: {text.strip()[:100]}")
     if problems:

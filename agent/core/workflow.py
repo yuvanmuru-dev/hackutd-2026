@@ -11,10 +11,11 @@ import os
 import re
 from datetime import timedelta
 
-from core import agents, outbound, toolbox
+from core import agents, llm, outbound, toolbox
 from core.store import Store, iso, new_id, now
 
 _wakes: dict[str, asyncio.Event] = {}
+TYPED_CHANNELS = ("imessage", "sms", "web")  # replies on these can answer Titan's questions; voice transcripts are audit-only (D-054)
 _inbox: dict[str, list[dict]] = {}
 
 REQUIRED_TOOLS = {
@@ -288,7 +289,7 @@ class Run:
         timeout = _t("REPLY_TIMEOUT_S", 60)
         self.step("system", "await", "plan", f"Waiting for {self.store.users[self.uid]['name']}'s reply ({int(timeout)} s)", {"timeout_s": timeout})
         items = await _wait(self.case["case_id"], timeout)
-        reply = next((i for i in items if i.get("direction") == "in"), None)
+        reply = next((i for i in items if i.get("direction") == "in" and i.get("channel") in TYPED_CHANNELS), None)
         intent = await self.call(agents.read_reply, reply["text"], "Was this your idea?") if reply else None
         if intent and intent["intent"] == "yes":
             if self.store.suspicious(self.store.active_call(self.uid)):
@@ -339,7 +340,7 @@ class Run:
             if left <= 0:
                 break
             for item in await _wait(self.case["case_id"], left):
-                if item.get("direction") == "in" and item.get("text"):  # free-form answer on the call or by text
+                if item.get("direction") == "in" and item.get("text") and item.get("channel") in TYPED_CHANNELS:  # typed answer
                     intent = await self.call(agents.read_reply, item["text"], "recovery")
                     nxt = next((a for a in pending if a["status"] == "awaiting_approval"), None)
                     if nxt and intent["intent"] in ("yes", "no"):
@@ -401,6 +402,9 @@ class Run:
             label = {"coached": "Sensitive action during an unverified call", "takeover": "SIM swap right after a new-device login",
                      "scam_text": "Customer forwarded a text to Titan"}.get(self.threat, self.trigger["type"])
             self.step("system", "trigger", "plan", label, {"event_id": self.trigger["event_id"]})
+            if llm.cache_mode() == "replay":  # honesty: the dashboard says when recorded model answers are used (DEMO.md)
+                self.step("system", "trigger", "plan", "Demo mode: replaying recorded Nemotron answers where they match; anything new runs live",
+                          {"demo_mode": True})
             await self.context()
             await self.risk()
             await self.verify()
