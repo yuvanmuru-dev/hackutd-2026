@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { deriveView } from "./derive";
 import { DetailDrawer } from "./DetailDrawer";
 import { decidedOf, storyOf, type StoryStep, type ThreadItem } from "./story";
+import titanT from "./titan-t.png";
 import { useGuardianCase } from "./useGuardianCase";
 
 /** Keeps the thread scrolled to the newest message, as a phone does. */
@@ -79,7 +80,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
         <section className="g-phone" aria-label="iMessage thread between Titan and Maya">
           <div className="g-phone-head">
             <span className="g-avatar" aria-hidden>
-              <Image src="/brand/titan-t.png" alt="" width={24} height={27} className="h-[27px] w-auto" />
+              <Image src={titanT} alt="" className="h-[27px] w-auto" />
             </span>
             <span className="g-phone-title">iMessage · Titan</span>
           </div>
