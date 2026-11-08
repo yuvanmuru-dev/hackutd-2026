@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Contract as C } from "@/lib/api/client";
 import { notePinPaste } from "@/lib/behavior/session";
+import { BTN_DARK, LABEL, NOTE } from "@/components/ui";
 
 type Props = {
   pin: C.ProtectionState["transfer_pin"];
@@ -22,9 +23,9 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
   const isHeld = pin.status === "held" || !!held;
   const ready = value.length >= 4;
   const announce = isHeld
-    ? `Your PIN will be ready in 24 hours.${holdUntil ? ` It unlocks ${fmtWhen(holdUntil)}.` : ""}`
+    ? `Your Transfer PIN will be ready in 24 hours.${holdUntil ? ` It unlocks ${fmtWhen(holdUntil)}.` : ""}`
     : pin.status === "active"
-      ? "Your transfer PIN is active."
+      ? "Your Transfer PIN is active."
       : "";
 
   return (
@@ -34,27 +35,30 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
         {announce}
       </p>
       {isHeld ? (
-        <div className="rounded-xl bg-notice-soft p-5">
-          <p className="text-lead font-semibold text-notice">Your PIN will be ready in 24 hours.</p>
-          <p className="mt-1">
-            New transfer PINs wait 24 hours when they’re requested during a call we can’t verify.
+        <div className={`${NOTE} my-4 border-notice`}>
+          <p className="font-semibold">Your Transfer PIN will be ready in 24 hours.</p>
+          <p className="mt-1 text-ink-2">
+            Transfer PINs requested during a call we can’t verify are held for 24 hours.
             {holdUntil ? ` It unlocks ${fmtWhen(holdUntil)}.` : ""}
           </p>
         </div>
       ) : pin.status === "active" ? (
-        <div className="rounded-xl bg-positive-soft p-5">
-          <p className="text-lead font-semibold text-positive">Your transfer PIN is active.</p>
-        </div>
+        <p className="flex items-center gap-3 py-4 font-semibold">
+          <svg aria-hidden width="20" height="20" viewBox="0 0 20 20" fill="none" className="flex-none text-positive">
+            <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Your Transfer PIN is active.
+        </p>
       ) : (
         <form
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 py-5"
           onSubmit={(e) => {
             e.preventDefault();
             if (ready) onRequest();
           }}
         >
           <label className="flex flex-col gap-2">
-            <span className="font-semibold">Account PIN</span>
+            <span className={LABEL}>Account PIN</span>
             <input
               type="password"
               name="account_pin"
@@ -65,19 +69,19 @@ export function TransferPinPanel({ pin, held, busy, disabled, onRequest }: Props
               value={value}
               onChange={(e) => setValue(e.target.value.replace(/\D/g, ""))}
               onPaste={() => notePinPaste()}
-              className="h-14 w-full min-w-0 rounded-xl border border-control bg-surface px-4 text-lead tracking-[0.3em] tabular"
+              className="h-12 w-full max-w-[240px] min-w-0 rounded-control border border-control bg-surface px-4 text-lead tracking-[0.3em]"
               aria-describedby="tpin-help"
             />
-            <span id="tpin-help" className="text-meta text-ink-2">
-              4 to 8 digits. It stays on this page.
+            <span id="tpin-help" className="text-[15px] text-ink-3">
+              4 to 8 digits. Your PIN stays on this page.
             </span>
           </label>
           <button
             type="submit"
             disabled={!ready || busy || disabled}
-            className="h-14 w-full rounded-full bg-ink px-8 text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:self-start"
+            className={`${BTN_DARK} w-full sm:w-auto sm:self-start`}
           >
-            {busy ? "Requesting…" : "Generate transfer PIN"}
+            {busy ? "Requesting…" : "Request Transfer PIN"}
           </button>
         </form>
       )}

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { ConsentScreen } from "@/components/portal/ConsentScreen";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { BTN_PRIMARY, PANEL } from "@/components/ui";
 import { MAYA, newEventId, nowIso, postEvent } from "@/lib/api/client";
 import { consentGiven, resetFlow, setConsent } from "@/lib/behavior/session";
 import { useBehavior } from "@/lib/behavior/useBehavior";
@@ -53,26 +54,25 @@ export default function PortalSignIn() {
 
   return (
     <PortalShell>
-      <section className="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-7 sm:p-10">
-        <h1 className="text-title font-semibold tracking-tight">Sign in</h1>
-        <p className="mt-3 text-lead text-ink-2">Welcome back. This laptop is saved to your account.</p>
-        <div className="mt-8 flex items-center gap-4 rounded-xl bg-surface-2 p-5">
-          <span className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-[24px] font-bold text-accent-text">
+      <section className={`w-full max-w-[440px] ${PANEL} p-6 sm:p-8`}>
+        <h1 className="text-title font-bold tracking-[-0.01em]">Sign in</h1>
+        <p className="mt-2 text-body text-ink-2">This device is saved to your account.</p>
+        <div className="mt-6 flex items-center gap-4 border-y border-line py-4">
+          <span
+            aria-hidden
+            className="grid h-12 w-12 place-items-center rounded-full bg-surface-2 text-[20px] font-semibold text-ink"
+          >
             M
           </span>
           <div>
-            <p className="text-lead font-semibold">Maya</p>
-            <p className="text-ink-2 tabular">(214) •••-••48</p>
+            <p className="text-body font-semibold">Maya</p>
+            <p className="text-[15px] text-ink-3 tabular">(214) •••-••48 · Primary Account Holder</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={signIn}
-          disabled={busy}
-          className="mt-8 h-14 w-full rounded-full bg-ink text-lead font-semibold text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
-        >
-          {busy ? "Signing in…" : "Continue as Maya"}
+        <button type="button" onClick={signIn} disabled={busy} className={`${BTN_PRIMARY} mt-6 !h-14 w-full !text-lead`}>
+          {busy ? "Signing in…" : "Continue"}
         </button>
+        <p className="mt-4 text-[15px] text-ink-3">Not you? Sign in with a different T-Mobile ID</p>
       </section>
     </PortalShell>
   );

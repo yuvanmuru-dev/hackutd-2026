@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, type ReactNode } from "react";
-import { Wordmark } from "@/components/TGlyph";
+import { TGlyph, Wordmark } from "@/components/TGlyph";
+import { BTN_DARK, BTN_PRIMARY, BTN_SECONDARY, LABEL } from "@/components/ui";
 import type { Contract as C } from "@/lib/api/client";
 
 /**
@@ -24,18 +25,34 @@ function Modal({ labelledBy, describedBy, children }: { labelledBy: string; desc
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       onCancel={(e) => e.preventDefault()}
-      className="pause-in m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-2xl bg-surface p-5 text-ink shadow-[0_24px_60px_rgb(0_0_0/0.25)] backdrop:bg-[rgb(17_17_20/0.6)] sm:p-10"
+      className="m-0 h-dvh max-h-dvh w-full max-w-none overflow-y-auto overscroll-contain border-t-4 border-accent bg-surface p-6 text-ink backdrop:bg-[rgb(20_20_20/0.72)] sm:m-auto sm:h-fit sm:max-h-[calc(100dvh-4rem)] sm:w-[calc(100%-2rem)] sm:max-w-[560px] sm:rounded-panel sm:p-8 sm:shadow-float"
     >
       {children}
     </dialog>
   );
 }
 
-const TITLE = "text-balance text-[clamp(26px,4vw,36px)] font-bold leading-tight tracking-[-0.02em] outline-none";
-const PRIMARY =
-  "inline-flex min-h-16 items-center justify-center rounded-full px-8 text-center text-lead font-semibold transition-[transform,background-color,opacity] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60";
-const SECONDARY =
-  "inline-flex min-h-14 items-center justify-center rounded-full border border-control bg-surface px-8 text-center text-body font-semibold transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-60";
+// A carrier security interstitial: full-bleed sheet on a phone, a 560px panel with T-Mobile's magenta top rule on
+// a desktop. No entrance animation; the only shadow in the app is here, because the dialog floats.
+const TITLE = "text-balance text-[clamp(24px,3vw,30px)] font-bold leading-tight tracking-[-0.01em] outline-none";
+
+function Eyebrow({ children }: { children: ReactNode }) {
+  return (
+    <p className="flex items-center gap-3">
+      <TGlyph size={28} title="" />
+      <span className={LABEL}>{children}</span>
+    </p>
+  );
+}
+
+function Footer() {
+  return (
+    <p className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line pt-4 text-[15px] text-ink-3">
+      <span>Nothing has changed. Your protection is on.</span>
+      <Wordmark size={16} />
+    </p>
+  );
+}
 
 type Props = {
   screen: NonNullable<C.CheckResponse["pause_screen"]>;
@@ -49,36 +66,34 @@ type Props = {
 export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props) {
   return (
     <Modal labelledBy="pause-title" describedBy="pause-body">
-      <Wordmark size={28} />
-      <h2 id="pause-title" tabIndex={-1} className={`mt-4 sm:mt-6 ${TITLE}`}>
+      <Eyebrow>Security check</Eyebrow>
+      <h2 id="pause-title" tabIndex={-1} className={`mt-5 ${TITLE}`}>
         {screen.title}
       </h2>
-      <p id="pause-body" className="mt-3 text-body text-ink-2 sm:mt-4 sm:text-lead">
+      <p id="pause-body" className="mt-3 text-body text-ink">
         {screen.body}
       </p>
       {reasons.length > 0 && (
-        <ul className="mt-5 flex flex-col gap-1.5 rounded-xl bg-surface-2 p-4 text-body sm:mt-6 sm:gap-2 sm:p-5">
-          {reasons.map((r) => (
-            <li key={r} className="flex gap-3">
-              <span aria-hidden className="mt-[10px] h-2 w-2 flex-none rounded-full bg-accent" />
-              {r}
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className={`mt-6 ${LABEL}`}>What we noticed</p>
+          <ul className="mt-1 divide-y divide-line border-y border-line text-body">
+            {reasons.map((r) => (
+              <li key={r} className="py-2.5">
+                {r}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
-      <div className="mt-6 flex flex-col gap-3 sm:mt-8">
-        <button
-          type="button"
-          onClick={onHelp}
-          disabled={busy !== null}
-          className={`${PRIMARY} bg-accent text-accent-ink hover:bg-accent-hover`}
-        >
-          {busy === "help" ? "Getting Titan…" : screen.help_label}
+      <div className="mt-8 flex flex-col gap-3">
+        <button type="button" onClick={onHelp} disabled={busy !== null} className={`${BTN_PRIMARY} h-14 w-full text-lead`}>
+          {busy === "help" ? "Connecting you to Titan…" : screen.help_label}
         </button>
-        <button type="button" onClick={onContinue} disabled={busy !== null} className={SECONDARY}>
+        <button type="button" onClick={onContinue} disabled={busy !== null} className={`${BTN_SECONDARY} h-14 w-full`}>
           {busy === "continue" ? "One moment…" : screen.continue_label}
         </button>
       </div>
+      <Footer />
     </Modal>
   );
 }
@@ -86,20 +101,20 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
 export function CallingScreen({ caseId, onClose }: { caseId: string | null; onClose: () => void }) {
   return (
     <Modal labelledBy="calling-title" describedBy="calling-body">
-      <Wordmark size={28} />
-      <h2 id="calling-title" tabIndex={-1} className={`mt-6 ${TITLE}`}>
-        Titan is calling you now.
+      <Eyebrow>Help is on the way</Eyebrow>
+      <h2 id="calling-title" tabIndex={-1} className={`mt-5 ${TITLE}`}>
+        Titan is calling you now
       </h2>
-      <p id="calling-body" className="mt-4 text-lead text-ink-2">
-        Your protection stays on. You can hang up on the other call. Titan will never ask for a PIN or a code.
+      <p id="calling-body" className="mt-3 text-body text-ink">
+        Your protection is still on. You can hang up on the other call. Titan will never ask you for a PIN or a code.
       </p>
       <div className="mt-8 flex flex-col gap-3">
         {caseId && (
-          <Link href={`/case/${encodeURIComponent(caseId)}`} className={`${PRIMARY} bg-ink text-surface hover:opacity-90`}>
+          <Link href={`/case/${encodeURIComponent(caseId)}`} className={`${BTN_DARK} h-14 w-full`}>
             See what Titan is doing
           </Link>
         )}
-        <button type="button" onClick={onClose} className={SECONDARY}>
+        <button type="button" onClick={onClose} className={`${BTN_SECONDARY} h-14 w-full`}>
           Back to my account
         </button>
       </div>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { CallingScreen, PauseScreen } from "@/components/portal/PauseScreen";
+import { NOTE, PANEL } from "@/components/ui";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { ProtectionToggle, SwitchRow } from "@/components/portal/ProtectionToggle";
 import { TransferPinPanel } from "@/components/portal/TransferPinCard";
@@ -37,15 +38,15 @@ function Section({ id, title, help, children }: { id: string; title: string; hel
   return (
     <section
       aria-labelledby={id}
-      className="grid grid-cols-1 gap-5 border-t border-line py-8 first:border-t-0 first:pt-2 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-10"
+      className="grid grid-cols-1 gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:gap-12"
     >
       <div>
-        <h2 id={id} className="text-[24px] font-semibold leading-tight tracking-[-0.01em]">
+        <h2 id={id} className="text-[20px] font-semibold leading-7">
           {title}
         </h2>
-        <div className="mt-2 text-ink-2">{help}</div>
+        <div className="mt-1.5 text-[16px] leading-6 text-ink-2">{help}</div>
       </div>
-      <div className="min-w-0 rounded-2xl bg-surface p-5 sm:p-7">{children}</div>
+      <div className={`min-w-0 self-start ${PANEL} px-5 sm:px-6`}>{children}</div>
     </section>
   );
 }
@@ -170,24 +171,24 @@ export default function SecurityPage() {
 
   return (
     <PortalShell signedIn current="Security">
-      <h1 className="text-title font-bold tracking-[-0.02em]">Security</h1>
-      <p className="mt-2 text-lead text-ink-2">Protections that keep your phone number yours.</p>
+      <h1 className="text-title font-bold tracking-[-0.01em]">Privacy and security</h1>
+      <p className="mt-2 text-body text-ink-2">Manage the protections on your account and lines.</p>
 
       {/* Always mounted so screen readers announce changes; empty when there is nothing to say. */}
       <div role="status" className="empty:hidden">
         {down && (
-          <p className="mt-6 rounded-xl bg-notice-soft p-5 font-semibold text-notice">
-            We can’t reach your account right now. Nothing has been changed.{" "}
+          <p className={`${NOTE} mt-6 border-notice`}>
+            We can’t reach your account right now. Nothing has changed.{" "}
             <button type="button" onClick={load} className="underline underline-offset-4 hover:no-underline">
               Try again
             </button>
           </p>
         )}
-        {notice && <p className="mt-6 rounded-xl bg-surface p-5">{notice}</p>}
+        {notice && <p className={`${NOTE} mt-6 border-ink`}>{notice}</p>}
         {shield && (
-          <p className="mt-6 rounded-xl bg-accent-soft p-5">
-            <span className="font-semibold">Extra checks are on during this call.</span> Turning a protection off asks
-            you one question first.
+          <p className={`${NOTE} mt-6 border-accent`}>
+            <span className="font-semibold">Extra checks are on while you’re on a call.</span> We’ll ask one question
+            before a protection is turned off.
           </p>
         )}
       </div>
@@ -195,11 +196,16 @@ export default function SecurityPage() {
       <div className="mt-8">
         <Section
           id="prot-title"
-          title="Number protections"
-          help={<p>These stop someone else from taking your phone number. Keep them on unless you’re moving carriers.</p>}
+          title="Protections"
+          help={<p>Free features that stop bad actors from moving your number to another device or carrier, and that block likely scam calls.</p>}
         >
           {state ? (
-            <ul className="divide-y divide-line">
+            <>
+              <p className="flex flex-wrap items-center justify-between gap-x-4 border-b border-line py-3 text-[15px] text-ink-3">
+                <span>Maya · (214) •••-••48</span>
+                <span>Primary Account Holder</span>
+              </p>
+              <ul>
               {ORDER.map((name) => {
                 const p = state.protections.find((x) => x.name === name);
                 return (
@@ -213,10 +219,11 @@ export default function SecurityPage() {
                   />
                 );
               })}
-            </ul>
+              </ul>
+            </>
           ) : (
-            <p className="py-2 text-ink-2">
-              {down ? "We can’t show your protections right now. They stay as they were." : "Loading your protections…"}
+            <p className="py-4 text-ink-2">
+              {down ? "Not available right now. Your protections are unchanged." : "Loading…"}
             </p>
           )}
         </Section>
@@ -224,7 +231,7 @@ export default function SecurityPage() {
         <Section
           id="tpin-title"
           title="Transfer PIN"
-          help={<p>You only need this when you move your number to a new carrier. Nobody from T-Mobile will ask you for it.</p>}
+          help={<p>You need a Transfer PIN only when you move your number to another carrier. T-Mobile will never call and ask for it.</p>}
         >
           {state ? (
             <TransferPinPanel
@@ -235,14 +242,14 @@ export default function SecurityPage() {
               onRequest={transferPin}
             />
           ) : (
-            <p className="py-2 text-ink-2">{down ? "Not available right now." : "Loading…"}</p>
+            <p className="py-4 text-ink-2">{down ? "Not available right now." : "Loading…"}</p>
           )}
         </Section>
 
         <Section
           id="notes-title"
-          title="Behavior notes"
-          help={<p>Timing only, like how long a page takes. Never what you type.</p>}
+          title="Coaching detection"
+          help={<p>Timing only, such as how long a page takes. Never what you type.</p>}
         >
           <ul>
             <SwitchRow

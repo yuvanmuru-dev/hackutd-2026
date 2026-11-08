@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Wordmark } from "@/components/TGlyph";
+import { BTN_DANGER, BTN_SECONDARY, NOTE, PANEL } from "@/components/ui";
 import {
   demoPlay,
   demoReset,
@@ -65,27 +66,27 @@ export default function ConsolePage() {
   const active = timeline?.active_call ?? null;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
+    <main className="mx-auto w-full max-w-6xl px-5 py-10 text-[16px] sm:px-8">
       <div className="flex flex-wrap items-center gap-4">
         <Wordmark size={30} />
-        <h1 className="text-title font-semibold tracking-tight">Demo console</h1>
+        <h1 className="text-[24px] font-semibold">Demo console</h1>
         <button
           type="button"
           onClick={refresh}
-          className="ml-auto h-11 rounded-full border border-line-strong bg-surface px-5 font-semibold transition-colors hover:bg-surface-2"
+          className={`ml-auto ${BTN_SECONDARY} !h-11 !px-4 !text-[15px]`}
         >
           Refresh
         </button>
       </div>
       {down && (
-        <p role="alert" className="mt-6 rounded-xl bg-notice-soft p-4 font-semibold text-notice">
+        <p role="alert" className={`${NOTE} mt-6 border-notice`}>
           Can’t reach the brain. Start it with: bash scripts/dev.sh
         </p>
       )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
-        <section aria-labelledby="play-title" className="rounded-2xl border border-line bg-surface p-6">
-          <h2 id="play-title" className="text-lead font-semibold">
+        <section aria-labelledby="play-title" className={`${PANEL} p-5`}>
+          <h2 id="play-title" className="text-[18px] font-semibold">
             Scenarios
           </h2>
           <ul className="mt-4 flex flex-col gap-3">
@@ -95,26 +96,18 @@ export default function ConsolePage() {
                   type="button"
                   disabled={busy !== null}
                   onClick={() => run(s.name, async () => (await demoPlay(s.id), `${s.name} started`), true)}
-                  className="w-full rounded-xl bg-ink px-5 py-4 text-left text-surface transition-[transform,opacity] hover:opacity-90 active:scale-[0.99] disabled:opacity-50"
+                  className="flex min-h-12 w-full items-center justify-between gap-4 rounded-control border border-line-strong bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <span className="block font-semibold">{s.name}</span>
-                  <span className="block text-meta opacity-80">{s.what}</span>
+                  <span className="flex flex-col">
+                    <span className="text-[16px] font-semibold text-ink">{s.name}</span>
+                    <span className="text-[14px] text-ink-3">{s.what}</span>
+                  </span>
                 </button>
               </li>
             ))}
-            <li>
-              <button
-                type="button"
-                disabled={busy !== null}
-                onClick={() => run("Reset", async () => (await demoReset(), "Reset: all cases and events cleared"))}
-                className="w-full rounded-xl border border-line-strong px-5 py-4 text-left font-semibold transition-colors hover:bg-surface-2 disabled:opacity-50"
-              >
-                Reset the demo
-              </button>
-            </li>
           </ul>
 
-          <h2 className="mt-8 text-lead font-semibold">Single events</h2>
+          <h2 className="mt-8 text-[18px] font-semibold">Single events</h2>
           <div className="mt-4 flex flex-wrap gap-3">
             <EventButton
               label="Call starts (unverified “T-Mobile Support”)"
@@ -151,10 +144,22 @@ export default function ConsolePage() {
           <p className="mt-4 text-meta text-ink-2" aria-live="polite">
             {active ? `Call active: ${active.caller_name ?? "unknown"} (${active.attestation})` : "No call active"}
           </p>
+
+          <div className="mt-8 border-t border-line pt-5">
+            <button
+              type="button"
+              disabled={busy !== null}
+              onClick={() => run("Reset", async () => (await demoReset(), "Reset: all cases and events cleared"))}
+              className={`${BTN_DANGER} w-full`}
+            >
+              Reset demo data
+            </button>
+            <p className="mt-2 text-[14px] text-ink-3">Deletes every case and event.</p>
+          </div>
         </section>
 
-        <section aria-labelledby="cases-title" className="rounded-2xl border border-line bg-surface p-6">
-          <h2 id="cases-title" className="text-lead font-semibold">
+        <section aria-labelledby="cases-title" className={`${PANEL} p-5`}>
+          <h2 id="cases-title" className="text-[18px] font-semibold">
             Cases {cases ? <span className="text-ink-2 tabular">· {cases.length}</span> : null}
           </h2>
           <ul className="mt-4 divide-y divide-line" aria-live="polite">
@@ -170,21 +175,21 @@ export default function ConsolePage() {
                 </div>
                 <Link
                   href={`/guardian/${encodeURIComponent(c.case_id)}`}
-                  className="rounded-full bg-ink px-4 py-2 font-semibold text-surface transition-opacity hover:opacity-90"
+                  className={`${BTN_SECONDARY} !h-11 !px-4 !text-[15px]`}
                 >
                   Guardian
                 </Link>
                 <Link
                   href={`/case/${encodeURIComponent(c.case_id)}`}
-                  className="rounded-full border border-line-strong px-4 py-2 font-semibold transition-colors hover:bg-surface-2"
+                  className={`${BTN_SECONDARY} !h-11 !px-4 !text-[15px]`}
                 >
-                  Maya’s view
+                  Customer view
                 </Link>
               </li>
             ))}
           </ul>
 
-          <h2 className="mt-8 text-lead font-semibold">Recent</h2>
+          <h2 className="mt-8 text-[18px] font-semibold">Recent</h2>
           <ul className="mt-3 flex flex-col gap-1 text-meta text-ink-2 tabular">
             {log.length === 0 && <li>Nothing yet</li>}
             {log.map((l, i) => (
@@ -203,7 +208,7 @@ function EventButton({ label, disabled, onClick }: { label: string; disabled: bo
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="rounded-full border border-line-strong bg-surface px-5 py-3 font-semibold transition-colors hover:bg-surface-2 disabled:opacity-40"
+      className={`${BTN_SECONDARY} !h-11 !px-4 !text-[15px]`}
     >
       {label}
     </button>

@@ -1,19 +1,20 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { ProtectionName } from "@/lib/api/client";
 
 export const PROTECTION_COPY: Record<ProtectionName, { name: string; what: string }> = {
   sim_protection: {
     name: "SIM Protection",
-    what: "Blocks anyone from moving your number to a new SIM card.",
+    what: "Prevents your number from being moved to another SIM or device.",
   },
   port_out_protection: {
     name: "Port Out Protection",
-    what: "Stops your number from being moved to another carrier.",
+    what: "Blocks unauthorized transfers of your line to another wireless carrier.",
   },
   scam_block: {
     name: "Scam Block",
-    what: "Stops calls from numbers reported as scams.",
+    what: "Blocks calls identified as likely scams before they reach you.",
   },
 };
 
@@ -27,18 +28,35 @@ type Props = {
   onChange: (next: boolean) => void;
 };
 
-/** One switch row. The word On/Off always shows, so state never rests on the track colour. */
+/**
+ * One switch row, T-Mobile style: name and one line of what it does, a small switch on the right.
+ * The word On/Off stays (quiet, beside the switch) so state never rests on the track colour, and it turns
+ * into "Saving…" / "Saved" around a change. Magenta on the track is the one colour on this page: "it's on".
+ */
 export function SwitchRow({ id, name, what, enabled, busy, disabled, onChange }: Props) {
+  const [saved, setSaved] = useState(false);
+  const wasBusy = useRef(busy);
+  useEffect(() => {
+    const finished = wasBusy.current && !busy;
+    wasBusy.current = busy;
+    if (!finished) return;
+    const show = setTimeout(() => setSaved(true), 0);
+    const hide = setTimeout(() => setSaved(false), 2000);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(hide);
+    };
+  }, [busy]);
   return (
-    <li className="flex items-center gap-4 py-5 first:pt-1 last:pb-1">
+    <li className="flex items-center gap-4 border-b border-line py-4 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <p id={id} className="text-lead font-semibold leading-snug">
+        <p id={id} className="text-body font-semibold leading-6">
           {name}
         </p>
-        <p className="mt-1 text-ink-2">{what}</p>
+        <p className="mt-0.5 text-[16px] leading-6 text-ink-2">{what}</p>
       </div>
-      <span className={`w-10 flex-none text-right font-semibold ${enabled ? "text-positive" : "text-ink-2"}`} aria-hidden>
-        {busy ? "…" : enabled ? "On" : "Off"}
+      <span aria-live="polite" className="flex-none text-right text-[15px] text-ink-3">
+        {busy ? "Saving…" : saved ? "Saved" : <span aria-hidden>{enabled ? "On" : "Off"}</span>}
       </span>
       <button
         type="button"
@@ -48,16 +66,18 @@ export function SwitchRow({ id, name, what, enabled, busy, disabled, onChange }:
         aria-busy={busy || undefined}
         disabled={disabled || busy}
         onClick={() => onChange(!enabled)}
-        className={`relative h-10 w-[68px] flex-none rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
-          enabled ? "bg-positive" : "bg-control"
-        }`}
+        className="-mr-2 inline-flex h-11 w-14 flex-none items-center justify-center rounded-control disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span
           aria-hidden
-          className={`absolute top-1 left-1 h-8 w-8 rounded-full bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.3)] transition-transform duration-200 ${
-            enabled ? "translate-x-7" : ""
-          }`}
-        />
+          className={`relative h-5 w-9 rounded-full transition-colors duration-150 ${enabled ? "bg-accent" : "bg-control"}`}
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-surface transition-transform duration-150 ${
+              enabled ? "translate-x-4" : ""
+            }`}
+          />
+        </span>
       </button>
     </li>
   );
