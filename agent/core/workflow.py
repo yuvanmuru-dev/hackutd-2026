@@ -423,13 +423,18 @@ class Run:
             await self.context()
             await self.risk()
             await self.verify()
-            if self.case["threat"] == "legit":
+            helped = bool(self.case.get("help_requested"))
+            if self.case["threat"] == "legit" and not helped:
                 self.step("response", "respond", "plan", "Looks legitimate: no action, keep watching", {})
+            elif self.case["threat"] == "legit":  # she asked for help: always reach her, without inventing a scam verdict
+                self.step("response", "respond", "plan", "Signals look ordinary, but she asked for help: calling her", {})
+                if await self.reach_and_wait() == "called":
+                    await self.recover()
             elif await self.respond():
                 outcome = await self.reach_and_wait()
                 if outcome == "called":
                     await self.recover()
-            if self.case["threat"] != "legit":
+            if self.case["threat"] != "legit" or helped:
                 await self.summarize()
             until = iso(now() + timedelta(hours=24))
             self.step("system", "watch", "plan", "Watching her line for 24 hours for follow-up scams", {"until": until})
