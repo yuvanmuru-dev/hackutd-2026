@@ -11,6 +11,7 @@ from collections import Counter
 from contextlib import contextmanager, ExitStack
 import copy
 from datetime import datetime, timezone
+import datetime as datetime_module
 import hashlib
 import importlib
 import io
@@ -100,6 +101,7 @@ def frozen_clock(at: datetime):
                     stack.enter_context(patch.object(module, attr, FrozenDateTime))
                 elif value is original_now:
                     stack.enter_context(patch.object(module, attr, lambda: at))
+        stack.enter_context(patch.object(datetime_module, "datetime", FrozenDateTime))
         yield
 
 
@@ -180,9 +182,16 @@ def percent(value):
     return "N/A" if value is None else f"{100 * value:.1f}%"
 
 
+def final_model_ready(model_status: dict, rows: list[dict]) -> bool:
+    return bool(rows) and model_status["module_present"] and not model_status["import_error"] \
+        and all(row["route"]["ml_called"] and not row["route"]["ml_error"] for row in rows) \
+        and any(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
+
+
 def report(result: dict) -> str:
     meta, active, baseline = result["provenance"], result["brain"], result["rules"]
     lines = ["# Independent Titan evaluation", "", f"Mode: **{meta['mode']}**.", "",
+             f"Presentation status: **{'final independent model run' if meta['final_model_run'] else 'provisional; final model run pending'}**.", "",
              "Rules-only results are provisional. The final post-model run of this script is the source for Devpost/video numbers; do not substitute training scores.", "",
              f"Scorer source on main: `{meta['main_commit']}`. Evaluation checkout: `{meta['evaluation_commit']}`.",
              f"Dataset SHA-256: `{meta['dataset_sha256']}`. Split SHA-256: `{meta['split_sha256']}`.",
@@ -243,12 +252,14 @@ def main():
     actual_model = any(not rule_names(name) for name in names)
     mode = ("mixed model and rules fallback" if actual_model and any(rule_names(n) for n in names)
             else "model" if actual_model else "rules only (model rerun pending)")
-    if args.require_model and not actual_model:
-        raise RuntimeError("No model results: final model run is still pending")
+    ready = final_model_ready(model_status, active)
+    if args.require_model and not ready:
+        raise RuntimeError("Final model run requires a model on every route with no import/scoring errors")
     agent = ROOT / "agent"
     scorer_paths = list((agent / "core").glob("*.py")) + list((agent / "packs/guard").glob("*.py"))
     result = {"provenance": {
-        "mode": mode, "main_commit": git("rev-parse", "origin/main"),
+        "mode": mode, "final_model_run": bool(args.require_model and ready),
+        "main_commit": git("rev-parse", "origin/main"),
         "evaluation_commit": git("rev-parse", "HEAD"), "dataset_sha256": split["dataset"]["sha256"],
         "split_sha256": file_hash(SPLIT), "train_count": len(split["train"]), "test_count": len(split["test"]),
         "scorer_hashes": hashes(scorer_paths), "model_hashes": hashes(model_paths),

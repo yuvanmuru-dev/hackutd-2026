@@ -74,6 +74,16 @@ class ProtocolTests(unittest.TestCase):
         self.assertTrue(active[0]["route"]["ml_called"])
         self.assertEqual(active[0]["route"]["ml_error"], "ValueError")
         self.assertEqual(active[0]["prediction"]["model"], "rules")
+        self.assertFalse(run.final_model_ready(status, active))
+
+    def test_final_gate_rejects_partial_error_driven_model_run(self):
+        good = {"prediction": {"model": "ml+rules"},
+                "route": {"ml_called": True, "ml_error": None}}
+        bad = {"prediction": {"model": "rules"},
+               "route": {"ml_called": True, "ml_error": "ValueError"}}
+        status = {"module_present": True, "import_error": None}
+        self.assertTrue(run.final_model_ready(status, [good]))
+        self.assertFalse(run.final_model_ready(status, [good, bad]))
 
 
 if __name__ == "__main__":
