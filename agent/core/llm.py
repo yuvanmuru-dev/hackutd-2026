@@ -2,7 +2,8 @@
 
 Roles -> (base URL env, model env, default model):
   super     Risk / Verifier / Response (Nemotron 3 Ultra)   NEMOTRON_BASE_URL, NEMOTRON_MODEL
-  nano      Context, reply reading, fallback (Nemotron 3.5 Lightning)   NEMOTRON_BASE_URL, NEMOTRON_NANO_MODEL
+  nano      Context, reply reading, fallback (Nemotron 3.5 Lightning)   NEMOTRON_NANO_MODEL; optional self-hosted
+            NEMOTRON_NANO_BASE_URL (+ NEMOTRON_NANO_SELF_MODEL, NEMOTRON_NANO_SELF_KEY) tried first, hosted as fallback
   safety    Nemotron Safety Guard v3 on outbound text   SAFETY_MODEL (empty = rules only)
 Model names verified against this account's /v1/models and live calls on 2026-11-07.
 
@@ -41,15 +42,51 @@ def set_client(client):
     _client = client
 
 
-def client():
-    global _client
-    if _client is None:
+_clients: dict[tuple, object] = {}
+_down_until: dict[str, float] = {}  # self-hosted endpoint -> time until which we skip it after a failure
+
+
+def _client_for(base: str, key: str):
+    if _client is not None:  # tests inject one fake client for every endpoint
+        return _client
+    if (base, key) not in _clients:
         from openai import OpenAI
-        key = os.getenv("NVIDIA_API_KEY")
-        if not key:
-            raise LLMError("NVIDIA_API_KEY is not set (agent/.env)")
-        _client = OpenAI(base_url=os.getenv("NEMOTRON_BASE_URL", DEFAULT_BASE), api_key=key, timeout=45, max_retries=0)
-    return _client
+        timeout = 45 if base == DEFAULT_BASE else 20
+        _clients[(base, key)] = OpenAI(base_url=base, api_key=key or "not-needed", timeout=timeout, max_retries=0)
+    return _clients[(base, key)]
+
+
+def client():
+    """Hosted NVIDIA client (kept for callers/tests that use it directly)."""
+    key = os.getenv("NVIDIA_API_KEY")
+    if _client is None and not key:
+        raise LLMError("NVIDIA_API_KEY is not set (agent/.env)")
+    return _client_for(os.getenv("NEMOTRON_BASE_URL", DEFAULT_BASE), key or "")
+
+
+def targets(role: str) -> list[dict]:
+    """Endpoints to try for a role, in order. NEMOTRON_NANO_BASE_URL (+ NEMOTRON_NANO_SELF_MODEL, NEMOTRON_NANO_SELF_KEY) points
+    the fast role at a self-hosted Nemotron (e.g. a Brev NIM); the hosted API stays as the automatic fallback."""
+    hosted_base = os.getenv("NEMOTRON_BASE_URL", DEFAULT_BASE)
+    hosted_key = os.getenv("NVIDIA_API_KEY", "")
+    out = []
+    self_base = os.getenv("NEMOTRON_NANO_BASE_URL", "").rstrip("/")
+    if role == "nano" and self_base and self_base != hosted_base.rstrip("/"):
+        out.append({"base": self_base, "key": os.getenv("NEMOTRON_NANO_SELF_KEY", ""), "where": "self-hosted",
+                    "model": os.getenv("NEMOTRON_NANO_SELF_MODEL") or model_for("nano")})
+    if model_for(role):
+        out.append({"base": hosted_base, "key": hosted_key, "where": "hosted", "model": model_for(role)})
+    return out
+
+
+def endpoints() -> dict:
+    """For /health: where each role runs (hosts only, never keys)."""
+    from urllib.parse import urlsplit
+    res = {}
+    for role in MODELS:
+        res[role] = [{"where": t["where"], "host": urlsplit(t["base"]).netloc, "model": t["model"],
+                      "skipping": _down_until.get(t["base"], 0) > time.time()} for t in targets(role)]
+    return res
 
 
 def model_for(role: str) -> str:
@@ -191,29 +228,35 @@ def chat(role: str, messages: list[dict], *, max_tokens: int = 900, temperature:
 
 
 def _chat_live(role: str, messages: list[dict], *, max_tokens: int = 900, temperature: float = 0.2) -> tuple[str, str]:
-    """Returns (text, model_used). Retries, then falls back super -> nano."""
+    """Returns (text, model_used). Tries the role's endpoints in order (self-hosted first if configured, then hosted),
+    with retries on 429/5xx/timeouts; super falls back to nano. A failing self-hosted box is skipped for 60 s."""
     chain = [role] + (["nano"] if role == "super" else [])  # vision has no text-only fallback
     last: Exception | None = None
     extra = {}
     if os.getenv("NEMOTRON_THINKING", "off") == "off":
         extra = {"extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}
     for r in chain:
-        model = model_for(r)
-        if not model:
-            continue
-        for attempt in range(3):
-            t0 = time.time()
-            try:
-                resp = client().chat.completions.create(model=model, messages=messages, max_tokens=max_tokens,
-                                                        temperature=temperature, **extra)
-                _calls.append({"model": model, "ms": int((time.time() - t0) * 1000), "ok": True})
-                return resp.choices[0].message.content or "", model
-            except Exception as e:  # noqa: BLE001
-                _calls.append({"model": model, "ms": int((time.time() - t0) * 1000), "ok": False, "error": type(e).__name__})
-                last = e
-                if not _retryable(e):
-                    break
-                time.sleep(min(8, 1.5 * 2 ** attempt))
+        for t in targets(r):
+            if t["where"] == "self-hosted" and _down_until.get(t["base"], 0) > time.time():
+                continue
+            attempts = 3 if t["where"] == "hosted" else 1
+            for attempt in range(attempts):
+                t0 = time.time()
+                try:
+                    resp = _client_for(t["base"], t["key"]).chat.completions.create(
+                        model=t["model"], messages=messages, max_tokens=max_tokens, temperature=temperature, **extra)
+                    _calls.append({"model": t["model"], "where": t["where"], "ms": int((time.time() - t0) * 1000), "ok": True})
+                    return resp.choices[0].message.content or "", t["model"]
+                except Exception as e:  # noqa: BLE001
+                    _calls.append({"model": t["model"], "where": t["where"], "ms": int((time.time() - t0) * 1000), "ok": False,
+                                   "error": type(e).__name__})
+                    last = e
+                    if t["where"] == "self-hosted":
+                        _down_until[t["base"]] = time.time() + 60  # box stopped or busy: use hosted for a minute
+                        break
+                    if not _retryable(e):
+                        break
+                    time.sleep(min(8, 1.5 * 2 ** attempt))
     raise LLMError(f"all models failed: {type(last).__name__}: {last}")
 
 

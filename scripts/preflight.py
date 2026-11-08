@@ -118,6 +118,17 @@ def main():
     else:
         line(WARN if a.mode != "judging" else BAD, "DEMO_MODE recording file", "none: run python scripts/record_demo.py")
 
+    self_base = (agent_env or {}).get("NEMOTRON_NANO_BASE_URL", "").rstrip("/")
+    if self_base:
+        print("Self-hosted Nemotron (Brev)")
+        code, models = get(self_base + "/models", timeout=8)
+        served = [m.get("id") for m in (models or {}).get("data", [])] if isinstance(models, dict) else []
+        want = (agent_env or {}).get("NEMOTRON_NANO_SELF_MODEL", "")
+        if code == 200:
+            line(OK if not want or want in served else BAD, "Brev endpoint up",
+                 f"serves {', '.join(served) or 'unknown'}" + ("" if not want or want in served else f"; NEMOTRON_NANO_SELF_MODEL '{want}' not served"))
+        else:
+            line(WARN, "Brev endpoint up", "not reachable: the brain falls back to the hosted API (box stopped?)")
     if not a.no_models and agent_env and agent_env.get("NVIDIA_API_KEY"):
         print("Nemotron")
         sys.path.insert(0, str(ROOT / "agent"))
