@@ -97,7 +97,100 @@ def _retryable(e: Exception) -> bool:
     return status in (429, 500, 502, 503, 504) or name in ("APITimeoutError", "APIConnectionError", "RateLimitError", "Timeout")
 
 
+# ---------------------------------------------------------------- DEMO_MODE: record / replay model answers
+# LLM_CACHE=record  -> every live answer is saved to LLM_CACHE_PATH
+# DEMO_MODE=1 (or LLM_CACHE=replay) -> answer from the recording when the normalized prompt matches; otherwise call live
+#                                      and save. Replays wait the recorded latency (capped by DEMO_REPLAY_MAX_MS) so the
+#                                      dashboard still reads like a live run. The workflow labels replayed runs (honesty).
+import hashlib  # noqa: E402
+import threading  # noqa: E402
+
+_cache_lock = threading.Lock()
+_cache: dict | None = None
+_stats = {"replayed": 0, "live": 0, "recorded": 0}
+_ID = re.compile(r"\b(case|run|evt|act|msg|chk|call|ses|scn|usr)_[A-Za-z0-9_]+")
+_TS = re.compile(r"\d{4}-\d{2}-\d{2}T[\d:.]+(Z|[+-]\d{2}:\d{2})?")
+_DIGITS = re.compile(r"\d+")
+
+
+def cache_mode() -> str:
+    if os.getenv("DEMO_MODE", "0") == "1":
+        return "replay"
+    return os.getenv("LLM_CACHE", "off")
+
+
+def cache_path() -> str:
+    return os.getenv("LLM_CACHE_PATH") or os.path.join(os.path.dirname(__file__), "recordings", "llm_cache.json")
+
+
+def _load() -> dict:
+    global _cache
+    if _cache is None:
+        try:
+            with open(cache_path()) as f:
+                _cache = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            _cache = {}
+    return _cache
+
+
+def _save():
+    path = cache_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(_cache, f, indent=1, sort_keys=True)
+    os.replace(tmp, path)
+
+
+def _normalize(content) -> str:
+    if isinstance(content, list):  # vision: hash the image instead of storing it
+        parts = []
+        for p in content:
+            if p.get("type") == "image_url":
+                parts.append("image:" + hashlib.sha256(p["image_url"]["url"].encode()).hexdigest()[:16])
+            else:
+                parts.append(_normalize(p.get("text", "")))
+        return "|".join(parts)
+    text = _ID.sub("<id>", str(content))
+    text = _TS.sub("<ts>", text)
+    return _DIGITS.sub("#", text)
+
+
+def _key(role: str, messages: list[dict]) -> str:
+    norm = json.dumps([[m["role"], _normalize(m["content"])] for m in messages])
+    return hashlib.sha256(f"{role}|{norm}".encode()).hexdigest()
+
+
+def cache_stats() -> dict:
+    return {"mode": cache_mode(), "path": os.path.relpath(cache_path()), "entries": len(_load()), **_stats}
+
+
 def chat(role: str, messages: list[dict], *, max_tokens: int = 900, temperature: float = 0.2) -> tuple[str, str]:
+    """Returns (text, model_used). DEMO_MODE replay first; then live with retries and super -> nano fallback."""
+    mode = cache_mode()
+    key = _key(role, messages) if mode in ("record", "replay") else None
+    if mode == "replay":
+        with _cache_lock:
+            hit = _load().get(key)
+        if hit:
+            _stats["replayed"] += 1
+            time.sleep(min(hit.get("ms", 0), int(os.getenv("DEMO_REPLAY_MAX_MS", "2500"))) / 1000)
+            _calls.append({"model": hit["model"], "ms": hit.get("ms", 0), "ok": True, "replayed": True})
+            return hit["text"], hit["model"]
+    t0 = time.time()
+    text, model = _chat_live(role, messages, max_tokens=max_tokens, temperature=temperature)
+    _stats["live"] += 1
+    if key:
+        with _cache_lock:
+            _load()[key] = {"role": role, "model": model, "text": text, "ms": int((time.time() - t0) * 1000),
+                            "prompt_head": _normalize(messages[0]["content"])[:60]}
+            _save()
+        _stats["recorded"] += 1
+    return text, model
+
+
+def _chat_live(role: str, messages: list[dict], *, max_tokens: int = 900, temperature: float = 0.2) -> tuple[str, str]:
     """Returns (text, model_used). Retries, then falls back super -> nano."""
     chain = [role] + (["nano"] if role == "super" else [])  # vision has no text-only fallback
     last: Exception | None = None

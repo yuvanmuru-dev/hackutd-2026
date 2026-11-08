@@ -75,7 +75,8 @@ def _case(cid: str) -> dict:
 async def health():
     from core import llm
     return {"ok": True, "mock": MOCK, "version": "0.3", "users": len(store.users), "cases": len(store.cases),
-            "models": {r: llm.model_for(r) for r in ("super", "nano", "safety")}, "recent_model_calls": llm.recent_calls()[-5:]}
+            "models": {r: llm.model_for(r) for r in ("super", "nano", "safety", "vision")}, "recent_model_calls": llm.recent_calls()[-5:],
+            "llm_cache": llm.cache_stats()}
 
 
 @app.get("/tools")

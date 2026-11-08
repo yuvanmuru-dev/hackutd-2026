@@ -38,6 +38,12 @@ Then the agent checks the claims against real data, asks you before it acts, fol
 | 2:15–2:30 | Accuracy number + NVIDIA stack. Stop talking. |
 | 2:30–5:00 | Questions |
 
+**DEMO_MODE: the safety net for Wi-Fi and rate limits**
+- Record once after the final prompt/data changes: brain with `MOCK=0 LLM_CACHE=record`, then `python scripts/record_demo.py` (plays T2 → T5, T1, T3 and a forwarded screenshot; texts nobody). Commit `agent/core/recordings/llm_cache.json`.
+- On stage: brain with `MOCK=0 DEMO_MODE=1`. Matching Nemotron prompts are answered from the recording at their recorded pace; anything new runs live. Verified: 29/29 calls replayed across T2, T1, T3 with no network to NVIDIA needed.
+- The dashboard shows "Demo mode: replaying recorded Nemotron answers…". Say it if asked; never present a replay as live inference.
+- Re-record after any change to agent prompts, tools, data or models (stale recordings just fall through to live).
+
 **Pre-stage before every judging slot** (owner: Lane 2 checklist)
 - [ ] DEMO_MODE on and cache warmed. Brain, voice and email are up. Tunnels are up.
 - [ ] One case already has history: report done, counterparty reply already received. Long waits happen *before* judges arrive.

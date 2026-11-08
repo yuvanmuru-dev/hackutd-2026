@@ -11,7 +11,7 @@ import os
 import re
 from datetime import timedelta
 
-from core import agents, outbound, toolbox
+from core import agents, llm, outbound, toolbox
 from core.store import Store, iso, new_id, now
 
 _wakes: dict[str, asyncio.Event] = {}
@@ -401,6 +401,9 @@ class Run:
             label = {"coached": "Sensitive action during an unverified call", "takeover": "SIM swap right after a new-device login",
                      "scam_text": "Customer forwarded a text to Titan"}.get(self.threat, self.trigger["type"])
             self.step("system", "trigger", "plan", label, {"event_id": self.trigger["event_id"]})
+            if llm.cache_mode() == "replay":  # honesty: the dashboard says when recorded model answers are used (DEMO.md)
+                self.step("system", "trigger", "plan", "Demo mode: replaying recorded Nemotron answers where they match; anything new runs live",
+                          {"demo_mode": True})
             await self.context()
             await self.risk()
             await self.verify()
