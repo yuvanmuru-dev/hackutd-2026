@@ -17,7 +17,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
   const view = useMemo(() => deriveView(detail, steps), [detail, steps]);
 
   return (
-    <div className="guardian flex min-h-screen flex-col gap-3 p-4 sm:p-6 2xl:h-screen 2xl:min-h-[860px] 2xl:overflow-hidden">
+    <main className="guardian flex min-h-screen flex-col gap-3 p-4 sm:p-6 2xl:h-screen 2xl:min-h-[860px] 2xl:overflow-hidden">
       <CaseHeader detail={detail} head={head} view={view} mode={mode} />
       <CallBar call={detail?.call ?? null} markers={view.callMarkers} live={mode === "live"} />
       <div className="grid min-h-0 grid-cols-1 gap-3 lg:h-[600px] lg:grid-cols-[minmax(0,1fr)_clamp(340px,24vw,460px)] lg:grid-rows-[minmax(0,1fr)] 2xl:h-auto 2xl:flex-[1.35]">
@@ -29,6 +29,6 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
         <RecoveryChecklist actions={detail?.actions ?? []} view={view} />
         <DataUsed dataUsed={detail?.data_used ?? []} signals={detail?.signals ?? []} risk={detail?.risk ?? null} />
       </div>
-    </div>
+    </main>
   );
 }
