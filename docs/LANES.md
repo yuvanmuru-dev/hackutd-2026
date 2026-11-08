@@ -12,7 +12,8 @@ Product: **Titan** (see docs/PACK_SPEC.md). Tracks: NVIDIA + T-Mobile + Photon. 
 |---|---|---|---|---|---|---|
 | 1 | Spine | Yuvan · Claude | `agent/server.py`, `agent/core/`, `contracts/`, `docs/`, `scripts/`, root md files | `lane/spine` | `lane:spine` | Mock T+1, real brain T+6 |
 | 2a | Data + protections | Yuvan · Codex | `agent/packs/guard/` **except** `ml/` | `lane/data` | `lane:data` | Seed data T+1:30, tools T+5 |
-| 2b | ML + evals | Ishan · Codex #2 | `agent/packs/guard/ml/`, `evals/` | `lane/ml` | `lane:ml` | T+9 |
+| 2b | ML model | Ishan · Codex #2 | `agent/packs/guard/ml/` | `lane/ml` | `lane:ml` | stub now, model T+10 |
+| 2c | Evals (independent) | Yuvan · Codex | `evals/` | `lane/evals` | `lane:evals` | split now, numbers T+10 |
 | 3a | Web: guardian | Ishan · Claude | `web/app/guardian/`, `web/components/guardian/` | `lane/web-guardian` | `lane:web-guardian` | T+8 |
 | 3b | Web: portal + shell | Ishan · Codex #1 | everything else in `web/` (scaffold, `package.json`, layout, theme, `web/lib/`, `/portal`, `/console`, face check) | `lane/web-portal` | `lane:web-portal` | Scaffold T+0:45, portal T+8, face T+12 |
 | 4 | Voice | Krishang · Codex | `voice/` | `lane/voice` | `lane:voice` | Bridge go/no-go T+2, done T+10 |

@@ -102,7 +102,7 @@ with TestClient(server.app) as c:
     agents_seen = [s["agent"] for s in d["steps"]]
     for a in ("context", "risk", "verifier", "response", "messaging"):
         assert a in agents_seen, (a, agents_seen)
-    assert d["threat"] == "coached" and d["risk"]["model"] == "rules"
+    assert d["threat"] == "coached" and d["risk"]["model"] in ("rules", "ml+rules")  # ml+rules once Lane 2b's model lands (D-051)
     score_step = next(s for s in d["steps"] if s["type"] == "score")
     assert score_step["data"]["decision"] == "hold_and_alert", score_step   # rules floor beat the lenient model
     assert d["verification"]["claims_dropped"] >= 1, d["verification"]      # "$5,000 from bank_records" dropped
@@ -122,6 +122,13 @@ with TestClient(server.app) as c:
                                                          "text": "I told him my PIN.", "agent": "voice"}).json())
     pending = [a for a in c.get(f"/cases/{cid}").json()["actions"] if a["status"] == "awaiting_approval"]
     assert len(pending) >= 3, pending
+    # D-054: spoken lines on Titan's call are audit-only, so a "yes" heard on the call approves nothing by itself
+    c.post(f"/cases/{cid}/events", json={"channel": "voice", "direction": "in", "kind": "transcript", "text": "Yes, go ahead.", "agent": "voice"})
+    c.post("/events", json={"event_id": f"evt_{time.time_ns()}", "user_id": "usr_maya", "type": "customer.reply", "ts": "2026-11-07T21:00:00Z",
+                            "source": "voice", "call_id": None, "data": {"channel": "voice", "text": "yes", "case_id": cid}})
+    time.sleep(0.3)
+    still = [a for a in c.get(f"/cases/{cid}").json()["actions"] if a["status"] == "awaiting_approval"]
+    assert len(still) == len(pending), "a spoken yes must not approve a recovery step (D-054)"
     # the brain texts recovery questions one at a time (D-042); a YES by text approves the step it asked about
     steps_sent = [o["payload"] for o in c.get("/demo/outbox").json() if o["kind"] == "send" and o["payload"]["kind"] == "recovery_step"]
     assert len(steps_sent) == 1 and steps_sent[0]["action_id"] == pending[0]["action_id"], steps_sent

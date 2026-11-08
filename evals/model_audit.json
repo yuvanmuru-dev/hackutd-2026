@@ -1,0 +1,14 @@
+{
+  "status": "test_informed",
+  "affected_split_sha256": "2fe13d00ccfc3b70d911e2781bad8cc36491ddf4ef01bb25d6be4cbe51d53bd6",
+  "model_pr": 57,
+  "audited_head": "044762137bd861c0708778d108ac9bcbb3b2e828",
+  "reason": "Model feature/serving rules were selected after reviewing this frozen test set's failure families. Its scores cannot be claimed as untouched independent generalization evidence.",
+  "evidence": [
+    "agent/packs/guard/ml/models/meta.json:69-74 records choices after inspecting held-out failure families.",
+    "agent/packs/guard/ml/text.py:15-16 records a credential rule added after held-out code_request_no_link review.",
+    "seed_scam_text_04.json has variant code_request_no_link and is in split.test, absent split.train."
+  ],
+  "verified_fit_inputs": "Risk fit/calibration use 125 split.train risk scenarios and 49 allowed normal-history rows, with training out-of-fold calibration; the leakage is feature/rule selection, not direct weight fitting on test rows.",
+  "pending": "Lane 1 decision: freeze model and create a new separate sealed holdout, or retain explicit test-informed/provisional labeling. Frozen split stays unchanged."
+}

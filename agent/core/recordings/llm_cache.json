@@ -1,0 +1,254 @@
+{
+ "042776fb09502da9e7f0568c558b09f4f4f917442dc24201a4ce106aaa0e4df5": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 505,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "05f42a7e805d8b61175506c9d3f1ad9c6ea95b6f2090c1fe7e1a26550e176147": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 1994,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"threat\": \"scam_text\", \"decision\": \"hold_and_alert\", \"assessment\": \"The forwarded message contains a recently registered lookalike domain and urgent pressure language typical of credential phishing. The user's account protections are active and there is no evidence of compromise.\", \"claims\": [{\"claim\": \"Message contains urgent language claiming account is locked\", \"tool\": \"check_message\"}, {\"claim\": \"Domain t-mobile-secure-help.co registered 3 days ago, looks like t-mobile.com\", \"tool\": \"check_message\"}, {\"claim\": \"No recorded scam reports for this user\", \"tool\": \"recent_scam_reports\"}, {\"claim\": \"User has sim_protection and port_out_protection enabled\", \"tool\": \"protection_status\"}, {\"claim\": \"User's last login used a known device, 0 SIM swaps in 90 days\", \"tool\": \"device_sim_status\"}]}"
+ },
+ "14a1e64e78a8204c632a2e7506df398d26c611cc35b047c044ff4ac4de1555eb": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1895,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"facts\": [{\"fact\": \"Sim swap request received via portal for user usr_maya at 2026-11-08T00:29:13Z\", \"tool\": \"device_sim_status\"}, {\"fact\": \"Last login was from a new device; 1 SIM swap request in 90 days; 2 known devices\", \"tool\": \"device_sim_status\"}, {\"fact\": \"Request region Lagos, NG; line region Dallas, TX; region MISMATCH\", \"tool\": \"location_match\"}, {\"fact\": \"Account has 0 prior transfer PIN requests in 90 days; 2 known devices; home region Dallas, TX\", \"tool\": \"account_history\"}, {\"fact\": \"Sim protection enabled; Port out protection enabled; Scam block disabled\", \"tool\": \"protection_status\"}, {\"fact\": \"No active call; policy fallback applies Port Out Protection\", \"tool\": \"call_context\"}, {\"fact\": \"Portal session: 918ms hesitation; 0 tab switches; no paste into PIN\", \"tool\": \"portal_signals\"}]}"
+ },
+ "14f5210723e0f8ec34b60871459bd12c738cd003a7e77a3f617808d581b51d4f": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 902,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"unsafe\", \"Response Safety\": \"safe\", \"Safety Categories\": \"PII/Privacy, Criminal Planning/Confessions, Needs Caution\"} "
+ },
+ "199d1863488c6256688830a45dd63b56f8638097f06aff3aa07888ce603b9de6": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1987,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"alert_text\": \"We detected a suspicious request on your account. Did you ask for a transfer PIN while on a call? Reply YES or NO.\", \"call_opening_line\": \"Hi Maya, this is Titan. We're calling about your account security. We will never ask you for a PIN, code or password.\", \"call_facts\": [\"Transfer PIN requested during a T-Mobile Support call\", \"Port out protection was turned off at 00:28:38\", \"We've turned protection back on for you\"]}"
+ },
+ "1cc832086c740be69035dd4681bde2d68417770359ac729abe6b4c7c5d6eae02": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 623,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "25f72c382b276519c110db3854f9077f6e69273874fa9916230218b2c2561a96": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 537,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "30764951015d424f87d233c57b258f7f044ed13cba889c65fdc9e97706e0b53d": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 636,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "4719e170cf9940ccbc0e85fcd0731eb8104424c9308aa5a365a7853a137511f7": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 2883,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"why_we_stepped_in\": \"We stepped in because you forwarded a suspicious text that points to a newly registered domain imitating T-Mobile's site. Titan detected the threat and blocked further interaction before any code or PIN was entered.\", \"confidence_text\": \"fairly sure\", \"next_steps\": [\"Ignore any future texts from unknown numbers that claim your account is locked or ask for a code\", \"Check your T-Mobile app or website directly (not via links in texts) to verify your account status\", \"Report any new suspicious messages to T-Mobile's spam team\"], \"spot_it_next_time\": \"If a text urges you to click a link or enter a code to 'unlock' your account, treat it as a scam and do not interact.\"}"
+ },
+ "4759e4d6da82cd8cc0cabcf607c5ed288d9729bc0e51d94e4c2eab8543ce0f73": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 1317,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"unsafe\", \"Response Safety\": \"safe\", \"Safety Categories\": \"Criminal Planning/Confessions, PII/Privacy\"} "
+ },
+ "4d3a0077e7e59be947fd81c435548685dd577786ec8ab0dfd3a2f450b6476035": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1347,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\n  \"why_we_stepped_in\": \"A SIM swap was attempted from Lagos, NG while your phone was in Dallas, TX. The regions didn't match, so we blocked the swap and locked SIM protection to keep your number safe.\",\n  \"confidence_text\": \"fairly sure\",\n  \"next_steps\": [\n    \"Reset your account PIN using the method you approved\",\n    \"Sign out any devices you don't recognize\",\n    \"Check your bill for any unexpected charges\"\n  ],\n  \"spot_it_next_time\": \"If you get a text or call about moving your number to a new SIM and your phone stays where it is, hang up and call us directly.\"\n}"
+ },
+ "62321299923954e51a3cf7313051bccd65bc991862af0d3ad9d3eb3688d28d25": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 501,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "6d2bcc02fe90d56b737914013f604669ba20d3cfaff9227c6db31169c8161212": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 925,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"plan\": \"Sim swap requested on Maya's account. Need to check protection status, device/sim state, account history, location signals, recent scam reports, and policy context.\", \"tools\": [\"protection_status\", \"device_sim_status\", \"account_history\", \"location_match\", \"recent_scam_reports\", \"policy_lookup\", \"portal_signals\"]}"
+ },
+ "6f2f8f7352e77ea81def6bd5b185af2aca8f0472977d00d5e7c98f7e55212f02": {
+  "model": "nvidia/nemotron-3.5-super-vl-120b-a12b",
+  "ms": 1019,
+  "prompt_head": "You read screenshots of text messages for a scam-protection ",
+  "role": "vision",
+  "text": "+1 (469) 555-0142\n\nT-Mobile: Your account has been locked due to unusual activity. Verify now at t-mobile-secure-help.co to avoid suspension of your service."
+ },
+ "7f6061c62fffd4110fba3593ccf8cb19e5b1dd99de0b63b4b8053fa3e78ba532": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 5353,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"facts\": [{\"fact\": \"Sim swap request received via portal for user usr_maya at 2026-11-08T00:29:13Z\", \"tool\": \"device_sim_status\"}, {\"fact\": \"Last login was from a new device; 1 SIM swap request in 90 days; 2 known devices\", \"tool\": \"device_sim_status\"}, {\"fact\": \"Request region Lagos, NG; line region Dallas, TX; region MISMATCH\", \"tool\": \"location_match\"}, {\"fact\": \"Account has 0 prior transfer PIN requests in 90 days; 2 known devices; home region Dallas, TX\", \"tool\": \"account_history\"}, {\"fact\": \"Sim protection enabled; Port out protection enabled; Scam block disabled\", \"tool\": \"protection_status\"}, {\"fact\": \"No active call; policy fallback applies Port Out Protection\", \"tool\": \"call_context\", \"policy_lookup\"}, {\"fact\": \"Portal session: 918ms hesitation; 0 tab switches; no paste into PIN\", \"tool\": \"portal_signals\"}]}"
+ },
+ "8b38e33a846c2750e8a81951ef5ab1e738dcc23518349f6ad24a09489ed613e5": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 900,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"unsafe\", \"Response Safety\": \"safe\", \"Safety Categories\": \"Malware, Criminal Planning/Confessions, Fraud/Deception\"} "
+ },
+ "8e0ec0169d452ace307e13cc6a3a016bc7f9908d715a2cdab40c17735e3f3a0b": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1534,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"plan\": \"Investigate the transfer PIN request event and assess scam risk.\", \"tools\": [\"call_context\", \"protection_status\", \"account_history\", \"device_sim_status\", \"location_match\", \"portal_signals\", \"check_message\", \"recent_scam_reports\", \"policy_lookup\"]}"
+ },
+ "90e072ad695339f7fa8be202db4239a4910aedad0b84592bfe6c0057285e8e77": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 525,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"plan\": \"Inspect the forwarded scam text and check the user's account protections, SIM status, and recent scam reports.\", \"tools\": [\"check_message\", \"protection_status\", \"device_sim_status\", \"recent_scam_reports\"]}"
+ },
+ "9a1b8714eea5431160de6f4b47f8a61d280fb10c32741ea75a284a44f1c05f2e": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 501,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "a17c3069384e76610976bf08b566720aa24d48ad97f603755ab465280e66051f": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 2838,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"threat\": \"takeover\", \"decision\": \"block\", \"assessment\": \"A SIM swap request originated from Lagos, Nigeria while the account's home region is Dallas, TX, and the request came from a never-before-seen device. The strong region mismatch and new device indicators align with a high-confidence takeover attempt.\", \"claims\": [{\"claim\": \"SIM swap request received via portal for user usr_maya at 2026-11-08T00:29:13Z\", \"tool\": \"device_sim_status\"}, {\"claim\": \"Last login was from a new device; 1 SIM swap request in 90 days; 2 known devices\", \"tool\": \"device_sim_status\"}, {\"claim\": \"Request region Lagos, NG; line region Dallas, TX; region MISMATCH\", \"tool\": \"location_match\"}, {\"claim\": \"Account has 0 prior transfer PIN requests in 90 days; 2 known devices; home region Dallas, TX\", \"tool\": \"account_history\"}, {\"claim\": \"Sim protection enabled; Port out protection enabled; Scam block disabled\", \"tool\": \"protection_status\"}]}"
+ },
+ "a5cec7788e906dcd5419176ec482afb776955e9e70da9bf83ddeabae8d1e7c6b": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 3374,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\n  \"threat\": \"scam_text\",\n  \"decision\": \"block\",\n  \"assessment\": \"The forwarded message contains a lookalike domain (t-mobile-secure-help.co) registered 3 days ago and uses urgent language to pressure the user into clicking a malicious link. This is a classic smishing attempt impersonating T-Mobile.\",\n  \"claims\": [\n    {\n      \"claim\": \"Message contains a lookalike domain t-mobile-secure-help.co imitating T-Mobile\",\n      \"tool\": \"check_message\"\n    },\n    {\n      \"claim\": \"Domain t-mobile-secure-help.co was registered 3 days ago\",\n      \"tool\": \"check_message\"\n    },\n    {\n      \"claim\": \"Message uses urgent language: 'Your account has been locked due to unusual activity. Verify now... to avoid suspension'\",\n      \"tool\": \"read_screenshot\"\n    },\n    {\n      \"claim\": \"Titan policy: never sends links in texts and never asks for PIN, password, or one-time code\",\n      \"tool\": \"policy_lookup\"\n    },\n    {\n      \"claim\": \"No recorded scam reports for this specific pattern yet\",\n      \"tool\": \"recent_scam_reports\"\n    }\n  ]\n}"
+ },
+ "b1312fc50070d9ef717c80c9d14c026650c12f5194d32b955a14abf85ebe7d78": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 1351,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"results\": [{\"index\": 0, \"supported\": false, \"note\": \"device_sim_status does not contain a SIM swap request timestamp or portal source\"}, {\"index\": 1, \"supported\": true, \"note\": \"device_sim_status shows last_login_new_device true, sim_swap_requests 1, known_device_count 2\"}, {\"index\": 2, \"supported\": true, \"note\": \"location_match shows request_region Lagos, NG, line_region Dallas, TX, match false\"}, {\"index\": 3, \"supported\": true, \"note\": \"account_history shows transfer_pins_before 0, known_device_count 2, home_region Dallas, TX\"}, {\"index\": 4, \"supported\": true, \"note\": \"protection_status shows sim_protection enabled, port_out_protection enabled, scam_block disabled\"}]}"
+ },
+ "b301f9b4780fba058df9e42d3a5d5e7f21daf13e57fad27048f22903bc8487be": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 2417,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"facts\": [{\"fact\": \"Transfer PIN requested via portal during active T-Mobile Support call (caller ID unverified, scam_label false, suspicious true)\", \"tool\": \"call_context\"}, {\"fact\": \"Port out protection was turned off during the same call (updated_at 2026-11-08T00:28:38.322028Z)\", \"tool\": \"protection_status\"}, {\"fact\": \"Portal session showed 41 seconds of hesitation before navigating to port-out security page, 3 tab switches, no paste into PIN\", \"tool\": \"portal_signals\"}, {\"fact\": \"Account has 0 prior transfer PIN requests in 90 days and 0 scam reports\", \"tool\": \"account_history\"}, {\"fact\": \"Device is known (last login known device, 2 known devices, 0 SIM swap requests in 90 days)\", \"tool\": \"device_sim_status\"}, {\"fact\": \"Request location matches phone region: both Dallas, TX\", \"tool\": \"location_match\"}, {\"fact\": \"Protection status shows sim_protection enabled, port_out_protection disabled, scam_block disabled\", \"tool\": \"protection_status\"}, {\"fact\": \"Policy lookup returned local fallback for Port Out Protection with Titan rule reminder never to ask for PIN/password/code or send links\", \"tool\": \"policy_lookup\"}]}"
+ },
+ "b326f121774e57c6f8d91bf706dc7c35d1bc8d21702c5a5bce3cc070a9082590": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 2478,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"facts\": [{\"fact\": \"Forwarded iMessage from user usr_maya contains text: \\\"+1 (469) 555-0142\\\\n\\\\nT-Mobile: Your account has been locked due to unusual activity. Verify now at t-mobile-secure-help.co to avoid suspension of your service.\\\"\", \"tool\": \"read_screenshot\"}, {\"fact\": \"Domain t-mobile-secure-help.co registered 3 days ago, lookalike of t-mobile.com, flagged as urgent language\", \"tool\": \"check_message\"}, {\"fact\": \"Policy: Titan never asks for a PIN, password, one-time code, or transfer PIN, and never sends a link in a text.\", \"tool\": \"policy_lookup\"}, {\"fact\": \"No recorded scam reports for this pattern\", \"tool\": \"recent_scam_reports\"}]}"
+ },
+ "b352a23ef8d5758717722c5042d80d38a0cce4c36dd6908be65c362673b5701c": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 2344,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "b7b429afd9f6d816940ac6dc290019de029a76c1a2e57d0a39607b95f9b5dbfb": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1825,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\n  \"why_we_stepped_in\": \"You received a text with a fake T-Mobile link designed to steal your credentials. Titan stepped in to protect your account before any loss occurred.\",\n  \"confidence_text\": \"fairly sure this was a scam attempt based on the domain age and urgent language\",\n  \"next_steps\": [\n    \"Ignore any future texts from unknown senders that ask you to click links or verify your account\",\n    \"If you receive a suspicious text, forward it to 7726 (SPAM) to help block similar messages\",\n    \"Check your T-Mobile account directly through the official app or website to confirm your status\"\n  ],\n  \"spot_it_next_time\": \"Watch for texts that create urgency, use lookalike domains, or ask you to verify your account via a link\"\n}"
+ },
+ "c23ac43755e04044054a8df4b6a780eb75b473f73e550e88f4df98bd240cbbde": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 4775,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\n  \"threat\": \"coached\",\n  \"decision\": \"hold_and_alert\",\n  \"assessment\": \"The customer requested a transfer PIN and disabled port-out protection during an unverified support call, with portal behavior showing hesitation and tab switching. This pattern strongly indicates a scammer is coaching the real customer to bypass protections.\",\n  \"claims\": [\n    {\"claim\": \"Transfer PIN requested via portal during active T-Mobile Support call with unverified caller ID\", \"tool\": \"call_context\"},\n    {\"claim\": \"Port out protection was turned off during the same call at 2026-11-08T00:28:38.322028Z\", \"tool\": \"protection_status\"},\n    {\"claim\": \"Portal session showed 41 seconds of hesitation before navigating to port-out security page with 3 tab switches\", \"tool\": \"portal_signals\"},\n    {\"claim\": \"Account has 0 prior transfer PIN requests in 90 days and 0 scam reports\", \"tool\": \"account_history\"},\n    {\"claim\": \"Device is known with last login on known device, 2 known devices, 0 SIM swap requests in 90 days\", \"tool\": \"device_sim_status\"}\n  ]\n}"
+ },
+ "c9a4ca9290eb860036fcf0d5b23ed3fc697998992faf21ebeb717182721abd71": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 1830,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"results\": [{\"index\": 0, \"supported\": true, \"note\": \"call_context shows active call with unverified caller ID (verified=false) and transfer_pin.requested in actions_during_call\"}, {\"index\": 1, \"supported\": true, \"note\": \"protection_status.recent_changes shows port_out_protection disabled at 2026-11-08T00:28:38.321952Z during_call=true\"}, {\"index\": 2, \"supported\": true, \"note\": \"portal_signals shows hesitation_ms=41000 (41 seconds) and tab_switches=3 with page_path including port-out security page\"}, {\"index\": 3, \"supported\": true, \"note\": \"account_history shows transfer_pins_before=0 and recent_scam_reports is empty array\"}, {\"index\": 4, \"supported\": true, \"note\": \"device_sim_status shows last_login_device_known=true, known_device_count=2, sim_swap_requests=0\"}]}"
+ },
+ "cd94af7e3a66838b0b2ed7bc83dce63c4f9bf38cd30a6bc5d3e25fa52d6583ea": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1614,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\n  \"why_we_stepped_in\": \"We detected a request for a transfer PIN while you were on a call claiming to be T-Mobile Support. This is a known scam pattern, so we secured your account immediately.\",\n  \"confidence_text\": \"fairly sure\",\n  \"next_steps\": [\n    \"Reset your account PIN using the official T-Mobile app or website\",\n    \"Cancel the pending transfer PIN we are holding\",\n    \"Sign out any other devices currently logged into your account\"\n  ],\n  \"spot_it_next_time\": \"If someone calls claiming to be support and asks you to turn off security features or share a PIN, hang up and call T-Mobile directly.\"\n}"
+ },
+ "cdd82877a16fa45dc298a3db5ac7484adc32447f3199d6ff451e3db48d5b1a16": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 3324,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"results\": [{\"index\": 0, \"supported\": true, \"note\": \"check_message result shows lookalike_domains includes t-mobile-secure-help.co\"}, {\"index\": 1, \"supported\": true, \"note\": \"check_message result shows domain_age_days: 3 for t-mobile-secure-help.co\"}, {\"index\": 2, \"supported\": true, \"note\": \"read_screenshot text contains the exact urgent language quoted\"}, {\"index\": 3, \"supported\": true, \"note\": \"policy_lookup result includes Titan demo rule stating never asks for PIN/password/OTP and never sends links\"}, {\"index\": 4, \"supported\": true, \"note\": \"recent_scam_reports result is an empty array, indicating no recorded reports for this pattern\"}]}"
+ },
+ "cee7df46543f426a0a9a7317259d64281bbea79fabbcb131371776c21696ae6c": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 543,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "d0a9cd412bf845352d69aa3a51b3f387d354970cbb7f0284f3d4428b2b530a70": {
+  "model": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+  "ms": 511,
+  "prompt_head": "Assess this outbound message from a security service to a cu",
+  "role": "safety",
+  "text": "{\"User Safety\": \"safe\", \"Response Safety\": \"safe\"} "
+ },
+ "d69d2d6483cc8a779a798667f4efc1a5ad052314e103cc7ec97dac11b7623bf4": {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ms": 2382,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "super",
+  "text": "{\"results\": [{\"index\": 0, \"supported\": true, \"note\": \"check_message result shows urgent_language: true\"}, {\"index\": 1, \"supported\": true, \"note\": \"check_message result shows domain t-mobile-secure-help.co with age_days: 3 and lookalike_of: t-mobile.com\"}, {\"index\": 2, \"supported\": true, \"note\": \"recent_scam_reports result is an empty array\"}, {\"index\": 3, \"supported\": true, \"note\": \"protection_status result shows sim_protection and port_out_protection both enabled: true\"}, {\"index\": 4, \"supported\": true, \"note\": \"device_sim_status result shows last_login_device_known: true and sim_swap_requests: 0\"}]}"
+ },
+ "df43903d36cb22deeca52d662d203a14fea7af0fd0da81a6488d902dfa12df6b": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1426,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"plan\": \"Customer received a forwarded iMessage claiming their T-Mobile account is locked due to unusual activity, urging them to verify at a suspicious link. This is a classic smishing attempt. Need to verify the message content and check for scam reports.\", \"tools\": [\"check_message\", \"recent_scam_reports\"]}"
+ },
+ "e066199331b592dd20440bffe0414c5fd934690709c70e2793de635827aac631": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1395,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"facts\": [{\"fact\": \"Message contains urgent language claiming account is locked\", \"tool\": \"check_message\"}, {\"fact\": \"Domain t-mobile-secure-help.co registered 3 days ago, looks like t-mobile.com\", \"tool\": \"check_message\"}, {\"fact\": \"No recorded scam reports for this user\", \"tool\": \"recent_scam_reports\"}, {\"fact\": \"User has sim_protection and port_out_protection enabled\", \"tool\": \"protection_status\"}, {\"fact\": \"Scam_block protection is currently disabled\", \"tool\": \"protection_status\"}, {\"fact\": \"User's last login used a known device, 0 SIM swaps in 90 days\", \"tool\": \"device_sim_status\"}]}"
+ },
+ "f61cbc5685aa7a8a5d214f214a80530bee26b63c8ce7eb8f58b900aecbc8dcad": {
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "ms": 1254,
+  "prompt_head": "You work for Titan, a scam-protection layer on top of T-Mobi",
+  "role": "nano",
+  "text": "{\"alert_text\": \"We noticed a SIM swap attempt from Lagos while your phone is in Dallas. Reply YES if you tried this, NO if not.\", \"call_opening_line\": \"Hi Maya, this is Titan. We're calling about suspicious activity on your account. We will never ask for your PIN, code, or password.\", \"call_facts\": [\"A SIM swap was requested from Lagos, NG while your line is in Dallas, TX\", \"Your account has port protection enabled and no prior transfer PIN requests\", \"We've already blocked the swap and locked your SIM protection\"]}"
+ }
+}

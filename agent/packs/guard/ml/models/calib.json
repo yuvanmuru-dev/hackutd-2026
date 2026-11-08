@@ -1,0 +1,21 @@
+{
+ "method": "isotonic",
+ "x": [
+  0.383787,
+  0.413851,
+  0.963208,
+  0.986906,
+  0.987265,
+  0.991803
+ ],
+ "y": [
+  0.0,
+  0.0,
+  0.993056,
+  0.993056,
+  1.0,
+  1.0
+ ],
+ "n": 174,
+ "what": "P(predicted class is correct) from out-of-fold max class probability"
+}

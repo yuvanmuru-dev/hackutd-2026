@@ -75,7 +75,10 @@ def _case(cid: str) -> dict:
 async def health():
     from core import llm
     return {"ok": True, "mock": MOCK, "version": "0.3", "users": len(store.users), "cases": len(store.cases),
-            "models": {r: llm.model_for(r) for r in ("super", "nano", "safety")}, "recent_model_calls": llm.recent_calls()[-5:]}
+            "models": {r: llm.model_for(r) for r in ("super", "nano", "safety", "vision")}, "recent_model_calls": llm.recent_calls()[-5:],
+            "endpoints": llm.endpoints(),
+            "llm_cache": llm.cache_stats(),
+            "doors": {"messaging_url_set": bool(os.getenv("MESSAGING_URL")), "voice_url_set": bool(os.getenv("VOICE_URL"))}}
 
 
 @app.get("/tools")
@@ -104,7 +107,9 @@ async def post_event(request: Request):
     if result["trigger"]:
         _start(result["case_id"], result["trigger"])
     if ev["type"] == "customer.reply" and result["case_id"] and not result["duplicate"]:
-        workflow.notify(result["case_id"], {"direction": "in", "text": ev["data"]["text"], "channel": ev["data"]["channel"]})
+        if ev["data"]["channel"] in workflow.TYPED_CHANNELS:  # typed replies can answer Titan's questions
+            workflow.notify(result["case_id"], {"direction": "in", "text": ev["data"]["text"], "channel": ev["data"]["channel"]})
+        # spoken lines are audit-only (D-054): on a call, only explicit POST /actions/{id}/approve counts
     return {"accepted": not result["duplicate"], "duplicate": result["duplicate"], "case_id": result["case_id"],
             "trigger": result["trigger"]}
 
@@ -218,7 +223,7 @@ async def case_event(cid: str, request: Request):
     c["messages"].append(msg)
     store.add_step(c, new_id("run"), body.get("agent", "system"), "reach", "transcript" if body["kind"] == "transcript" else "message",
                    body["text"][:140], {"message_id": msg["message_id"]})
-    if body["direction"] == "in":
+    if body["direction"] == "in" and channel in workflow.TYPED_CHANNELS:  # voice transcripts are audit-only (D-054)
         workflow.notify(cid, {"direction": "in", "text": body["text"], "channel": channel})
     return msg
 
