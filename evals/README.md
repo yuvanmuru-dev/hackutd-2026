@@ -4,6 +4,15 @@ Only the **single sealed run** supplies headline Devpost/video numbers.
 `results.md` / `results.json` describe the original split and remain
 **test-informed during development**, including after a model lands.
 
+## What we ship
+
+The sealed test ran **once**, with frozen model `67fe7df` and data SHA-256 `c20095a240dc38423d3a3c9e90ac36c597215128d6b39ed4fb5f9e143d86b910`.
+
+- Calls and account events use hybrid `ml+rules`: **30/30 coached cases**, versus rules-only **21/30**. It was the only tested scorer that caught bots: **12/12**, versus rules-only **0/12**.
+- Forwarded texts (`message.forwarded`) use `rules_score`: **28/30 scam texts**, versus hybrid **6/30**, with **0/6 benign false positives for both scorers**.
+
+Routing was chosen **after seeing the sealed results** ([D-060](../docs/DECISIONS.md)). These are measured component results; **no combined sealed score is claimed**, and the routed system was not scored on the sealed set. Dev-split numbers remain **test-informed during development**. All data are synthetic, so no real-carrier performance claim is made. Full component results and limitations remain in the [sealed report](sealed_run/results.md).
+
 The canonical sealed attempt completed once at **2026-11-08 01:03 Chicago**.
 Model commit: `67fe7df582a63f4f871eea27867391d55e6a8d16`.
 See [the sealed report](sealed_run/results.md), [receipt](sealed_run/receipt.json)
