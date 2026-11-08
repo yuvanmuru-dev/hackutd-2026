@@ -2,6 +2,17 @@
 
 Final headline evidence is the [single sealed evaluation](sealed_run/results.md) (D-058). This file remains development evidence.
 
+## What we ship
+
+The sealed test ran **once**, with frozen model `67fe7df` and data SHA-256 `c20095a240dc38423d3a3c9e90ac36c597215128d6b39ed4fb5f9e143d86b910`.
+
+- Calls and account events use hybrid `ml+rules`: **30/30 coached cases**, versus rules-only **21/30**. It was the only tested scorer that caught bots: **12/12**, versus rules-only **0/12**.
+- Forwarded texts (`message.forwarded`) use `rules_score`: **28/30 scam texts**, versus hybrid **6/30**, with **0/6 benign false positives for both scorers**.
+
+Routing was chosen **after seeing the sealed results** ([D-060](../docs/DECISIONS.md)). These are measured component results; **no combined sealed score is claimed**, and the routed system was not scored on the sealed set. Dev-split numbers remain **test-informed during development**. All data are synthetic, so no real-carrier performance claim is made. Full component results and limitations remain in the [sealed report](sealed_run/results.md).
+
+## Historical development run
+
 Mode: **rules only (model rerun pending)**.
 
 Presentation status: **test-informed during development; provisional, no headline claim**.
