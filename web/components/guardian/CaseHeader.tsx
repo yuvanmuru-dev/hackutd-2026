@@ -25,7 +25,7 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
     <header className="flex flex-wrap items-center gap-x-6 gap-y-3">
       <div className="flex items-center gap-3">
         <TGlyph size={40} tone="accent" title="Titan" />
-        <span className="text-[22px] font-semibold tracking-tight">Titan Guardian</span>
+        <span className="hidden text-[22px] font-semibold tracking-tight sm:inline">Titan Guardian</span>
       </div>
       <div className="hidden h-8 w-px bg-[var(--g-line)] lg:block" aria-hidden />
       <div className="min-w-[min(100%,420px)] flex-1">
