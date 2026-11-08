@@ -31,7 +31,14 @@ python3 evals/run.py --require-model
 ```
 
 Only that post-model independent run should supply Devpost/video numbers.
-The dataset is synthetic, lacks benign forwarded-text examples, and has a small
-test set; the report states those limits. Recovery-scam cases are scored and
-reported separately because the current RiskScore contract cannot name that
-ground-truth label.
+`agent/packs/guard/data/benign_texts.json` adds ten separate evaluation-only
+forwarded-text controls. They never enter the frozen split or training. Their
+scam-text false-positive rate has its own table and denominator. Before the data
+PR merges, `--benign-texts /path/to/benign_texts.json` can grade that approved
+file provisionally with its hash/source commit recorded; a final run requires
+the same controls on main.
+
+D-051 maps recovery-scam ground truth to coached for call triggers and scam_text
+for `message.forwarded`. All frozen cases remain scored; original data labels
+and split bytes stay unchanged. The synthetic dataset and small benign control
+set do not establish real-customer detection quality.

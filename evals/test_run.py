@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import socket
 import sys
+import tempfile
 import types
 import unittest
 from unittest.mock import patch
@@ -48,6 +49,28 @@ class ProtocolTests(unittest.TestCase):
             self.assertEqual(run.store_module.now(), at)
         self.assertIs(run.store_module.now, original)
 
+    def test_separate_benign_controls_do_not_modify_split(self):
+        before = run.file_hash(run.SPLIT)
+        event = {"event_id": "evt_control_test", "user_id": "usr_maya",
+                 "type": "message.forwarded", "ts": "2026-11-07T20:00:00Z",
+                 "source": "generator", "data": {"channel": "sms", "text": "Your bill is ready in the app."}}
+        wrapper = {"format_version": 1, "synthetic": True, "records": [
+            {"text_id": "benign_test", "label": "legit", "event": event}]}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "benign_texts.json"
+            path.write_text(json.dumps(wrapper))
+            rows = run.load_benign(path)
+            audit = {"network_attempts": 0, "write_attempts": 0, "scenario_read_attempts": 0}
+            with run.offline_read_only(audit, (path,)):
+                active, _, _ = run.evaluate({"test": list(rows)}, rows, audit)
+            self.assertEqual(len(active), 1)
+            self.assertEqual(active[0]["trigger_type"], "message.forwarded")
+            self.assertEqual(active[0]["label"], "legit")
+            self.assertEqual(run.file_hash(run.SPLIT), before)
+            with run.offline_read_only(audit, (path,)), self.assertRaises(RuntimeError):
+                path.read_text()
+        self.assertEqual(audit["scenario_read_attempts"], 1)
+
     def test_scorer_cannot_read_test_label_files(self):
         audit = {"network_attempts": 0, "write_attempts": 0}
         with run.offline_read_only(audit):
@@ -84,6 +107,20 @@ class ProtocolTests(unittest.TestCase):
         status = {"module_present": True, "import_error": None}
         self.assertTrue(run.final_model_ready(status, [good]))
         self.assertFalse(run.final_model_ready(status, [good, bad]))
+        empty_fallback = {"prediction": {"model": "rules"},
+                          "route": {"ml_called": True, "ml_error": None}}
+        self.assertFalse(run.final_model_ready(status, [good, empty_fallback]))
+
+    def test_control_commit_must_contain_the_actual_bytes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "controls.json"
+            path.write_text("current data")
+            root = str(path.parent.resolve())
+            with patch.object(run.subprocess, "check_output", side_effect=[root, "abc123", b"old data"]):
+                self.assertIsNone(run.committed_source(path))
+            with patch.object(run.subprocess, "check_output", side_effect=[root, "abc123", b"current data"]):
+                self.assertEqual(run.committed_source(path), "abc123")
+            self.assertIsNone(run.committed_source(path))
 
 
 if __name__ == "__main__":

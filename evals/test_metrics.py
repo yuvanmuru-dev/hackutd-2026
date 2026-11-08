@@ -1,13 +1,14 @@
 """Hand-calculated metric checks, independent of model implementation."""
+import copy
 import unittest
 
-from evals.metrics import summarize
+from evals.metrics import benign_summary, evaluation_label, summarize
 
 
 def row(label, prediction, *, variant="example", hard_negative=False,
-        confidence="high", probability=0.9, calibrated=False):
+        confidence="high", probability=0.9, calibrated=False, trigger_type=None):
     return {"scenario_id": "scn_test", "label": label, "variant": variant,
-            "hard_negative": hard_negative,
+            "hard_negative": hard_negative, "trigger_type": trigger_type,
             "prediction": {"threat": prediction, "probability": probability,
                            "confidence": confidence, "calibrated": calibrated, "model": "test"}}
 
@@ -51,21 +52,56 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(result["correct_legit"], 1)
         self.assertAlmostEqual(result["false_positive_rate"], 2 / 3)
 
-    def test_recovery_is_scored_but_excluded_from_exact_class_metrics(self):
-        result = summarize([
+    def test_recovery_is_mapped_into_exact_class_metrics_without_mutation(self):
+        rows = [
             row("takeover", "takeover"),
-            row("recovery_scam", "coached"),
-            row("recovery_scam", "legit"),
-        ])
-        self.assertEqual(result["scored_cases"], 3)
-        self.assertEqual(result["exact_class_cases"], 1)
-        self.assertEqual(result["excluded_cases"], {"recovery_scam": 2})
+            row("recovery_scam", "coached", trigger_type="otp.sent"),
+            row("recovery_scam", "scam_text", trigger_type="message.forwarded"),
+            row("recovery_scam", "legit", trigger_type="transfer_pin.requested"),
+        ]
+        before = copy.deepcopy(rows)
+        result = summarize(rows)
+        self.assertEqual(rows, before)
+        self.assertEqual(result["scored_cases"], 4)
+        self.assertEqual(result["exact_class_cases"], 4)
+        self.assertEqual(result["excluded_cases"], {})
+        self.assertEqual(result["per_threat"]["coached"]["tp"], 1)
+        self.assertEqual(result["per_threat"]["coached"]["fn"], 1)
         self.assertEqual(result["per_threat"]["coached"]["fp"], 0)
-        self.assertEqual(result["calibration"]["high"]["support"], 1)
-        self.assertEqual(result["recovery_scam"]["nonlegit_detected"], 1)
-        self.assertEqual(result["recovery_scam"]["detection_rate"], 0.5)
-        self.assertEqual(result["recovery_scam"]["predicted_labels"], {"coached": 1, "legit": 1})
-        self.assertEqual(result["model_counts"], {"test": 3})
+        self.assertEqual(result["per_threat"]["scam_text"]["tp"], 1)
+        self.assertEqual(result["calibration"]["high"]["support"], 4)
+        self.assertEqual(result["calibration"]["high"]["exact_class_accuracy"], 0.75)
+        self.assertEqual(result["recovery_scam"]["nonlegit_detected"], 2)
+        self.assertAlmostEqual(result["recovery_scam"]["detection_rate"], 2 / 3)
+        self.assertEqual(result["recovery_scam"]["mapped_exact_class_correct"], 2)
+        self.assertAlmostEqual(result["recovery_scam"]["mapped_exact_class_accuracy"], 2 / 3)
+        self.assertEqual(result["recovery_scam"]["predicted_labels"], {"coached": 1, "legit": 1, "scam_text": 1})
+        self.assertEqual(result["model_counts"], {"test": 4})
+
+    def test_evaluation_label_requires_recovery_trigger(self):
+        self.assertEqual(evaluation_label("recovery_scam", "message.forwarded"), "scam_text")
+        self.assertEqual(evaluation_label("recovery_scam", "otp.sent"), "coached")
+        self.assertEqual(evaluation_label("legit", None), "legit")
+        for missing in (None, "", "  "):
+            with self.subTest(trigger=missing), self.assertRaises(ValueError):
+                evaluation_label("recovery_scam", missing)
+        with self.assertRaises(ValueError):
+            summarize([row("recovery_scam", "coached")])
+
+    def test_benign_controls_report_scam_text_and_any_threat_separately(self):
+        rows = [row("legit", "legit"), row("legit", "scam_text"), row("legit", "coached")]
+        before = copy.deepcopy(rows)
+        result = benign_summary(rows)
+        self.assertEqual(rows, before)
+        self.assertEqual(result["support"], 3)
+        self.assertEqual(result["scam_text_false_positives"], 1)
+        self.assertAlmostEqual(result["scam_text_false_positive_rate"], 1 / 3)
+        self.assertEqual(result["any_nonlegit_false_alerts"], 2)
+        self.assertAlmostEqual(result["any_nonlegit_false_alert_rate"], 2 / 3)
+        self.assertIsNone(benign_summary([])["scam_text_false_positive_rate"])
+        self.assertIsNone(benign_summary([])["any_nonlegit_false_alert_rate"])
+        with self.assertRaises(ValueError):
+            benign_summary([row("coached", "legit")])
 
     def test_relay_is_a_coached_subgroup_and_calibration_is_descriptive(self):
         result = summarize([

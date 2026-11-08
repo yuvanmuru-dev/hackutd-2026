@@ -24,10 +24,10 @@ from unittest.mock import patch
 
 if __package__:
     from .build_split import ROOT, SPLIT, validate
-    from .metrics import summarize
+    from .metrics import benign_summary, summarize
 else:
     from build_split import ROOT, SPLIT, validate
-    from metrics import summarize
+    from metrics import benign_summary, summarize
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(ROOT / "agent"))
@@ -35,6 +35,7 @@ from core import events, store as store_module, toolbox
 from core.contracts import errors
 
 OUT = Path(__file__).resolve().parent
+BENIGN_TEXTS = ROOT / "agent/packs/guard/data/benign_texts.json"
 
 
 def git(*args: str) -> str:
@@ -45,15 +46,31 @@ def file_hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def committed_source(path: Path) -> str | None:
+    """Attribute control bytes to a commit only when that commit contains them."""
+    try:
+        repo = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"],
+                    cwd=path.parent, text=True, stderr=subprocess.DEVNULL).strip()).resolve()
+        relative = path.resolve().relative_to(repo).as_posix()
+        commit = subprocess.check_output(["git", "log", "-1", "--format=%H", "--", relative],
+                    cwd=repo, text=True, stderr=subprocess.DEVNULL).strip()
+        content = subprocess.check_output(["git", "show", f"{commit}:{relative}"],
+                    cwd=repo, stderr=subprocess.DEVNULL)
+        return commit if hashlib.sha256(content).hexdigest() == file_hash(path) else None
+    except (subprocess.CalledProcessError, OSError, ValueError):
+        return None
+
+
 def hashes(paths) -> dict[str, str]:
     return {p.relative_to(ROOT).as_posix(): file_hash(p) for p in sorted(paths)
             if p.is_file() and "__pycache__" not in p.parts and not p.name.startswith(".")}
 
 
 @contextmanager
-def offline_read_only(audit: dict):
+def offline_read_only(audit: dict, extra_forbidden=()):
     """Never let an implicitly caught provider error masquerade as model success."""
     original_open, original_io_open = builtins.open, io.open
+    forbidden_paths = {Path(p).resolve() for p in extra_forbidden} | {BENIGN_TEXTS.resolve()}
 
     def deny_network(*_args, **_kwargs):
         audit["network_attempts"] += 1
@@ -64,7 +81,7 @@ def offline_read_only(audit: dict):
             if isinstance(file, (str, bytes, Path)):
                 path = Path(file).resolve() if not isinstance(file, bytes) else Path(file.decode()).resolve()
                 scenario_dir = ROOT / "agent/packs/guard/data/scenarios"
-                if path.is_relative_to(scenario_dir):
+                if path.is_relative_to(scenario_dir) or path in forbidden_paths:
                     audit["scenario_read_attempts"] = audit.get("scenario_read_attempts", 0) + 1
                     raise RuntimeError("Scorer must not read labeled scenario files during evaluation")
             if any(c in mode for c in "wax+"):
@@ -131,6 +148,30 @@ def replay(scenario: dict):
     return st, copy.deepcopy(st.events[trigger["event_id"]]), at
 
 
+def load_benign(path: Path) -> dict[str, dict]:
+    """Separate controls become replay inputs, never frozen-split members."""
+    data = json.loads(path.read_text())
+    if data.get("format_version") != 1 or data.get("synthetic") is not True:
+        raise ValueError("expected version 1 synthetic benign-text controls")
+    records = data["records"]
+    if not records or len({r["text_id"] for r in records}) != len(records):
+        raise ValueError("benign controls must be nonempty with unique text IDs")
+    if len({r["event"]["event_id"] for r in records}) != len(records):
+        raise ValueError("benign control event IDs must be unique")
+    rows = {}
+    for record in records:
+        event = record["event"]
+        if record["label"] != "legit" or event["type"] != "message.forwarded" \
+                or not event["data"].get("text") or errors("Event", event):
+            raise ValueError(f"invalid benign control {record['text_id']}")
+        key = f"benign_texts.json#{record['text_id']}"
+        rows[key] = {"scenario_id": record["text_id"], "user_id": event["user_id"],
+                     "label": "legit", "hard_negative": False,
+                     "trigger_event_id": event["event_id"], "events": [event],
+                     "generator": {"seed": 0, "variant": "benign_text_control"}}
+    return rows
+
+
 def evaluate(split: dict, rows: dict[str, dict], audit: dict):
     module, import_error = None, None
     try:
@@ -172,6 +213,7 @@ def evaluate(split: dict, rows: dict[str, dict], audit: dict):
             output.append({"scenario_id": scenario["scenario_id"], "path": path,
                            "label": scenario["label"], "hard_negative": scenario["hard_negative"],
                            "variant": scenario["generator"]["variant"],
+                           "trigger_type": trigger["type"],
                            "prediction": prediction, "route": route})
     if any(audit.values()):
         raise RuntimeError(f"scorer attempted side effects: {audit}")
@@ -185,7 +227,7 @@ def percent(value):
 def final_model_ready(model_status: dict, rows: list[dict]) -> bool:
     return bool(rows) and model_status["module_present"] and not model_status["import_error"] \
         and all(row["route"]["ml_called"] and not row["route"]["ml_error"] for row in rows) \
-        and any(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
+        and all(not row["prediction"]["model"].lower().startswith("rules") for row in rows)
 
 
 def report(result: dict) -> str:
@@ -207,9 +249,19 @@ def report(result: dict) -> str:
               "| Slice | Support | Rules | Brain |", "|---|---:|---:|---:|",
               f"| Legit hard-negative false-alert rate (any non-legit prediction) | {active['hard_negatives']['support']} | {percent(baseline['hard_negatives']['false_positive_rate'])} | {percent(active['hard_negatives']['false_positive_rate'])} |",
               f"| Code-relay coached recall | {active['code_relay']['support']} | {percent(baseline['code_relay']['recall'])} | {percent(active['code_relay']['recall'])} |", "",
-              "Code relay is part of coached (D-031). The subtype has no distinct predicted label, so no subtype precision is invented. Only eight ordinary legit cases remain in train after all hard-negative variant families are reserved for test.", "",
+              "Code relay is part of coached (D-031). The subtype has no distinct predicted label, so no subtype precision is invented. Only eight ordinary legit cases remain in train after all hard-negative variant families are reserved for test.", ""]
+    controls = result["benign_texts"]
+    lines += ["## Separate benign forwarded-text controls", "",
+              "These evaluation-only controls are outside the frozen split and are never used for training or tuning. Scam-text FPR = number predicted scam_text / number of benign texts; any other threat prediction is also shown as a false alert.", "",
+              "| Scorer | Benign texts | Scam-text false positives | Scam-text FPR | Any-threat false alerts | Any-threat false-alert rate |",
+              "|---|---:|---:|---:|---:|---:|"]
+    for name in ("rules", "brain"):
+        row = controls[name]
+        lines.append(f"| {name} | {row['support']} | {row['scam_text_false_positives']} | {percent(row['scam_text_false_positive_rate'])} | {row['any_nonlegit_false_alerts']} | {percent(row['any_nonlegit_false_alert_rate'])} |")
+    lines += ["", f"Benign controls SHA-256: `{controls['sha256']}`; source commit: `{controls['source_commit']}`; present on fetched main: `{controls['on_main']}`.",
+              "Ten hand-written synthetic notices are a small control set, not representative benign-text validation.", "",
               "## Confidence and observed correctness", "",
-              "Returned confidence bands versus exact-class accuracy, on representable labels only. The mean scalar is the scorer's returned probability: the rules use it as threat risk even for a legit prediction, so it is not uniformly a predicted-class posterior. This table is descriptive; no calibrated-probability claim, ECE, or Brier score is inferred from the rules.", "",
+              "Returned confidence bands versus exact-class accuracy on the frozen test set (including the D-051 recovery mapping), excluding separate benign controls. The mean scalar is the scorer's returned probability: the rules use it as threat risk even for a legit prediction, so it is not uniformly a predicted-class posterior. This table is descriptive; no calibrated-probability claim, ECE, or Brier score is inferred from the rules.", "",
               "| Scorer | Band | Cases | Mean returned probability | Actual exact-class accuracy | Marked calibrated |", "|---|---|---:|---:|---:|---:|"]
     for name, summary in (("rules", baseline), ("brain", active)):
         for band, row in summary["calibration"].items():
@@ -219,9 +271,9 @@ def report(result: dict) -> str:
               f"ML import/route status: `{json.dumps(result['model_status'], sort_keys=True)}`. Captured scorer exceptions: `{json.dumps(meta['fallback_errors'], sort_keys=True)}`.",
               f"Blocked network attempts: {meta['audit']['network_attempts']}; blocked file writes: {meta['audit']['write_attempts']}; blocked labeled-scenario reads: {meta['audit'].get('scenario_read_attempts', 0)}.",
               "The baseline is core.toolbox.rules_score unchanged; the brain column calls core.toolbox.score, which selects the ML implementation automatically when present. Identical rules columns do not demonstrate model improvement.",
-              f"All {active['recovery_scam']['support']} recovery_scam test cases were scored, but excluded from exact-class metrics because RiskScore cannot represent that ground-truth class. Their any-threat detection rate is {percent(active['recovery_scam']['detection_rate'])}; predicted labels: `{json.dumps(active['recovery_scam']['predicted_labels'], sort_keys=True)}`.",
+              f"D-051 maps all {active['recovery_scam']['support']} recovery_scam cases into exact-class metrics: call-based triggers are coached; message.forwarded is scam_text. Original dataset labels and the split are unchanged. Their mapped accuracy is {percent(active['recovery_scam']['mapped_exact_class_accuracy'])}; predicted labels: `{json.dumps(active['recovery_scam']['predicted_labels'], sort_keys=True)}`.",
               "Each case uses a fresh Store, only its user's pre-trigger baseline and incident prefix, and time frozen at the trigger. Later attacker logins are excluded. Whole variants are disjoint, all hard negatives are held out, and the split fingerprint is checked before scoring. No training, tuning, or test-label input to the scorer occurs.",
-              "These are small, synthetic, generator-held-out results. They do not establish performance on real carrier data. No benign forwarded-text examples exist in this dataset, so scam-text FPR across other scenario types does not measure benign-text specificity.",
+              "These are small, synthetic, generator-held-out results. They do not establish performance on real carrier data. The primary per-class FPR across all scenario types and the separate benign-text FPR measure different negative populations.",
               "", "## Reproduce", "", "```bash", "python3 evals/build_split.py --check", "python3 evals/run.py", "# After the ML implementation/artifacts are merged into main:", "git pull --rebase origin main", "python3 evals/run.py --require-model", "```", "",
               "Machine-readable scores, confusion counts, histories/scorer/model hashes, and fallback routing are in results.json.", ""]
     return "\n".join(lines)
@@ -230,6 +282,8 @@ def report(result: dict) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-model", action="store_true")
+    parser.add_argument("--benign-texts", type=Path, default=BENIGN_TEXTS,
+                        help="separate control file; defaults to the data file on main")
     args = parser.parse_args()
     split = json.loads(SPLIT.read_text())
     rows = validate(split)
@@ -243,18 +297,29 @@ def main():
     if untracked or local_model_files - tracked_on_main:
         raise RuntimeError("Untracked scorer/model files are not evidence for a scorer on main: "
                            + str(untracked or sorted(local_model_files - tracked_on_main)))
+    benign_path = args.benign_texts.resolve()
+    if not benign_path.is_file():
+        raise RuntimeError("Benign controls are not in this checkout yet; merge/rebase the lane/data PR "
+                           "or supply its file with --benign-texts for a provisional run")
+    benign_rows = load_benign(benign_path)
+    benign_repo_path = "agent/packs/guard/data/benign_texts.json"
+    benign_on_main = benign_repo_path in tracked_on_main and hashlib.sha256(
+        subprocess.check_output(["git", "show", f"origin/main:{benign_repo_path}"], cwd=ROOT)
+    ).hexdigest() == file_hash(benign_path)
+    benign_commit = committed_source(benign_path)
     audit = {"network_attempts": 0, "write_attempts": 0, "scenario_read_attempts": 0}
-    with offline_read_only(audit):
+    with offline_read_only(audit, (benign_path,)):
         active, baseline, model_status = evaluate(split, rows, audit)
+        benign_active, benign_rules, _ = evaluate({"test": list(benign_rows)}, benign_rows, audit)
     summary, rules = summarize(active), summarize(baseline)
     rule_names = lambda name: name.lower().startswith("rules")
     names = summary["model_counts"]
     actual_model = any(not rule_names(name) for name in names)
     mode = ("mixed model and rules fallback" if actual_model and any(rule_names(n) for n in names)
             else "model" if actual_model else "rules only (model rerun pending)")
-    ready = final_model_ready(model_status, active)
+    ready = actual_model and final_model_ready(model_status, active + benign_active) and benign_on_main
     if args.require_model and not ready:
-        raise RuntimeError("Final model run requires a model on every route with no import/scoring errors")
+        raise RuntimeError("Final run requires a model on every route without errors, and benign controls on main")
     agent = ROOT / "agent"
     scorer_paths = list((agent / "core").glob("*.py")) + list((agent / "packs/guard").glob("*.py"))
     result = {"provenance": {
@@ -266,8 +331,12 @@ def main():
         "evaluation_hashes": hashes(OUT.glob("*.py")), "python": sys.version,
         "history_hashes": hashes((agent / "packs/guard/data/history").glob("*.jsonl")),
         "personas_sha256": file_hash(agent / "packs/guard/data/personas.json"),
-        "audit": audit, "fallback_errors": dict(Counter(r["route"]["ml_error"] for r in active if r["route"]["ml_error"]))},
+        "audit": audit, "fallback_errors": dict(Counter(r["route"]["ml_error"] for r in active + benign_active if r["route"]["ml_error"]))},
         "model_status": model_status, "brain": summary, "rules": rules,
+        "benign_texts": {"sha256": file_hash(benign_path), "source_commit": benign_commit,
+                         "on_main": benign_on_main, "brain": benign_summary(benign_active),
+                         "rules": benign_summary(benign_rules)},
+        "benign_predictions": benign_active, "benign_rules_predictions": benign_rules,
         "predictions": active, "rules_predictions": baseline}
     OUT.joinpath("results.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     markdown = report(result)
