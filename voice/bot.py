@@ -159,9 +159,10 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
     import time
     from service import emit
     from models import redact
+    from turn_diagnostics import TurnDiagnostics
     from pipecat.frames.frames import (BotStartedSpeakingFrame, BotStoppedSpeakingFrame, EndFrame,
         InterruptionFrame, InterimTranscriptionFrame, LLMContextFrame, TTSSpeakFrame, TTSTextFrame, TranscriptionFrame,
-        VADUserStoppedSpeakingFrame)
+        VADUserStartedSpeakingFrame, VADUserStoppedSpeakingFrame)
     from pipecat.observers.base_observer import BaseObserver
     from pipecat.observers.service_metrics_observer import ServiceMetricsObserver
     from pipecat.pipeline.pipeline import Pipeline
@@ -175,6 +176,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
 
     started = time.monotonic()
     cid = conversation.request["case_id"]
+    diagnostics = TurnDiagnostics(conversation, emit)
     transport = transport_override or FastAPIWebsocketTransport(websocket, params=FastAPIWebsocketParams(
         audio_in_enabled=True, audio_out_enabled=True, add_wav_header=False, session_timeout=300,
         serializer=TwilioFrameSerializer(stream_sid=start["streamSid"], call_sid=start["callSid"],
@@ -186,10 +188,13 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
             await super().process_frame(frame, direction)
             if isinstance(frame, (TranscriptionFrame, InterimTranscriptionFrame)):
                 frame.text = redact(frame.text)
+                diagnostics.recognized(frame.text, final=isinstance(frame, TranscriptionFrame),
+                    finalized=bool(getattr(frame, "finalized", False)))
             await self.push_frame(frame, direction)
 
     class DialogueProcessor(FrameProcessor):
         async def speak(self, plan):
+            diagnostics.plan_queued(plan)
             for line in plan.lines:
                 await self.push_frame(TTSSpeakFrame(line))
             if plan.end:
@@ -204,8 +209,10 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
                     if isinstance(m, dict) and m.get("role") == "user"), None)
                 if recent and isinstance(recent.get("content"), str):
                     mark = time.monotonic()
+                    diagnostics.turn_accepted()
                     try:
                         plan = await conversation.turn(recent["content"])
+                        diagnostics.turn_completed()
                         await self.speak(plan)
                         emit("voice.turn_prepared", case_id=cid, stage="llm", model=settings.llm_model,
                              duration_ms=round((time.monotonic()-mark)*1000))
@@ -230,6 +237,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
             text = redact(" ".join(self.parts))
             self.parts.clear()
             conversation.heard(text, interrupted=self.interrupted)
+            diagnostics.question_audited(interrupted=self.interrupted)
             try:
                 await conversation.brain.transcript(cid, "out", text)
             except Exception:
@@ -238,7 +246,10 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
 
         async def on_push_frame(self, data):
             frame = data.frame
+            if isinstance(frame, VADUserStartedSpeakingFrame) and data.first_push:
+                diagnostics.event("voice.user_speech_started", "vad")
             if isinstance(frame, VADUserStoppedSpeakingFrame) and data.first_push:
+                diagnostics.event("voice.user_speech_stopped", "vad")
                 # VAD reports after its configured silence window. Subtract that
                 # window to estimate the last incoming speech at the app, not
                 # phone/network latency or listener-perceived response delay.
@@ -246,9 +257,11 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
             if isinstance(frame, InterruptionFrame) and data.first_push and self.speaking:
                 self.interrupted = True
                 conversation.heard("", interrupted=True)
+                diagnostics.interrupted()
             if data.source is not output:
                 return
             if isinstance(frame, BotStartedSpeakingFrame):
+                diagnostics.playback(True)
                 if self.user_speech_ended is not None:
                     emit("voice.response_delay", case_id=cid, stage="transport",
                          observed_ms=round((time.monotonic()-self.user_speech_ended)*1000),
@@ -265,10 +278,22 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
                 self.parts.append(frame.text)
             elif isinstance(frame, BotStoppedSpeakingFrame):
                 self.speaking = False
+                diagnostics.playback(False)
                 await self.flush()
 
     context = LLMContext()
-    aggregators = LLMContextAggregatorPair(context, user_params=make_user_turn_params())
+    user_params = make_user_turn_params()
+    aggregators = LLMContextAggregatorPair(context, user_params=user_params)
+
+    async def aggregation_reset(strategy):
+        diagnostics.aggregation_reset()
+
+    async def user_turn_started(aggregator, strategy):
+        diagnostics.turn_started()
+
+    for strategy in user_params.user_turn_strategies.start:
+        strategy.add_event_handler("on_reset_aggregation", aggregation_reset)
+    aggregators.user().add_event_handler("on_user_turn_started", user_turn_started)
     dialogue = DialogueProcessor()
     audit = SpokenAudit()
     metrics = ServiceMetricsObserver()
@@ -287,6 +312,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
     if transport_override is None:
         @transport.event_handler("on_client_connected")
         async def connected(transport, websocket):
+            diagnostics.plan_queued(initial_plan)
             await worker.queue_frames([TTSSpeakFrame(line) for line in initial_plan.lines])
     else:
         @transport.event_handler("on_connected")
@@ -315,6 +341,7 @@ async def run_conversation(websocket, start: dict, settings: Settings, conversat
     if answered is not None:
         async def greet_after_answer():
             await answered.wait()
+            diagnostics.plan_queued(initial_plan)
             await worker.queue_frames([TTSSpeakFrame(line) for line in initial_plan.lines])
         greeting_task = asyncio.create_task(greet_after_answer())
     try:

@@ -89,6 +89,36 @@ def test_one_fully_spoken_question_per_approval():
     asyncio.run(run())
 
 
+def test_three_recovery_questions_require_three_separate_fully_heard_answers():
+    async def run():
+        detail, request, brain = setup_case()
+        kinds = {"reset_pin", "sign_out_sessions", "report_number"}
+        for action in detail["actions"]:
+            if action["kind"] in kinds:
+                action.update(status="awaiting_approval", requires_approval=True)
+            elif action["status"] == "awaiting_approval":
+                action["status"] = "rejected"
+        pending = [a["action_id"] for a in detail["actions"] if a["status"] == "awaiting_approval"]
+        assert len(pending) == 3
+        request["pending_action_ids"] = pending
+        session = Conversation(request, brain, ModelStub())
+        plan = await session.next_action()
+        for index, action_id in enumerate(pending):
+            assert plan.action_id == action_id
+            await session.turn("yes")  # Early answers cannot approve the next step.
+            assert brain.decide.await_count == index
+            session.heard(session.last_plan.lines[-1])
+            plan = await session.turn("yes")
+            assert brain.decide.await_count == index + 1
+            assert brain.decide.await_args.args == (action_id, True)
+            assert "That step is complete." in plan.lines
+        assert plan.action_id is None
+        assert "no recovery step waiting" in plan.lines[-1]
+        await session.turn("yes")
+        assert brain.decide.await_count == 3
+    asyncio.run(run())
+
+
 def test_interruption_invalidates_approval_prompt():
     async def run():
         _, request, brain = setup_case()

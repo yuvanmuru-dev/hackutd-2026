@@ -151,6 +151,26 @@ Turn starts now require recognized speech rather than VAD activity alone. While 
 
 An interrupted approval question is not actionable. Titan repeats the current pending question, and a later explicit answer can approve only that fully spoken step. Completed actions are not repeated. No microphone recordings, speaker identification or new provider is added. Background speech/TV can still be recognized as words; these settings are noise tolerance, not speaker authentication. Test handset volume and representative venue noise before relying on the live demo.
 
+### Missing speech / repeated-question diagnostics
+
+Conversation calls emit metadata-only breadcrumbs to the voice terminal. Recognition is observed before the user-turn aggregator, separately from the accepted conversation transcript. No recognized words, model replies, audio, credentials or provider frame objects are included in these events.
+
+| Event | What it establishes |
+| --- | --- |
+| `voice.user_speech_started` / `voice.user_speech_stopped` | VAD observed activity, once per original frame. This is not proof of intelligible speech. |
+| `voice.asr_result` | The recognizer produced text before turn filtering. `final`, `finalized`, and bounded counts describe the redacted result. |
+| `voice.turn_aggregation_reset` | The configured start strategy requested discarding its current aggregation. Includes the latest recognition counter/counts and observed playback state. |
+| `voice.user_turn_started` | The user aggregator started a turn. |
+| `voice.turn_accepted` | A user turn reached the conversation. `gate_reason` records `question_heard`, `question_not_heard`, or `no_pending_action`. This is not an approval. |
+| `voice.turn_completed` | Conversation processing returned; compare `completed_count` to see whether an action was decided. Decisions may be approval or rejection. |
+| `voice.plan_queued` | A speech plan was queued. It cannot arm approval. |
+| `voice.playback_started` / `voice.playback_stopped` / `voice.playback_interrupted` | Output-transport speaking transitions and observed interruptions. |
+| `voice.question_audited` | Emitted audio text was passed to the existing complete-question gate; `question_heard` records its resulting state. |
+
+Correlate by `case_id`, current `action_id`, `turn_seq`, the latest recognition counter `asr_seq`, and the latest queued `plan_seq`. Multiple recognition results can form one accepted turn. `plan_seq` is the latest queued plan at observation time, not proof that a delayed audio chunk belongs to that plan. Playback state is observed at the output transport; it is not read from Pipecat's private start-strategy state.
+
+VAD activity with no ASR result points toward recognition/input. An ASR result followed by an aggregation reset without an accepted turn shows filtering before the conversation. An accepted turn with `question_not_heard` explains why an early answer cannot approve. These logs expose the boundary; they do not change VAD thresholds, interruption rules, transcript contents or approval safeguards. Read them before authorizing another coordinated teammate call.
+
 
 ### SIP rejection diagnostics
 

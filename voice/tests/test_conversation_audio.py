@@ -20,7 +20,10 @@ def wait_for(check):
     assert check(), "Pipeline did not reach its expected state"
 
 
-def test_audio_turn_posts_transcripts_and_approves_only_the_finished_question(monkeypatch):
+def test_audio_turn_posts_transcripts_and_approves_only_the_finished_question(monkeypatch, caplog):
+    import json
+    import logging
+    caplog.set_level(logging.INFO, logger="titan.voice")
     from loguru import logger
     logger.remove()
     import bot
@@ -91,3 +94,17 @@ def test_audio_turn_posts_transcripts_and_approves_only_the_finished_question(mo
     incoming = [c.args[2] for c in brain.transcript.await_args_list if c.args[1] == "in"]
     assert incoming == ["I need help", "Yes.", "End this call"]
     brain.decide.assert_awaited_once()
+    events = [json.loads(r.message) for r in caplog.records if r.name == "titan.voice"]
+    recognized = [e for e in events if e["event"] == "voice.asr_result"]
+    accepted = [e for e in events if e["event"] == "voice.turn_accepted"]
+    assert [e["asr_seq"] for e in recognized] == [1, 2, 3]
+    assert all(e["final"] for e in recognized)
+    assert [e["asr_seq"] for e in accepted] == [1, 2, 3]
+    assert [e["turn_seq"] for e in accepted] == [1, 2, 3]
+    assert accepted[1]["question_heard"] and accepted[1]["action_id"] == first
+    assert any(e["event"] == "voice.playback_stopped" for e in events)
+    assert any(e["event"] == "voice.question_audited" and e["question_heard"] for e in events)
+    breadcrumbs = [e for e in events if e["event"] in {
+        "voice.asr_result", "voice.turn_accepted", "voice.turn_completed", "voice.plan_queued",
+        "voice.question_audited", "voice.playback_started", "voice.playback_stopped"}]
+    assert not any(text in json.dumps(breadcrumbs) for text in incoming)
