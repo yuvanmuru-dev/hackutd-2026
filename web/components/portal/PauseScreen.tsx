@@ -68,10 +68,12 @@ type Props = {
   busy: "help" | "continue" | null;
   onHelp: () => void;
   onContinue: () => void;
+  /** Optional face check (D-007, flagged off): replaces the two answers while it runs. */
+  faceCheck?: ReactNode;
 };
 
 // The most important screen: Titan stops Maya mid-flow. Copy comes from the brain (gate.py), not the UI.
-export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props) {
+export function PauseScreen({ screen, reasons, busy, onHelp, onContinue, faceCheck }: Props) {
   return (
     <Modal labelledBy="pause-title" describedBy="pause-body">
       <Eyebrow>Security check</Eyebrow>
@@ -93,6 +95,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
           </ul>
         </>
       )}
+      {faceCheck ?? (
       <div className="mt-8 flex flex-col gap-3">
         <button type="button" onClick={onHelp} disabled={busy !== null} className={`${BTN_PRIMARY} h-14 w-full text-lead`}>
           {busy === "help" ? "Connecting you to Titan…" : screen.help_label}
@@ -101,6 +104,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
           {busy === "continue" ? "One moment…" : screen.continue_label}
         </button>
       </div>
+      )}
       <Footer />
     </Modal>
   );

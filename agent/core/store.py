@@ -6,6 +6,7 @@ Lane 5's Supabase store must expose the same methods.
 from __future__ import annotations
 
 import itertools
+import os
 import threading
 from datetime import datetime, timedelta, timezone
 
@@ -50,6 +51,8 @@ class Store:
     def reset(self):
         with self.lock:
             maya = fixture("user.maya.json")
+            # D-007: optional on-device face check, off by default. FACE_ENABLED=1 turns it on for Maya only.
+            maya["face_enabled"] = os.getenv("FACE_ENABLED", "0") == "1"
             self.users = {maya["user_id"]: maya}
             for uid, name, persona in PERSONAS:
                 self.users[uid] = {"user_id": uid, "name": name, "persona": persona, "face_enabled": False}

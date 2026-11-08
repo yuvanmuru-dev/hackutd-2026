@@ -21,12 +21,16 @@ import {
 } from "@/lib/api/client";
 import { consentGiven, resetFlow, setConsent, snapshot } from "@/lib/behavior/session";
 import { useBehavior } from "@/lib/behavior/useBehavior";
+import { FaceCheck } from "@/components/portal/face/FaceCheck";
+import { FaceConfirm } from "@/components/portal/face/FaceConfirm";
+import { FaceSetup } from "@/components/portal/face/FaceSetup";
+import { enrolled, FACE_CHECK, loadHuman } from "@/lib/face/engine";
 
 const ORDER: ProtectionName[] = ["sim_protection", "port_out_protection", "scam_block"];
 const subscribe = () => () => {};
 
 type Overlay =
-  | { kind: "pause"; name: ProtectionName; screen: NonNullable<C.CheckResponse["pause_screen"]>; reasons: string[] }
+  | { kind: "pause"; name: ProtectionName; screen: NonNullable<C.CheckResponse["pause_screen"]>; reasons: string[]; face?: "check" | { checkId: string } }
   | { kind: "calling"; caseId: string | null }
   | null;
 
@@ -127,16 +131,37 @@ export default function SecurityPage() {
     }
   }
 
-  async function choose(choice: "on_call_help" | "doing_it_myself") {
+  // Optional face check (D-007): only when the flag is on and this browser has a face set up. Undefined = not run yet.
+  const faceOn = () => FACE_CHECK && enrolled();
+  useEffect(() => {
+    if (overlay?.kind === "pause" && faceOn()) loadHuman().catch(() => {}); // warm the models while she reads
+  }, [overlay?.kind]);
+
+  async function choose(choice: "on_call_help" | "doing_it_myself", face?: C.FaceResult | null) {
     if (overlay?.kind !== "pause") return;
     const name = overlay.name;
+    if (choice === "doing_it_myself" && face === undefined && faceOn()) {
+      setOverlay({ ...overlay, face: "check" });
+      return;
+    }
+    if (overlay.face) setOverlay({ ...overlay, face: undefined });
     setChoiceBusy(choice === "on_call_help" ? "help" : "continue");
     try {
-      const r = await check({ user_id: MAYA, action: "protection_off", protection: name, customer_choice: choice, ...signals() });
+      const r = await check({
+        user_id: MAYA,
+        action: "protection_off",
+        protection: name,
+        customer_choice: choice,
+        ...signals(),
+        ...(face ? { face } : {}),
+      });
       if (choice === "on_call_help") {
         setOverlay({ kind: "calling", caseId: r.case_id ?? null });
         finishFlow();
         load();
+      } else if (r.decision === "allow" && face) {
+        // Face check passed: one last "are you sure?" before anything changes.
+        setOverlay({ ...overlay, face: { checkId: r.check_id } });
       } else if (r.decision === "allow") {
         await apply(name, r.check_id);
       } else if (r.decision === "pause" && r.pause_screen) {
@@ -249,6 +274,16 @@ export default function SecurityPage() {
           )}
         </Section>
 
+        {FACE_CHECK && (
+          <Section
+            id="face-section-title"
+            title="Face check"
+            help={<p>Optional. Face ID checks who you are; Titan still watches whether someone is talking you through it.</p>}
+          >
+            <FaceSetup />
+          </Section>
+        )}
+
         <Section
           id="notes-title"
           title="Coaching detection"
@@ -279,6 +314,29 @@ export default function SecurityPage() {
           busy={choiceBusy}
           onHelp={() => choose("on_call_help")}
           onContinue={() => choose("doing_it_myself")}
+          faceCheck={
+            overlay.face === "check" ? (
+              <FaceCheck onDone={(f) => choose("doing_it_myself", f)} />
+            ) : overlay.face ? (
+              <FaceConfirm
+                name={overlay.name}
+                busy={choiceBusy !== null}
+                onCancel={() => {
+                  setOverlay(null);
+                  finishFlow();
+                }}
+                onContinue={async () => {
+                  if (overlay.kind !== "pause" || typeof overlay.face !== "object") return;
+                  setChoiceBusy("continue");
+                  try {
+                    await apply(overlay.name, overlay.face.checkId);
+                  } finally {
+                    setChoiceBusy(null);
+                  }
+                }}
+              />
+            ) : undefined
+          }
         />
       )}
       {overlay?.kind === "calling" && <CallingScreen caseId={overlay.caseId} onClose={() => setOverlay(null)} />}

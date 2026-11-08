@@ -49,8 +49,17 @@ def check(store: Store, req: dict) -> dict:
             choice = req.get("customer_choice")
             if choice == "on_call_help":
                 decision = "block"
-            elif choice == "doing_it_myself" and (face_ok or not store.users[uid]["face_enabled"]):
+            elif choice == "doing_it_myself" and face and store.users[uid]["face_enabled"] and not face_ok:
+                # Face check ran on her device and didn't pass: ask again (D-007).
+                decision, pause = "pause", PAUSE_SCREEN
+                reasons.append("Face check didn't match the face set up on this device")
+            elif choice == "doing_it_myself":
+                # No face result (feature off, camera denied, library failed) falls back to today's behavior.
+                # A passing face check proves it's her, not that nobody is coaching her: the call stays watched
+                # and the transfer-PIN hold below is unaffected.
                 decision = "allow"
+                if face_ok:
+                    reasons.append("Face check passed on this device")
                 reasons.append("Customer chose to continue; Titan keeps watching this call")
             else:
                 decision, pause = "pause", PAUSE_SCREEN

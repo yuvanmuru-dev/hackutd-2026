@@ -42,3 +42,6 @@ next-env.d.ts
 
 # keep the env template
 !.env.example
+
+# face-check models, copied from node_modules by scripts/copy-face-models.mjs
+/public/face-models
