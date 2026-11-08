@@ -35,6 +35,8 @@ export interface GuardianView {
   needsApproval: boolean;
   errors: C.StepEvent[];
   done: boolean;
+  /** The brain's own "Run failed" error, if the run ended on one. */
+  failed: C.StepEvent | null;
   callMarkers: C.Event[];
 }
 
@@ -94,6 +96,7 @@ export function deriveView(detail: C.CaseDetail | null, input: C.StepEvent[]): G
     needsApproval,
     errors,
     done,
+    failed: errors.find((e) => e.agent === "system") ?? null,
     callMarkers,
   };
 }
