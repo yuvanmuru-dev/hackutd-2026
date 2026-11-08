@@ -78,6 +78,18 @@ class ProtocolTests(unittest.TestCase):
                 (run.ROOT / "agent/packs/guard/data/scenarios/seed_code_relay_01.json").read_text()
         self.assertEqual(audit["scenario_read_attempts"], 1)
 
+    def test_scorer_cannot_read_sealed_design_or_generator(self):
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            for name in ("DESIGN.md", "generate.py", "manifest.json"):
+                (directory / name).write_text("invented fixture, no real sealed content")
+            audit = {"network_attempts": 0, "write_attempts": 0}
+            with run.offline_read_only(audit, (directory,)):
+                for path in directory.iterdir():
+                    with self.assertRaises(RuntimeError):
+                        path.read_text()
+            self.assertEqual(audit["scenario_read_attempts"], 3)
+
     def test_hidden_model_exception_is_recorded_as_rules_fallback(self):
         path = "agent/packs/guard/data/scenarios/seed_code_relay_01.json"
         scenario = json.loads((run.ROOT / path).read_text())
@@ -101,15 +113,20 @@ class ProtocolTests(unittest.TestCase):
 
     def test_final_gate_rejects_partial_error_driven_model_run(self):
         good = {"prediction": {"model": "ml+rules"},
-                "route": {"ml_called": True, "ml_error": None}}
+                "route": {"ml_called": True, "ml_error": None, "ml_returned_score": True}}
         bad = {"prediction": {"model": "rules"},
-               "route": {"ml_called": True, "ml_error": "ValueError"}}
+               "route": {"ml_called": True, "ml_error": "ValueError", "ml_returned_score": False}}
         status = {"module_present": True, "import_error": None}
         self.assertTrue(run.final_model_ready(status, [good]))
         self.assertFalse(run.final_model_ready(status, [good, bad]))
         empty_fallback = {"prediction": {"model": "rules"},
-                          "route": {"ml_called": True, "ml_error": None}}
+                          "route": {"ml_called": True, "ml_error": None, "ml_returned_score": False}}
         self.assertFalse(run.final_model_ready(status, [good, empty_fallback]))
+        intentional_rules = {"prediction": {"model": "rules"}, "trigger_type": "message.forwarded",
+                             "route": {"ml_called": True, "ml_error": None, "ml_returned_score": True}}
+        self.assertTrue(run.final_model_ready(status, [good, intentional_rules]))
+        risk_fallback = {**intentional_rules, "trigger_type": "sim_swap.requested"}
+        self.assertFalse(run.final_model_ready(status, [good, risk_fallback]))
 
     def test_control_commit_must_contain_the_actual_bytes(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -121,6 +138,11 @@ class ProtocolTests(unittest.TestCase):
             with patch.object(run.subprocess, "check_output", side_effect=[root, "abc123", b"current data"]):
                 self.assertEqual(run.committed_source(path), "abc123")
             self.assertIsNone(run.committed_source(path))
+
+    def test_test_informed_split_cannot_pass_independence_gate(self):
+        audit = {"status": "test_informed", "affected_split_sha256": "old_split"}
+        self.assertFalse(run.independent_split("old_split", audit))
+        self.assertTrue(run.independent_split("new_sealed_split", audit))
 
 
 if __name__ == "__main__":
