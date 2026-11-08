@@ -15,8 +15,8 @@ REFUSAL = "I will never ask for or read back a PIN, code, or password. Keep thos
 CLARIFY = "Please say yes or no for the single step I just asked about."
 LABELS = {
     "relock": "turn account protection back on", "hold_transfer_pin": "keep the transfer PIN on hold",
-    "require_step_up": "request an identity check in your account app", "reset_pin": "reset your account PIN",
-    "revoke_transfer_pin": "cancel your transfer PIN", "sign_out_sessions": "sign out other devices",
+    "require_step_up": "request an identity check in your account app", "reset_pin": "start an account PIN reset",
+    "revoke_transfer_pin": "cancel the pending transfer PIN", "sign_out_sessions": "sign out other devices",
     "report_number": "report the suspicious number", "notify_trusted_contact": "notify your configured trusted contact",
     "send_ftc_report": "send the prepared FTC report", "release_hold": "request release of the transfer hold",
 }
@@ -91,7 +91,10 @@ class Conversation:
                 label = LABELS.get(action["kind"])
                 if label is None:
                     raise ValueError("No safe spoken label for pending action")
-                question = "Would you like me to " + label + "? Please answer yes or no."
+                # End at the question's natural answer point. A trailing spoken
+                # instruction made a natural "yes" interrupt that instruction,
+                # leaving the complete-question approval gate unarmed.
+                question = "Would you like me to " + label + "?"
                 return await self.prepare(SpeechPlan((prefix or []) + [question], action["action_id"]))
         return await self.prepare(SpeechPlan((prefix or []) + [
             "Your reply is recorded on this case. There is no recovery step waiting for approval right now. "
@@ -103,7 +106,7 @@ class Conversation:
         answer = explicit_answer(text)
         if self.awaiting and answer is not None:
             if not self.heard_question:
-                return await self.next_action(["Let me finish the question before you decide."])
+                return await self.next_action(["I'll repeat the question."])
             detail = await self.case()
             current = next((a for a in detail["actions"] if a["action_id"] == self.awaiting), None)
             if current is None or current["status"] != "awaiting_approval":

@@ -22,8 +22,9 @@ from twilio.request_validator import RequestValidator
 
 from brain import Brain, validate
 from config import Settings, phone
+from diagnostics import provider_diagnostics
 from conversation import Conversation
-from models import NvidiaModels, speech_policy, verify_asr
+from models import NvidiaModels, speech_policy, spoken_fact, verify_asr
 from telephony import TwilioCalls
 from jsonschema import ValidationError
 
@@ -224,7 +225,9 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
             entry.finished = True
             entry.status = "failed"
             status = error.response.status_code if isinstance(error, httpx.HTTPStatusError) else None
-            emit("intervention.setup_failed", case_id=cid, exception_type=type(error).__name__, http_status=status)
+            emit("intervention.setup_failed", case_id=cid, exception_type=type(error).__name__, http_status=status,
+                 sip_status_code=getattr(error, "sip_status_code", None),
+                 **provider_diagnostics(error, settings))
             try:
                 await app.state.brain.delivery(cid, "Titan voice setup failed; no successful conversation was confirmed.")
             except Exception:
@@ -249,8 +252,7 @@ def create_app(settings: Settings | None = None, brain: Brain | None = None, pro
         try:
             payload = validate("CallRequest", json.loads(body))
             speech_policy(payload["opening_line"])
-            for fact in payload["facts"]:
-                speech_policy(fact)
+            payload["facts"] = [spoken_fact(fact) for fact in payload["facts"]]
         except (ValueError, ValidationError):
             raise HTTPException(422, "Invalid or unsafe CallRequest") from None
         if payload["user_id"] != "usr_maya":
