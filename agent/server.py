@@ -115,11 +115,28 @@ async def post_event(request: Request):
 
 
 # ---------- fast gate + mock T-Mobile protections (portal)
+def _record_face(uid: str, face: dict):
+    """D-007: the portal ran the optional face check on the device and sent only the four numbers.
+    Log it on the call's case so the guardian sees it. It never changes the case's threat or ends watching."""
+    call = store.active_call(uid)
+    cid = store.case_by_call.get(call["call_id"]) if call else None
+    if not cid:
+        return
+    case = store.cases[cid]
+    run_id = case["steps"][-1]["run_id"] if case["steps"] else new_id("run")
+    live = face["liveness"] >= 0.8 and face["antispoof"] >= 0.8
+    title = f"Face check: {'match' if face['match'] else 'no match'} {face['similarity']:.2f} · {'live' if live else 'not live'}"
+    store.add_step(case, run_id, "system", "watch", "signal", title,
+                   {"kind": "face_check", "on_device": True, **{k: face[k] for k in ("match", "similarity", "liveness", "antispoof")}})
+
+
 @app.post("/check")
 async def check(request: Request):
     req = require("CheckRequest", await request.json())
     _user(req["user_id"])
     res = gate.check(store, req)
+    if req.get("face"):
+        _record_face(req["user_id"], req["face"])
     if res["decision"] == "block" and req.get("customer_choice") == "on_call_help":
         call = store.active_call(req["user_id"])
         if call:  # customer tapped "I'm on a call: help me": Titan steps in now
