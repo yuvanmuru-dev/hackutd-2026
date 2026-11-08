@@ -1,10 +1,17 @@
-# Titan evaluation (D-049, D-053/D-053a)
+# Titan evaluation (D-049, D-053/D-058)
 
 Only the **single sealed run** supplies headline Devpost/video numbers.
 `results.md` / `results.json` describe the original split and remain
 **test-informed during development**, including after a model lands.
 
-## Before the freeze
+The canonical sealed attempt completed once at **2026-11-08 01:03 Chicago**.
+Model commit: `67fe7df582a63f4f871eea27867391d55e6a8d16`.
+See [the sealed report](sealed_run/results.md), [receipt](sealed_run/receipt.json)
+and [main/frozen ML hash verification](main_model_verification.json).
+The attempt is consumed: **do not rerun**. Frozen runtime and evaluator source
+commits remain in git history; later integration changes do not redefine them.
+
+## Historical design protocol
 
 Lane 2b may tune against the original development split until T+12
 (00:30 Chicago, 8 November 2026; `2026-11-08T06:30:00Z`). The data lane builds
@@ -26,7 +33,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest evals.test_metrics evals.test_run 
 Tests use invented temporary fixtures for sealed execution. They do not score
 the actual sealed set or consume its receipt.
 
-## Freeze and single attempt
+## Historical freeze and single-attempt procedure
 
 At the deadline, record #57's final head with GitHub; after its merge verify
 that exact head is the merge's second parent and fetch main. The helper also
