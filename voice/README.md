@@ -1,171 +1,89 @@
-# Titan voice: bridge milestone
+# Titan voice
 
-Lane 4 owns this folder only. This milestone provides a **bridge probe** and
-metadata-only call forwarding against the existing brain HTTP API. It does not yet
-provide the intervention conversation, `POST /internal/call`, ASR, Nano turns,
-transcript delivery, or spoken approvals. `/health` explicitly reports
-`intervention_ready: false`. A local test passing is not a successful live call.
+Lane 4 owns `voice/`. The service implements signed Twilio webhooks, metadata-only forwarding, a TTS bridge probe and local `POST /internal/call`. Titan's conversation uses Pipecat 1.15, Nemotron streaming ASR, Nemotron 3.5 Lightning (D-035), NVIDIA Safety Guard and ElevenLabs Flash v2.5. Magpie is the configured TTS fallback. English, Windows, no GPU, teammate numbers only.
 
-Choices: Python 3.11–3.13 on Windows, Pipecat 1.15.0, Twilio Media Streams
-WebSocket transport on port 8100, hosted ElevenLabs Flash v2.5 TTS by default,
-hosted NVIDIA Magpie multilingual selected with `TTS_PROVIDER=magpie`. English
-probe greeting, one demo call at a time, no GPU or additional voice platform.
-The later conversation pipeline remains Nemotron streaming ASR → Nemotron Nano →
-the selected TTS. No other LLM provider is used here.
+**Live intervention approvals are blocked pending a brain fix.** The current brain feeds incoming transcript audit lines into its recovery reply interpreter. One spoken YES could approve an unheard or additional step. See `STATUS.md`. Do not enable brain dispatch or run the real outbound example until Lane 1 fixes this boundary. The TTS-only bridge probe can still be tested.
 
-## Install and check locally
+## Install and configure
 
 From the repository root in PowerShell:
 
 ```powershell
 Set-Location voice
 uv sync --locked --cache-dir .cache/uv
-uv run --locked python -m pytest -q
-uv run --locked python smoke.py --offline
-Copy-Item .env.example .env
+Copy-Item .env.example .env  # first setup only; preserve an existing .env
+.venv/Scripts/python.exe -m pytest -q -o faulthandler_timeout=25
+.venv/Scripts/python.exe smoke.py --offline
 ```
 
-Fill in `.env` locally; never put keys or phone numbers in chat or git. Process
-environment variables override `.env`. `bot.py` loads this folder's `.env` even
-when launched elsewhere. Do not copy `agent/.env` into the voice directory.
+Use `voice/.env` (D-041), which is ignored by git. `bot.py` loads it regardless of launch directory; process environment variables take precedence. Keep keys and numbers out of chat, logs and commits. Use python-dotenv: `uv --env-file` can reject an unquoted allowlist with spaces.
 
-If your configured file is at the outer workspace root (`HackUTD2026/.env`),
-keep it there and run these commands from `voice/` after installing dependencies:
+- `BRAIN_URL`: local brain, normally `http://localhost:8000`.
+- `VOICE_PUBLIC_URL`: exact HTTPS origin of a tunnel to 8100, without a path. Cloudflare and ngrok both work. This is your service's public address for Twilio callbacks and its `wss://.../ws/bridge` audio stream.
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`: the account owning the trial number.
+- `TWILIO_PHONE_NUMBER`: an owned, voice-capable number in that account.
+- `MAYA_PHONE_NUMBER`, `OUTBOUND_ALLOWLIST`: E.164 teammate numbers. Include Maya and the simulated caller in the comma-separated allowlist.
+- `HASH_SALT`: locally generated random secret for HMAC hashes.
+- `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`: TTS access and an accessible voice; Voices read permission supports discovery. This service uses the TTS WebSocket API, never ElevenLabs Agents.
+- `NVIDIA_API_KEY`: ASR, Lightning and Safety Guard access.
+- `VOICE_LLM_BASE_URL=https://integrate.api.nvidia.com/v1` and `NEMOTRON_VOICE_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b` (D-035). Raw HTTP requests include `chat_template_kwargs: {enable_thinking: false}`.
+- For `TTS_PROVIDER=magpie`, select `MAGPIE_VOICE_ID` from the actual `GetRivaSynthesisConfig` response. Default TTS is ElevenLabs.
+
+Photon credentials are listed for separately coordinated Photon 2.0 SIP setup (D-040); this Python service does not manage Photon routing or purchase resources.
+
+## Bridge probe: Twilio first (D-030/D-046)
+
+1. Start the MOCK brain using the repository command. For provider-only checks, leave `VOICE_URL` and `MESSAGING_URL` unset in that brain process.
+2. Run a tunnel to 8100. For example, `cloudflared tunnel --url http://localhost:8100` prints an HTTPS origin. Put that current origin in `voice/.env`; Quick Tunnel hostnames change after a tunnel restart.
+3. Set `VOICE_BRIDGE_PROBE_ENABLED=true`. Run `.venv/Scripts/python.exe smoke.py --live`: voice discovery and real Pipecat TTS synthesis in memory, without a phone call or saved audio.
+4. Start `.venv/Scripts/python.exe bot.py`. GET local and public `/health`; expect the Titan bridge identity and `probe_enabled: true`. Health proves liveness/configuration only. `intervention_ready: false` is deliberate.
+5. Twilio Console -> owned trial number -> **A call comes in** -> Webhook `<VOICE_PUBLIC_URL>/webhooks/twilio/bridge-probe`, POST. Save. Do not add `/twilio/voice` or curl-POST the signed probe.
+6. Call the trial number from an allowlisted, trial-verified teammate phone. Expect: “Hello. This is the Titan voice bridge test. I will never ask you for a PIN or a code.” It drains the greeting and hangs up; it does not listen or transcribe.
+7. Report the actual result to Lane 1. Greeting = stream works on trial. A trial restriction or Twilio error needs its error code; Yuvan decides on upgrades. Missing account setup does not establish a trial restriction.
+
+Coordinate the Photon attempt separately with its owner: existing Photon SIP route -> Twilio SIP Domain, TLS 5061, G.711. Do not purchase a number or upgrade the account. Photon can keep texting while Twilio handles voice.
+
+## Metadata-only forwarding
+
+After the probe, use `<VOICE_PUBLIC_URL>/webhooks/twilio/inbound`, POST, on the chosen number/SIP Domain and disable the probe. It returns `<Dial record="do-not-record">` to the allowlisted Maya phone, with no Stream, Gather or Record. The forwarded scam call never enters an ASR/model pipeline.
+
+Signed child-call callbacks at `/webhooks/twilio/forward-status` emit `call.started` on answer and `call.ended` on completion with the same HMAC-based call ID. Duplicate/out-of-order callbacks are absorbed. Brain delivery failures return 503 for retry. Unanswered calls do not open active call windows.
+
+Check brain `GET /users/usr_maya/timeline` and `GET /protections/usr_maya`: answer enables shield mode; completion clears it. Caller name, attestation, seen-before and scam label are configured **simulated carrier metadata**, never inferred from audio.
+
+## Intervention implementation
+
+`POST /internal/call` accepts the shared-schema `CallRequest` only from the local brain. Public tunnel/proxy requests are denied. It resolves `usr_maya` to the allowlisted teammate, checks case ownership and pending actions, then returns 202 for accepted background work. Identical requests dedupe for ten minutes in memory. Delivery failures go to the case; 202 does not claim the phone answered.
+
+Before dialing, it verifies Lightning and hosted ASR and guards the opening script. Twilio receives a non-recording call with a short-lived, one-use, call-bound stream grant. Titan's own call does not emit carrier `call.started` events or replace the suspicious call window.
+
+Replies become bounded NVIDIA intents; model prose cannot reach TTS or invoke actions. Spoken text uses brain-provided opening/facts and fixed action labels, checked by local policy and Safety Guard. Volunteered digits are redacted before context/model/case delivery. Incoming and actually emitted outgoing transcript lines use the brain HTTP API. Queued or interrupted questions cannot arm approval. A strict YES/NO after a complete question selects one explicit action endpoint. Brain 409 preserves the hold and asks her to hang up first. **This local gating still requires the brain fix described above.**
+
+The brain owns recovery planning, summary, watch and texting. D-042 makes it text the next recovery step after a voice/web/text decision. Voice does not invent a sent text or completed protection.
 
 ```powershell
-.venv/Scripts/python.exe -m dotenv -f ../../.env run -- .venv/Scripts/python.exe smoke.py --live
-.venv/Scripts/python.exe -m dotenv -f ../../.env run -- .venv/Scripts/python.exe bot.py
+.venv/Scripts/python.exe smoke.py --conversation
 ```
 
-Use the application's `python-dotenv` parser for this file. In the current setup,
-`uv --env-file` rejected an unquoted allowlist containing spaces. Neither command
-above prints configuration values, and the preflight does not place a call.
+This provider check synthesizes a known help request in memory, recognizes it with hosted ASR, validates Lightning's intent, guards a bounded response and synthesizes its reply. It stores no audio, places no call and proves no phone latency.
 
-- `VOICE_PUBLIC_URL`: exact public HTTPS origin from an ngrok tunnel to 8100.
-- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`: account serving the SIP Domain.
-- `TWILIO_PHONE_NUMBER`: owned/verified Twilio caller ID for forwarding.
-- `MAYA_PHONE_NUMBER`: teammate receiving forwarded calls.
-- `OUTBOUND_ALLOWLIST`: E.164 teammate numbers, including Maya and the test caller.
-- `HASH_SALT`: local random secret; changing it changes call/number hashes.
-- `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`: chosen voice accessible to the key.
-- For `TTS_PROVIDER=magpie`, use `NVIDIA_API_KEY` and a `MAGPIE_VOICE_ID` returned
-  by the running service's `GetRivaSynthesisConfig`. No voice is guessed.
-
-`PHOTON_PROJECT_ID` and `PHOTON_SECRET_KEY` are documented for the manual Spectrum
-SIP setup; this milestone does not call a Photon REST API or manage its account.
-
-## T+2 bridge test: Photon first
-
-The implemented route follows **Photon Spectrum Stable** (`spectrum-ts`, project
-ID/secret), matching D-017. If the actual project is Photon 2.0 (`pho_prj_` / bearer
-key), stop and ask Lane 1 before mixing protocols or credential types.
-
-1. Start the brain in MOCK mode using its documented command. Then run
-   `ngrok http 8100`, set the resulting HTTPS origin in `VOICE_PUBLIC_URL`, and
-   set `VOICE_BRIDGE_PROBE_ENABLED=true` in `voice/.env`.
-2. Run `uv run --locked python smoke.py --live`. This checks configuration,
-   brain liveness, provider voice discovery, and actual synthesis through the same
-   Pipecat TTS factory. It creates no phone call and stores no audio. It must pass
-   before trying the phone. No ASR/LLM checks apply to this TTS-only bridge probe.
-3. Start `uv run --locked python bot.py`. Health is at
-   `http://localhost:8100/health`. The root `scripts/dev.sh` also launches this
-   entry point via `requirements.txt`; the locked setup above is preferred.
-4. In the Twilio Console, create/select a Programmable Voice **SIP Domain**. Add
-   an authentication credential list. Set its Voice URL, method POST, to
-   `VOICE_PUBLIC_URL/webhooks/twilio/bridge-probe`.
-5. In the Spectrum dashboard, register the iMessage line's inbound SIP route to
-   `sips:agent@YOUR_DOMAIN.sip.twilio.com:5061`. Use the Twilio SIP Domain's
-   username/password for this inbound route. Use TLS, G.711 PCMU/PCMA, and the
-   domain hostname rather than an IP. Secure Media/SRTP is a separate setting:
-   enable it only after both ends negotiate it; TLS signaling alone does not
-   prove encrypted media. Do not buy a new service or number for this test.
-6. Call the Photon line **from an allowlisted teammate phone**. Hear:
-   “Hello. This is the Titan voice bridge test. I will never ask you for a PIN or
-   a code.” The probe drains the audio and ends the call. It intentionally does
-   not listen, transcribe, or conduct a conversation.
-7. Capture the actual result, caller-ID line, audio quality, and measured delay
-   from connection to first words. JSON event `bridge.first_audio_sent` measures
-   application-observed output timing, not what a listener hears. There is no
-   measured live latency yet. The goal is first words under two seconds.
-
-**At T+2:** if the bridge fails, stop and send the question in `STATUS.md` to
-Yuvan/Lane 1. Coordinate the documented Twilio-number fallback; do not silently
-switch providers. The fallback uses an existing Twilio number's Voice URL with
-the same probe endpoint. Photon continues texting. This implementation has not
-selected or exercised that fallback.
-
-## Forward the simulated scam call, with metadata only
-
-After the bridge test, change the SIP Domain's Voice URL to
-`VOICE_PUBLIC_URL/webhooks/twilio/inbound`, POST. Disable the probe. The inbound
-route returns `<Dial record="do-not-record">` to the configured allowlisted Maya
-number. It never returns `<Stream>`, `<Gather>`, or `<Record>`. The original
-caller's raw number is discarded after creating a salted HMAC hash.
-
-Twilio's child-call status callback sends `answered`/`completed` to
-`/webhooks/twilio/forward-status`; the answered callback's `CallStatus` is
-`in-progress`. This emits contract-valid `call.started` and `call.ended` for
-`usr_maya` with the same `call_id`. Ringing and unanswered calls do not create
-active call windows. Stable event IDs support brain idempotency and failed
-deliveries return 503 for retry. Completion before the answered callback sends
-start then end; a late answered callback cannot reopen the window.
+After Lane 1 fixes the transcript/reply boundary, run `.venv/Scripts/python.exe scripts/check_brain_approval_boundary.py` against the current checkout before enabling real dispatch. It must pass both transcript and customer.reply cases. Then the fixture can exercise the endpoint against a matching existing case:
 
 ```powershell
-Invoke-RestMethod http://localhost:8000/users/usr_maya/timeline
-Invoke-RestMethod http://localhost:8000/protections/usr_maya
+$body = Get-Content ../contracts/fixtures/callreq.t2.json -Raw
+Invoke-WebRequest http://localhost:8100/internal/call -Method Post -ContentType application/json -Body $body
 ```
 
-While connected, expect `active_call` and `shield_mode: true`; after hanging up,
-expect no active call and `shield_mode: false`. Caller name, attestation, seen
-before, and scam label come from `.env`. Tell judges these are **simulated carrier
-signals**. Only the teammate numbers are real; account data remains synthetic.
+Case and pending action IDs must exist in that brain; the fixture does not create them. This command places a real teammate call.
 
-The forwarded call and probe are deliberately separate provider routes. Never
-point a scam-forwarding call at the probe. The probe accepts a signed Twilio
-handshake plus a short-lived, one-use, call-bound token obtained through signed
-TwiML; caller allowlisting happens before any grant. No audio enters ASR/models.
+## Diagnostics and limits
 
-## Diagnostics and stopping
+Provider routes require Twilio signatures and the configured account. Stream grants also check the call ID and audio format. JSON logs contain stages, timing and sanitized error types. No raw numbers, tokens, signed URLs, text bodies or audio are logged. Upstream Pipecat logs are suppressed because they can contain text or provider responses.
 
-The service starts without keys so other lanes can run. Unconfigured webhooks
-return 503 with missing variable names; they never claim a call was delivered.
-There are no provider calls during startup. Webhooks always require Twilio
-signatures and the configured account. The public origin is taken from config,
-not untrusted forwarded headers. Keep the tunnel current after restarting ngrok.
+`bridge.first_audio_sent` and `voice.first_audio_sent` measure app-observed transport output, not listener-perceived latency. First words under two seconds remains unmeasured on a phone. Magpie cloud synthesis and Photon SIP remain unverified. A successful provider check is not a phone exchange.
 
-Logs are JSON on stdout: `voice.started`, `carrier.call_started`,
-`carrier.call_ended`, `brain.delivery_failed`, `bridge.pipeline_started`,
-`bridge.first_audio_sent`, `bridge.service_latency`, `bridge.provider_error`,
-`bridge.failed`, `bridge.session_finished`. No phone numbers, transcripts,
-credential values, raw audio, provider response bodies, or signed URLs are logged.
-Upstream Pipecat logging is suppressed because its debug/error messages may
-contain text. Errors retain stack locations/types and sanitized categories.
-There is no transcript/debug switch for this milestone. Use private provider
-diagnostics to inspect authentication, SIP, or media errors.
+Ctrl-C stops voice. Finish calls before restarting: dedupe/call/grant state is in memory. Unknown callbacks after restart return 409. Keep the tunnel and provider webhook origin synchronized. Startup makes no provider calls.
 
-Ctrl-C stops `bot.py`; stop the separate ngrok and brain processes in their own
-terminals. Finish calls before restarting voice: call/grant state is in memory.
-Unknown callbacks after a restart return 409 rather than inventing history. For
-the demo, hang up and reset the MOCK brain before rehearsing again.
+### Shared trial console (D-048)
 
-For silent audio, verify `/health`, run live smoke, inspect Twilio SIP errors,
-confirm Photon line routing, then check G.711 and Media Streams WebSocket access.
-Do not spend more than 30 minutes on one problem. See the repository skill's
-`references/operations/troubleshoot.md` for the first failed speech stage.
-
-## References used
-
-- [Photon Spectrum inbound SIP](https://photon.codes/docs/spectrum-ts/providers/voice/inbound-calls)
-- [Photon Spectrum outbound SIP](https://photon.codes/docs/spectrum-ts/providers/voice/outbound-calls)
-- [Twilio SIP interface](https://www.twilio.com/docs/voice/api/sip-interface)
-- [Twilio forwarding callbacks](https://www.twilio.com/docs/voice/twiml/number)
-- [Twilio signature validation](https://www.twilio.com/docs/usage/security)
-- [Pipecat Twilio transport](https://docs.pipecat.ai/pipecat/telephony/twilio-websockets)
-- [Pipecat ElevenLabs TTS](https://docs.pipecat.ai/api-reference/server/services/tts/elevenlabs)
-- [Pipecat NVIDIA TTS](https://docs.pipecat.ai/api-reference/server/services/tts/nvidia)
-- [ElevenLabs voice discovery](https://elevenlabs.io/docs/api-reference/voices/get)
-
-The user approved the official `docs.pipecat.ai/llms.txt` fallback because the
-Pipecat docs MCP is unavailable. Dependency versions were resolved from PyPI;
-`uv.lock` records the exact transitive versions. No provider account setup or
-spoken exchange has been verified in this checkout.
+The new shared trial number may not appear under IncomingPhoneNumbers in the API. Use One Console -> Voice -> Try out Voice -> Receive a call -> Custom to configure its webhook. The signed probe URL was saved successfully through that console. Zero owned-number API results alone do not mean no trial number exists. Keep the tunnel running and perform the incoming teammate test; only the audible result or an actual Twilio error establishes whether streaming works on trial.

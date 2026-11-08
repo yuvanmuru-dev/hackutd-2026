@@ -36,6 +36,9 @@ class Settings:
     elevenlabs_voice: str = ""
     nvidia_key: str = ""
     magpie_voice: str = ""
+    llm_base_url: str = "https://integrate.api.nvidia.com/v1"
+    llm_model: str = "nvidia/nemotron-3.5-lightning-30b-a3b"
+    guard_model: str = "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -63,6 +66,9 @@ class Settings:
             elevenlabs_voice=os.getenv("ELEVENLABS_VOICE_ID", ""),
             nvidia_key=os.getenv("NVIDIA_API_KEY", ""),
             magpie_voice=os.getenv("MAGPIE_VOICE_ID", ""),
+            llm_base_url=os.getenv("VOICE_LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/"),
+            llm_model=os.getenv("NEMOTRON_VOICE_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
+            guard_model=os.getenv("VOICE_GUARD_MODEL", "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"),
         )
 
     def missing(self, *, forwarding: bool = False, speech: bool = False) -> list[str]:
@@ -96,4 +102,21 @@ class Settings:
                     errors.append("Forwarding destination must differ from the Twilio number")
             except ValueError:
                 errors.append("Forwarding numbers must use E.164")
+        return errors
+
+    def conversation_missing(self) -> list[str]:
+        errors = self.missing(forwarding=True, speech=True)
+        if not self.nvidia_key:
+            errors.append("NVIDIA_API_KEY")
+        if not self.llm_model:
+            errors.append("NEMOTRON_VOICE_MODEL (working NVIDIA Nemotron served ID)")
+        target = urlsplit(self.llm_base_url)
+        if (target.scheme not in {"http", "https"} or not target.hostname or target.username
+                or target.query or target.fragment
+                or (target.scheme == "http" and target.hostname not in {"localhost", "127.0.0.1", "::1"})):
+            errors.append("VOICE_LLM_BASE_URL must be HTTPS or a local NVIDIA endpoint")
+        if target.hostname == "integrate.api.nvidia.com" and self.llm_model and not self.llm_model.startswith("nvidia/"):
+            errors.append("NEMOTRON_VOICE_MODEL must be an NVIDIA model")
+        if not self.guard_model.startswith("nvidia/"):
+            errors.append("VOICE_GUARD_MODEL must be an NVIDIA model")
         return errors

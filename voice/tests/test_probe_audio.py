@@ -1,5 +1,6 @@
 """Exercise the actual Pipecat transport/serializer with synthetic tone audio."""
 import base64
+import threading
 from unittest.mock import AsyncMock
 import xml.etree.ElementTree as ET
 
@@ -26,7 +27,13 @@ def test_probe_produces_twilio_media_and_drains_before_hanging_up(monkeypatch):
     monkeypatch.setattr(bot, "make_tts", lambda settings: SyntheticTTS(sample_rate=8000))
     hang_up = AsyncMock()
     monkeypatch.setattr(TwilioFrameSerializer, "_hang_up_call", hang_up)
-    with TestClient(create_app(SETTINGS)) as client:
+    finished = threading.Event()
+    async def run_probe(*args):
+        try:
+            await bot.run_probe(*args)
+        finally:
+            finished.set()
+    with TestClient(create_app(SETTINGS, probe_runner=run_probe)) as client:
         response = post(client, "/webhooks/twilio/bridge-probe", CallSid=SID, From=CALLER)
         token = ET.fromstring(response.text).find(".//Parameter").attrib["value"]
         with client.websocket_connect("/ws/bridge", headers=socket_headers()) as ws:
@@ -38,4 +45,7 @@ def test_probe_produces_twilio_media_and_drains_before_hanging_up(monkeypatch):
             assert base64.b64decode(message["media"]["payload"])
             while ws.receive()["type"] != "websocket.close":
                 pass
+            # The close frame precedes Pipecat's worker cleanup. Wait for it so
+            # TestClient does not cancel the handler during successful teardown.
+            assert finished.wait(5)
     hang_up.assert_awaited_once()
