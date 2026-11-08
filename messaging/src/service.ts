@@ -4,10 +4,11 @@ import { DeliveryError, digest, Transport } from './photon.js';
 import type { State, Prompt } from './state.js';
 import { valid } from './contracts.js';
 import type { CaseDetail, SendRequest } from './contract-types.js';
+import { inboundContent } from './images.js';
 
 export class Service {
   constructor(readonly config: Config, readonly state: State,
-    readonly transport: Pick<Transport, 'send' | 'incoming' | 'match' | 'hello'>,
+    readonly transport: Pick<Transport, 'send' | 'incoming' | 'match' | 'hello' | 'image'>,
     readonly brain: Pick<Brain, 'request' | 'event' | 'openCase'>) {}
 
   async send(body: unknown) {
@@ -34,14 +35,17 @@ export class Service {
     const message = await this.transport.incoming(id);
     const match = this.transport.match(message);
     if (!match || !message || (message.platform !== 'imessage' && message.platform !== 'sms')) return;
-    const content = message.content;
-    if (content.type !== 'text' || content.format !== 'plain') {
-      // Do not acknowledge unsupported images as processed; attachment support is a later milestone.
-      throw new Error('unsupported_inbound_content');
-    }
-    const text = content.text;
-    if (typeof text !== 'string' || Buffer.byteLength(text, 'utf8') > 4096) throw new Error('inbound_text_too_large');
-    if (text.trim().toLowerCase() === 'ping') {
+    const { text, attachments } = inboundContent(message.content);
+    if (attachments.length) {
+      for (const [index, attachmentId] of attachments.entries()) {
+        const image_url = await this.transport.image(attachmentId);
+        // One image per existing ForwardedMessage shape. IDs stay stable across
+        // partial group failures, so already accepted images are not duplicated.
+        await this.brain.event({ event_id: `evt_photon_${hash}_image_${index}`, user_id: match.user,
+          type: 'message.forwarded', ts: message.createdAt, source: 'messaging',
+          data: { channel: message.platform, image_url, ...(text ? { text } : {}) } });
+      }
+    } else if (text.trim().toLowerCase() === 'ping') {
       await this.transport.hello(message, match.route);
     } else {
       let receipt = this.state.data.receipts[hash];

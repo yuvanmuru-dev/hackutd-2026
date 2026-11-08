@@ -4,6 +4,7 @@ import type { Config } from './config.js';
 import type { State, Route } from './state.js';
 import { safeOutbound } from './contracts.js';
 import type { SendRequest } from './contract-types.js';
+import { imageDataUrl, MAX_IMAGE_BYTES } from './images.js';
 
 export type PhotonMessage = Awaited<ReturnType<Photon['projects']['getMessage']>>;
 export const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -36,6 +37,16 @@ export class Transport {
   }
   async incoming(id: string) {
     return this.api.projects.getMessage({ path: { id: this.config.project, messageId: id } });
+  }
+  async image(attachmentId: string): Promise<string> {
+    const path = { id: this.config.project, attachmentId };
+    const metadata = await this.api.projects.getAttachment({ path });
+    if (!metadata || metadata.projectId !== this.config.project || metadata.id !== attachmentId) throw new Error('attachment_project_mismatch');
+    if (!['image/png', 'image/jpeg'].includes(metadata.contentType)) throw new Error('unsupported_image_type');
+    if (metadata.sizeBytes > MAX_IMAGE_BYTES) throw new Error('image_too_large');
+    const blob = await this.api.projects.downloadAttachment({ path });
+    if (blob.size > MAX_IMAGE_BYTES) throw new Error('image_too_large');
+    return imageDataUrl(metadata.contentType, new Uint8Array(await blob.arrayBuffer()));
   }
   async findRoute(user: string, channel: 'imessage' | 'sms'): Promise<Route> {
     const phone = this.config.users.get(user);

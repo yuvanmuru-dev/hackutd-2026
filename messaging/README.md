@@ -68,7 +68,10 @@ blocks external requests.Session HTTP and asserts that no live message/call
 delivery was dispatched. Blocked data-tool HTTP attempts are counted separately.
 This prevents the brain test's scripted approvals from texting a live line.
 
-This is the messaging milestone. Image/screenshot forwarding, the full recovery walkthrough driven by brain prompts, Twilio fallback, Supabase migrations and the watcher still require follow-up. Unsupported content currently stops event processing without checkpointing it; resolve that event before restarting, rather than silently losing it.
+Under D-045, Supabase and the Twilio SMS fallback are deferred. The watcher is
+in watcher/ and screenshot transport is described below. Brain-side image
+reading and reported-number labeling remain Lane 1's integrations; transport
+tests do not establish a vision verdict or follow-up heads-up on the phone.
 
 Live verification on the teammate's existing line confirmed alert receipt and a hello response to ping. NVIDIA's model catalog exposed `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`; this Nano endpoint accepted the account key and correctly classified the synthetic checks “no that was not me” as `no`, and “I told him my PIN” as `info` with `shared: [pin]`. The other Nano catalog entry returned account-level 404. D-035/D-039 now prefer Lightning, verified live with HTTP 200 and thinking disabled. Production reply interpretation is in the brain. This does not establish free-form recovery approvals end to end.
 
@@ -91,3 +94,29 @@ the synthetic reset_pin action, and Step 2 of 4 was delivered. The teammate
 confirmed Step 2 receipt; the other three actions remained awaiting approval.
 Messaging made no direct approval calls. The local run used 180-second alert
 and 600-second recovery windows to allow time for the interactive phone check.
+
+## Screenshot forwarding (D-045)
+
+Incoming Photon `attachment` content, including images grouped with a caption,
+is resolved only through the authenticated project's attachment metadata and
+download methods. No arbitrary sender-supplied URL is fetched. Only PNG/JPEG
+up to 5 MB per image are accepted; both metadata and downloaded size are
+checked, followed by the file signature. The bytes stay in memory.
+
+Each image is posted as the existing `message.forwarded` Event with
+`data.image_url` set to a `data:image/png;base64,...` or JPEG data URL. The brain
+does not need Photon credentials to fetch it. A caption is included as
+`data.text`. This creates a forwarded-content case even during recovery; a
+caption such as YES is never routed as a recovery approval.
+
+Grouped images use stable per-image event IDs derived from the provider message
+ID and part index. If the second image fails after the first was accepted,
+replay uses the same IDs; the brain deduplicates the already accepted image.
+The provider message is checkpointed as processed only after all images post.
+Neither image bytes, captions, nor data URLs are stored in the checkpoint or
+transport logs.
+
+An unavailable attachment or rejected format leaves the cursor unadvanced and
+stops the consumer with a fixed error category. Diagnose the event and restart
+before continuing; invalid files are not silently recorded as successful.
+The brain owns Nemotron VL interpretation and the customer-facing verdict.

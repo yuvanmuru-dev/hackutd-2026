@@ -11,6 +11,7 @@ import { BrainError, type Brain } from '../src/brain.js';
 import { Transport, digest, type PhotonMessage } from '../src/photon.js';
 import { keyword, understand } from '../src/intent.js';
 import { Serial } from '../src/receiver.js';
+import { imageDataUrl, inboundContent, MAX_IMAGE_BYTES } from '../src/images.js';
 
 const env = {
   PHOTON_PROJECT_ID: 'pho_prj_00000000000000000000000001', PHOTON_API_KEY: 'pho_sk_test',
@@ -84,6 +85,7 @@ async function harness(text = 'YES') {
     incoming: async () => message(text), match: realTransport.match.bind(realTransport),
     send: async (body: any) => { sent.push(body.text); return 'sent'; },
     hello: async () => { sent.push('hello'); },
+    image: async (_id: string): Promise<string> => { throw new Error('Unexpected attachment'); },
   };
   return { state, dir, calls, actions, sent, brain, transport,
     service: new Service(config, state, transport, brain),
@@ -191,4 +193,89 @@ test('Nano disclosures cannot turn into approvals; malformed model output fails 
   content = JSON.stringify({ intent: 'approve_all', shared: [] });
   await assert.rejects(() => understand('untrusted text', nanoConfig));
   assert.deepEqual(requestedModels, [config.llmModel, config.llmModel]);
+});
+
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw1kAAAAASUVORK5CYII=', 'base64');
+
+test('image validation accepts PNG/JPEG, rejects MIME mismatches and enforces 5 MB', () => {
+  assert.equal(imageDataUrl('image/png', PNG), `data:image/png;base64,${PNG.toString('base64')}`);
+  assert.match(imageDataUrl('image/jpeg', Uint8Array.from([255, 216, 255, 217])), /^data:image\/jpeg;base64,/);
+  assert.throws(() => imageDataUrl('image/jpeg', PNG), /unsupported_image_type/);
+  assert.throws(() => imageDataUrl('image/svg+xml', PNG), /unsupported_image_type/);
+  assert.throws(() => imageDataUrl('image/png', new Uint8Array(MAX_IMAGE_BYTES + 1)), /image_too_large/);
+  assert.deepEqual(inboundContent({ type: 'group', parts: [{ type: 'text', format: 'plain', text: 'caption' },
+    { type: 'attachment', attachmentId: 'attachment_1' }] }), { text: 'caption', attachments: ['attachment_1'] });
+});
+
+test('attachment download stays project-scoped and rejects oversize metadata before fetching bytes', async (t) => {
+  const state = new State(await mkdtemp(join(tmpdir(), 'titan-test-')));
+  const transport = new Transport(config, state);
+  let sizeBytes = PNG.length, contentType = 'image/png', projectId = config.project;
+  const meta = t.mock.method(transport.api.projects, 'getAttachment', async () => ({ id: 'attachment_1', projectId,
+    contentType, sizeBytes, createdAt: '2026-11-07T22:00:00Z', updatedAt: '2026-11-07T22:00:00Z' }));
+  const download = t.mock.method(transport.api.projects, 'downloadAttachment', async () => new Blob([Uint8Array.from(PNG)]));
+  assert.match(await transport.image('attachment_1'), /^data:image\/png;base64,/);
+  const metadataInput = meta.mock.calls[0]?.arguments[0];
+  const downloadInput = download.mock.calls[0]?.arguments[0];
+  assert.ok(metadataInput); assert.ok(downloadInput);
+  assert.deepEqual(metadataInput.path, { id: config.project, attachmentId: 'attachment_1' });
+  assert.deepEqual(downloadInput.path, { id: config.project, attachmentId: 'attachment_1' });
+  sizeBytes = MAX_IMAGE_BYTES + 1;
+  await assert.rejects(() => transport.image('attachment_1'), /image_too_large/);
+  sizeBytes = PNG.length; contentType = 'application/pdf';
+  await assert.rejects(() => transport.image('attachment_1'), /unsupported_image_type/);
+  contentType = 'image/png'; projectId = 'pho_prj_other';
+  await assert.rejects(() => transport.image('attachment_1'), /attachment_project_mismatch/);
+  assert.equal(download.mock.calls.length, 1);
+});
+
+test('a forwarded screenshot with YES caption becomes image data, never a recovery approval', async () => {
+  const h = await harness();
+  h.transport.incoming = async () => ({ ...message(), content: { type: 'group', parts: [
+    { type: 'text', format: 'plain', text: 'YES' }, { type: 'attachment', attachmentId: 'attachment_1' },
+  ] } } as PhotonMessage);
+  let downloads = 0;
+  h.transport.image = async () => { downloads++; return imageDataUrl('image/png', PNG); };
+  await h.service.handle(envelope);
+  await h.service.handle(envelope);
+  const posts = h.calls.filter(c => c.path === '/events');
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].body.type, 'message.forwarded');
+  assert.equal(posts[0].body.data.text, 'YES');
+  assert.equal(valid('Event', posts[0].body), true);
+  assert.match(posts[0].body.data.image_url, /^data:image\/png;base64,/);
+  assert.equal(h.calls.some(c => c.path.startsWith('/actions')), false);
+  assert.equal(downloads, 1);
+  const saved = await readFile(join(h.dir, 'checkpoint.json'), 'utf8');
+  assert.equal(saved.includes(PNG.toString('base64')), false);
+  assert.equal(saved.includes('YES'), false);
+});
+
+test('partial multi-image failures retain stable per-image event IDs on replay', async () => {
+  const h = await harness();
+  h.transport.incoming = async () => ({ ...message(), content: { type: 'group', parts: [
+    { type: 'attachment', attachmentId: 'first' }, { type: 'attachment', attachmentId: 'second' },
+  ] } } as PhotonMessage);
+  let fail = true;
+  h.transport.image = async id => {
+    if (id === 'second' && fail) { fail = false; throw new Error('temporary provider failure'); }
+    return imageDataUrl('image/png', PNG);
+  };
+  await assert.rejects(() => h.service.handle(envelope));
+  assert.equal(h.state.data.processed.includes(digest(messageId)), false);
+  await h.service.handle(envelope);
+  const posts = h.calls.filter(c => c.path === '/events');
+  assert.equal(posts.length, 3);
+  assert.equal(posts[0].body.event_id, posts[1].body.event_id);
+  assert.notEqual(posts[1].body.event_id, posts[2].body.event_id);
+  assert.equal(new Set(posts.map(p => p.body.event_id)).size, 2);
+  assert.ok(h.state.data.processed.includes(digest(messageId)));
+});
+
+test('unknown senders cannot trigger attachment download or image forwarding', async () => {
+  const h = await harness();
+  h.transport.incoming = async () => ({ ...message(), sentBy: { platform: 'imessage', kind: 'human', id: 'unknown',
+    handle: '+15555550103' }, content: { type: 'attachment', attachmentId: 'attachment_1' } } as PhotonMessage);
+  await h.service.handle(envelope);
+  assert.equal(h.calls.length, 0);
 });

@@ -8,7 +8,8 @@ export function errorFields(error: unknown) {
   if (error instanceof BrainError) return { category: 'brain_api', status: error.status };
   if (error instanceof DeliveryError) return { category: 'delivery', code: error.code };
   const codes = new Set(['invalid_photon_event', 'project_mismatch', 'invalid_message_id',
-    'unsupported_inbound_content', 'inbound_text_too_large', 'case_owner_mismatch', 'invalid_brain_event']);
+    'unsupported_inbound_content', 'inbound_text_too_large', 'case_owner_mismatch', 'invalid_brain_event',
+    'image_too_large', 'unsupported_image_type', 'attachment_project_mismatch']);
   if (error instanceof Error && codes.has(error.message)) return { category: 'validation', code: error.message };
   return { category: 'internal' };
 }
