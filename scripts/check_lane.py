@@ -76,7 +76,11 @@ def main():
     for path, text in added_lines(base):
         if path.startswith("docs/") or path.endswith(".md") or path == "scripts/check_lane.py":
             continue
+        is_test = "/tests/" in "/" + path or path.rsplit("/", 1)[-1].startswith("test_")
         for rx, msg in FORBIDDEN:
+            # tests may quote a forbidden ask to prove the guard rejects it; model/endpoint rules still apply
+            if is_test and "D-012" in msg:
+                continue
             if re.search(rx, text):
                 problems.append(f"{path}: {msg}: {text.strip()[:100]}")
     if problems:
