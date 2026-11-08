@@ -24,14 +24,14 @@ function Modal({ labelledBy, describedBy, children }: { labelledBy: string; desc
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       onCancel={(e) => e.preventDefault()}
-      className="pause-in m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-2xl bg-surface p-7 text-ink shadow-[0_24px_60px_rgb(0_0_0/0.25)] backdrop:bg-[rgb(17_17_20/0.6)] sm:p-10"
+      className="pause-in m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-2xl bg-surface p-5 text-ink shadow-[0_24px_60px_rgb(0_0_0/0.25)] backdrop:bg-[rgb(17_17_20/0.6)] sm:p-10"
     >
       {children}
     </dialog>
   );
 }
 
-const TITLE = "text-balance text-[clamp(28px,4vw,36px)] font-bold leading-tight tracking-[-0.02em] outline-none";
+const TITLE = "text-balance text-[clamp(26px,4vw,36px)] font-bold leading-tight tracking-[-0.02em] outline-none";
 const PRIMARY =
   "inline-flex min-h-16 items-center justify-center rounded-full px-8 text-center text-lead font-semibold transition-[transform,background-color,opacity] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60";
 const SECONDARY =
@@ -52,14 +52,14 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
       <div className="text-ink-2">
         <Wordmark size={30} />
       </div>
-      <h2 id="pause-title" tabIndex={-1} className={`mt-6 ${TITLE}`}>
+      <h2 id="pause-title" tabIndex={-1} className={`mt-4 sm:mt-6 ${TITLE}`}>
         {screen.title}
       </h2>
-      <p id="pause-body" className="mt-4 text-lead text-ink-2">
+      <p id="pause-body" className="mt-3 text-body text-ink-2 sm:mt-4 sm:text-lead">
         {screen.body}
       </p>
       {reasons.length > 0 && (
-        <ul className="mt-6 flex flex-col gap-2 rounded-xl bg-surface-2 p-5 text-body">
+        <ul className="mt-5 flex flex-col gap-1.5 rounded-xl bg-surface-2 p-4 text-body sm:mt-6 sm:gap-2 sm:p-5">
           {reasons.map((r) => (
             <li key={r} className="flex gap-3">
               <span aria-hidden className="mt-[10px] h-2 w-2 flex-none rounded-full bg-accent" />
@@ -68,7 +68,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
           ))}
         </ul>
       )}
-      <div className="mt-8 flex flex-col gap-3">
+      <div className="mt-6 flex flex-col gap-3 sm:mt-8">
         <button
           type="button"
           onClick={onHelp}
