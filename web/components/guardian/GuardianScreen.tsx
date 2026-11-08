@@ -8,41 +8,20 @@ import { DetailDrawer } from "./DetailDrawer";
 import { decidedOf, storyOf, type StoryStep, type ThreadItem } from "./story";
 import { useGuardianCase } from "./useGuardianCase";
 
-/** Ticks once a second while the case is live, so the one clock moves. */
-function useNow(live: boolean) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!live) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [live]);
-  return now;
-}
-
-/**
- * The newest thread items that fit the phone, whole: older ones drop off the top, as on a phone, and
- * nothing is ever drawn half-cut. Runs on every render and on resize; it only hides DOM nodes.
- */
-function useFit() {
+/** Keeps the thread scrolled to the newest message, as a phone does. */
+function usePinnedBottom(count: number) {
   const box = useRef<HTMLDivElement>(null);
-  const fit = useCallback(() => {
+  useLayoutEffect(() => {
     const el = box.current;
-    if (!el) return;
-    const items = [...el.children].filter((c) => !c.classList.contains("g-thread-spacer")) as HTMLElement[];
-    items.forEach((c) => (c.style.display = ""));
-    for (const c of items.slice(0, -1)) {
-      if (el.scrollHeight <= el.clientHeight + 1) break;
-      c.style.display = "none";
-    }
-  }, []);
-  useLayoutEffect(fit);
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [count]);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    const ro = new ResizeObserver(fit);
+    const ro = new ResizeObserver(() => (el.scrollTop = el.scrollHeight));
     ro.observe(el);
     return () => ro.disconnect();
-  }, [fit]);
+  }, []);
   return box;
 }
 
@@ -53,8 +32,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
   const view = useMemo(() => deriveView(detail, steps), [detail, steps]);
   const [drawer, setDrawer] = useState(false);
   const closeDrawer = useCallback(() => setDrawer(false), []);
-  const now = useNow(mode === "live" && !view.done);
-  const story = storyOf(detail, head, view, now);
+  const story = storyOf(detail, head, view);
   const decided = decidedOf(detail, view);
   const caseNo = (head?.case_number ?? detail?.case_number ?? "").replace(/^[A-Z]+-/, "");
   const name = detail?.user.name ?? "Maya";
@@ -69,7 +47,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const box = useFit();
+  const box = usePinnedBottom(story.thread.length + (story.typing ? 1 : 0));
   const thread = story.thread;
 
   return (
@@ -101,12 +79,11 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
         <section className="g-phone" aria-label="iMessage thread between Titan and Maya">
           <div className="g-phone-head">
             <span className="g-avatar" aria-hidden>
-              Ti
+              <Image src="/brand/titan-t.png" alt="" width={24} height={27} className="h-[27px] w-auto" />
             </span>
             <span className="g-phone-title">iMessage · Titan</span>
           </div>
           <div ref={box} className="g-thread" aria-live="polite">
-            <span className="g-thread-spacer" aria-hidden />
             {thread.length === 0 && !story.typing && <p className="g-sys">No messages yet</p>}
             {thread.map((m) => (
               <Item key={m.id} item={m} delivered={m.id === story.deliveredId} />
@@ -144,7 +121,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
             </li>
           ))}
         </ol>
-        <span className="g-strip-push">Nemotron · self-hosted on Brev</span>
+        <span>Nemotron · self-hosted on Brev</span>
         <span>Risk model: {detail?.risk?.model ?? "…"}</span>
         <button type="button" className="g-key" onClick={() => setDrawer(true)} aria-keyshortcuts="D">
           Details <kbd>D</kbd>

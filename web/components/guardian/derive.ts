@@ -123,6 +123,22 @@ export function confidenceWords(
   return `${CONF_WORDS[level]} · ${pct}%${risk.calibrated ? "" : " (uncalibrated)"}`;
 }
 
+const PRODUCT_NAMES: Record<string, string> = {
+  port_out_protection: "Port Out Protection",
+  sim_protection: "SIM Protection",
+  scam_block: "Scam Block",
+};
+
+/** T-Mobile's product names are proper nouns: fix their case in any text we display (brain text included). */
+export function productCase(text: string): string {
+  return text
+    .replace(/\bport[ -]out protection\b/gi, "Port Out Protection")
+    .replace(/\bsim protection\b/gi, "SIM Protection")
+    .replace(/\bscam block\b/gi, "Scam Block")
+    .replace(/\btransfer pin(s?)\b/gi, "Transfer PIN$1")
+    .replace(/\baccount takeover protection\b/gi, "Account Takeover Protection");
+}
+
 /** Readable labels for timeline events on the call bar. */
 export function markerLabel(e: C.Event): string {
   const d = e.data as Record<string, unknown>;
@@ -135,10 +151,8 @@ export function markerLabel(e: C.Event): string {
       return d.new_device ? "Signed in on a new device" : "Signed in";
     case "portal.signals":
       return "Portal behavior";
-    case "protection.changed": {
-      const name = String(d.name ?? "protection").replace(/_/g, " ");
-      return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${d.enabled ? "on" : "off"}`;
-    }
+    case "protection.changed":
+      return `${PRODUCT_NAMES[String(d.name)] ?? productCase(String(d.name ?? "protection").replace(/_/g, " "))} ${d.enabled ? "on" : "off"}`;
     case "transfer_pin.requested":
       return "Transfer PIN requested";
     case "sim_swap.requested":
