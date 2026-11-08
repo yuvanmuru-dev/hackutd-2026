@@ -200,8 +200,8 @@ async def case_stream(cid: str, request: Request):
                 sent = True
                 yield f"event: step\ndata: {json.dumps(s)}\n\n"
                 yield f"event: case\ndata: {json.dumps(store.case_head(c))}\n\n"
-                if s["type"] == "done":
-                    return
+                if s["type"] == "done" and i >= len(c["steps"]):
+                    return  # close only when caught up: steps after a "done" (late call transcript lines) still replay
             if not sent:
                 await asyncio.sleep(0.2)
                 idle += 0.2
