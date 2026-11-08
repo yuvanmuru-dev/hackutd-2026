@@ -44,7 +44,7 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
   const visible = markers.filter((m) => m.type !== "call.started" && m.type !== "call.ended");
 
   return (
-    <section className="g-panel grid grid-cols-[auto_1fr] items-center gap-x-10 px-6 py-5" aria-label="Call">
+    <section className="g-panel grid grid-cols-1 items-center gap-x-10 gap-y-4 px-5 py-5 sm:grid-cols-[auto_1fr] sm:px-6" aria-label="Call">
       <div>
         <p className="g-label">{ongoing ? "On the phone for" : "Call lasted"}</p>
         <p className="text-[56px] font-bold leading-none tracking-tight tabular" aria-live="off">

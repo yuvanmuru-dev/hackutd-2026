@@ -22,13 +22,13 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
   const s = STATUS[status];
   const name = detail?.user.name ?? "Maya";
   return (
-    <header className="flex items-center gap-6">
+    <header className="flex flex-wrap items-center gap-x-6 gap-y-3">
       <div className="flex items-center gap-3">
         <TGlyph size={40} tone="accent" title="Titan" />
         <span className="text-[22px] font-semibold tracking-tight">Titan Guardian</span>
       </div>
-      <div className="h-8 w-px bg-[var(--g-line)]" aria-hidden />
-      <div className="min-w-0 flex-1">
+      <div className="hidden h-8 w-px bg-[var(--g-line)] lg:block" aria-hidden />
+      <div className="min-w-[min(100%,420px)] flex-1">
         <h1 className="line-clamp-2 text-balance text-[28px] font-semibold leading-tight tracking-tight">
           {name} · {head?.title ?? detail?.title ?? "Loading case"}
         </h1>

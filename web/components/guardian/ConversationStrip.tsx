@@ -33,7 +33,7 @@ export function ConversationStrip({ messages }: { messages: C.Message[] }) {
   return (
     <section className="g-panel flex min-h-0 flex-col px-6 py-5" aria-label="Messages and call">
       <h2 className="text-[22px] font-semibold">iMessage and Titan’s call</h2>
-      <div ref={box} className="g-scroll mt-3 flex min-h-0 flex-1 flex-col gap-3 pr-1" aria-live="polite">
+      <div ref={box} className="g-scroll mt-3 flex max-h-[360px] min-h-0 flex-1 flex-col gap-3 pr-1 lg:max-h-none" aria-live="polite">
         {sorted.length === 0 && <p className="text-[var(--g-ink-3)]">Nothing sent to Maya yet</p>}
         {sorted.map((m) =>
           m.channel === "voice" ? (

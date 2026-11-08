@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Contract as C } from "@/lib/api/client";
 import type { GuardianView } from "./derive";
 
@@ -10,9 +11,9 @@ const ORDER: Record<C.Action["status"], number> = {
   failed: 5,
 };
 
-const MARK: Record<C.Action["status"], string> = {
-  applied: "✓",
-  approved: "✓",
+const MARK: Record<C.Action["status"], ReactNode> = {
+  applied: <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m3.5 8.5 3 3 6-7" /></svg>,
+  approved: <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m3.5 8.5 3 3 6-7" /></svg>,
   awaiting_approval: "?",
   proposed: "",
   rejected: "–",
@@ -53,7 +54,7 @@ export function RecoveryChecklist({ actions, view }: { actions: C.Action[]; view
           </span>
         )}
       </div>
-      <ul className="g-scroll mt-3 flex min-h-0 flex-1 flex-col gap-3" aria-live="polite">
+      <ul className="g-scroll mt-3 flex max-h-[360px] min-h-0 flex-1 flex-col gap-3 lg:max-h-none" aria-live="polite">
         {rows.length === 0 && (
           <li className="text-[var(--g-ink-3)]">{view.needsApproval ? "Waiting for Maya’s answers" : "No actions yet"}</li>
         )}

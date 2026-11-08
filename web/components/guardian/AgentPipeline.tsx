@@ -31,7 +31,7 @@ function stageState(view: GuardianView, agent: PipelineAgent): StageState {
 
 export function AgentPipeline({ view }: { view: GuardianView }) {
   return (
-    <section aria-label="Four agents, in order" className="grid min-h-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] gap-2">
+    <section aria-label="Four agents, in order" className="grid min-h-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-2">
       {PIPELINE.map((p, i) => {
         const state = stageState(view, p.agent);
         const steps = view.columns[p.agent];
@@ -41,7 +41,7 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
             <article className="g-panel g-stage px-4 py-4 2xl:px-5" data-state={state} aria-current={state === "active" ? "step" : undefined}>
               <header className="flex items-center gap-3">
                 <span className="g-stage-num" aria-hidden>
-                  {state === "done" ? "✓" : i + 1}
+                  {state === "done" ? <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m3.5 8.5 3 3 6-7" /></svg> : i + 1}
                 </span>
                 <div className="min-w-0">
                   <h2 className="text-[26px] font-bold leading-tight tracking-tight">{p.label}</h2>
@@ -64,7 +64,7 @@ export function AgentPipeline({ view }: { view: GuardianView }) {
               </StepList>
             </article>
             {next && (
-              <span className="g-arrow" data-lit={view.columns[next.agent].length > 0} aria-hidden>
+              <span className="g-arrow hidden lg:block" data-lit={view.columns[next.agent].length > 0} aria-hidden>
                 →
               </span>
             )}
@@ -90,7 +90,7 @@ function StepList({ steps, children }: { steps: C.StepEvent[]; children: React.R
     return () => cancelAnimationFrame(id);
   }, [steps.length]);
   return (
-    <ol ref={ref} className="g-scroll mt-4 flex min-h-0 flex-1 flex-col gap-3">
+    <ol ref={ref} className="g-scroll mt-4 flex max-h-[320px] min-h-0 flex-1 flex-col gap-3 lg:max-h-none">
       {children}
     </ol>
   );
