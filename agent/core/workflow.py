@@ -385,7 +385,14 @@ class Run:
             ok, why = agents.outbound_ok(summary[k], use_model=k != "what_happened" and bool(s.get(k)))
             if not ok:
                 replaced[k] = why
-                summary[k] = "Titan stepped in to keep your number safe."
+                summary[k] = {  # fact-based fallbacks, one per section, so a rejected line never repeats elsewhere
+                    "what_happened": "Titan stepped in to keep your number safe.",
+                    "why_we_stepped_in": {"takeover": "A new device signed in and asked to move your number right away, which is how SIM-swap takeovers start.",
+                                          "scam_text": "The text points to a site that imitates T-Mobile."}.get(
+                        self.case.get("threat"), "The call couldn't be verified, and changing account security during a call like that is a common scam pattern."),
+                    "spot_it_next_time": "T-Mobile will never call and ask you to turn off protection or read out a PIN or code.",
+                    "confidence_text": "This looked like a scam, but we're not certain.",
+                }[k]
             summary[k] = _sentence(summary[k])
         summary["next_steps"] = [_sentence(x) for x in summary["next_steps"]]
         self.case["summary"] = summary

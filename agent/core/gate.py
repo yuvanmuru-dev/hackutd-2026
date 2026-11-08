@@ -39,7 +39,7 @@ def check(store: Store, req: dict) -> dict:
 
     if suspicious:
         mins = summary["duration_s"] // 60
-        reasons.append(f"Unverified call active for {mins} min")
+        reasons.append("Unverified call in progress right now" if mins < 1 else f"Unverified call active for {mins} min")
         if call["caller_name"] and "t-mobile" in call["caller_name"].lower():
             reasons.append("Caller ID claims to be T-Mobile")
 
