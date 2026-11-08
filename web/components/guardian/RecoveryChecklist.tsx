@@ -19,12 +19,15 @@ const MARK: Record<C.Action["status"], string> = {
   failed: "!",
 };
 
+const VIA: Record<NonNullable<C.Action["approved_via"]>, string> = { web: "on the web", sms: "by text", voice: "on the call" };
+const approved = (a: C.Action) => (a.approved_via ? `Maya approved ${VIA[a.approved_via]}` : "Maya approved");
+
 function note(a: C.Action): string {
   switch (a.status) {
     case "applied":
-      return a.requires_approval ? `Approved by ${a.approved_via ?? "Maya"}` : "Done on its own · safer";
+      return a.requires_approval ? approved(a) : "Done on its own · safer";
     case "approved":
-      return `Approved by ${a.approved_via ?? "Maya"}`;
+      return approved(a);
     case "awaiting_approval":
       return "Waiting for Maya’s yes";
     case "proposed":

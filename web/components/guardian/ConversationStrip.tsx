@@ -23,7 +23,8 @@ export function ConversationStrip({ messages }: { messages: C.Message[] }) {
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    const behavior: ScrollBehavior = first.current ? "auto" : "smooth";
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = first.current || reduce ? "auto" : "smooth";
     first.current = false;
     const id = requestAnimationFrame(() => el.scrollTo({ top: el.scrollHeight, behavior }));
     return () => cancelAnimationFrame(id);

@@ -81,6 +81,7 @@ export function CallBar({ call, markers, live }: { call: C.CallSummary | null; m
                 <span className="tabular text-[var(--g-ink-3)]">
                   {formatDuration((Date.parse(m.ts) - start) / 1000)}
                 </span>{" "}
+                {isRiskyMarker(m) && <span className="g-diamond" aria-hidden />}
                 <span
                   className={isRiskyMarker(m) ? "font-semibold" : ""}
                   style={{ color: isRiskyMarker(m) ? "var(--g-accent)" : "var(--g-ink-2)" }}

@@ -17,7 +17,7 @@ export function DataUsed({ dataUsed, signals }: { dataUsed: string[]; signals: C
         {signals.length > 0 && (
           <>
             <p className="g-label mt-4">Signals and their sources</p>
-            <ul className="mt-1 flex flex-col gap-1 text-[16px] leading-snug text-[var(--g-ink-2)]">
+            <ul className="mt-1 flex flex-col gap-1 text-[17px] leading-snug text-[var(--g-ink-2)]">
               {signals.slice(0, 8).map((s) => (
                 <li key={`${s.group}.${s.name}`}>
                   {s.name.charAt(0).toUpperCase() + s.name.slice(1).replace(/_/g, " ")}: <span className="tabular text-[var(--g-ink)]">{fmt(s.value)}</span>

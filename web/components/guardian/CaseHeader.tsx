@@ -29,7 +29,7 @@ export function CaseHeader({ detail, head, view, mode }: Props) {
       </div>
       <div className="h-8 w-px bg-[var(--g-line)]" aria-hidden />
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[28px] font-semibold leading-tight tracking-tight">
+        <h1 className="line-clamp-2 text-balance text-[28px] font-semibold leading-tight tracking-tight">
           {name} · {head?.title ?? detail?.title ?? "Loading case"}
         </h1>
         <p className="g-label tabular">

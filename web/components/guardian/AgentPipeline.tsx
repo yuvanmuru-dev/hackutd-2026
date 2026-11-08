@@ -83,7 +83,8 @@ function StepList({ steps, children }: { steps: C.StepEvent[]; children: React.R
     const el = ref.current;
     if (!el) return;
     // Jump on first paint, glide for steps that arrive later; wait a frame so the new row has its height.
-    const behavior: ScrollBehavior = first.current ? "auto" : "smooth";
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = first.current || reduce ? "auto" : "smooth";
     first.current = false;
     const id = requestAnimationFrame(() => el.scrollTo({ top: el.scrollHeight, behavior }));
     return () => cancelAnimationFrame(id);
