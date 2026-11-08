@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { ConsentScreen } from "@/components/portal/ConsentScreen";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { ProtectAside, SPLIT } from "@/components/portal/ProtectAside";
 import { BTN_PRIMARY, PANEL } from "@/components/ui";
 import { MAYA, newEventId, nowIso, postEvent } from "@/lib/api/client";
 import { consentGiven, resetFlow, setConsent } from "@/lib/behavior/session";
@@ -23,13 +24,16 @@ export default function PortalSignIn() {
   if (consent === null) {
     return (
       <PortalShell>
-        <ConsentScreen
-          onChoose={(yes) => {
-            setConsent(yes);
-            setChosen(yes);
-            if (yes) resetFlow("/portal");
-          }}
-        />
+        <div className={SPLIT}>
+          <ConsentScreen
+            onChoose={(yes) => {
+              setConsent(yes);
+              setChosen(yes);
+              if (yes) resetFlow("/portal");
+            }}
+          />
+          <ProtectAside />
+        </div>
       </PortalShell>
     );
   }
@@ -44,7 +48,12 @@ export default function PortalSignIn() {
         ts: nowIso(),
         source: "portal",
         call_id: null,
-        data: { device_hash: "h_maya_laptop", region: "Dallas, TX", new_device: false, succeeded: true },
+        data: {
+          device_hash: "h_maya_laptop",
+          region: "Dallas, TX",
+          new_device: false,
+          succeeded: true,
+        },
       });
     } catch {
       /* the account page shows the connection problem */
@@ -54,26 +63,40 @@ export default function PortalSignIn() {
 
   return (
     <PortalShell>
-      <section className={`w-full max-w-[440px] ${PANEL} p-6 sm:p-8`}>
-        <h1 className="text-title font-bold tracking-[-0.01em]">Sign in</h1>
-        <p className="mt-2 text-body text-ink-2">This device is saved to your account.</p>
-        <div className="mt-6 flex items-center gap-4 border-y border-line py-4">
-          <span
-            aria-hidden
-            className="grid h-12 w-12 place-items-center rounded-full bg-surface-2 text-[20px] font-semibold text-ink"
-          >
-            M
-          </span>
-          <div>
-            <p className="text-body font-semibold">Maya</p>
-            <p className="text-[15px] text-ink-3 tabular">(214) •••-••48 · Primary Account Holder</p>
+      <div className={SPLIT}>
+        <section className={`w-full max-w-[440px] ${PANEL} p-6 sm:p-8`}>
+          <h1 className="text-title font-bold tracking-[-0.01em]">Sign in</h1>
+          <p className="mt-2 text-body text-ink-2">
+            This device is saved to your account.
+          </p>
+          <div className="mt-6 flex items-center gap-4 border-y border-line py-4">
+            <span
+              aria-hidden
+              className="grid h-12 w-12 place-items-center rounded-full bg-surface-2 text-[20px] font-semibold text-ink"
+            >
+              M
+            </span>
+            <div>
+              <p className="text-body font-semibold">Maya</p>
+              <p className="text-[15px] text-ink-3 tabular">
+                (214) •••-••48 · Primary Account Holder
+              </p>
+            </div>
           </div>
-        </div>
-        <button type="button" onClick={signIn} disabled={busy} className={`${BTN_PRIMARY} mt-6 !h-14 w-full !text-lead`}>
-          {busy ? "Signing in…" : "Continue"}
-        </button>
-        <p className="mt-4 text-[15px] text-ink-3">Not you? Sign in with a different T-Mobile ID</p>
-      </section>
+          <button
+            type="button"
+            onClick={signIn}
+            disabled={busy}
+            className={`${BTN_PRIMARY} mt-6 !h-14 w-full !text-lead`}
+          >
+            {busy ? "Signing in…" : "Continue"}
+          </button>
+          <p className="mt-4 text-[15px] text-ink-3">
+            Not you? Sign in with a different T-Mobile ID
+          </p>
+        </section>
+        <ProtectAside />
+      </div>
     </PortalShell>
   );
 }
