@@ -52,7 +52,7 @@ export function PauseScreen({ screen, reasons, busy, onHelp, onContinue }: Props
             type="button"
             onClick={onHelp}
             disabled={busy !== null}
-            className="min-h-16 rounded-full bg-accent px-8 text-lead font-semibold text-accent-ink transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+            className="min-h-16 rounded-full bg-accent px-8 text-lead font-semibold text-accent-ink transition-[transform,background-color] hover:bg-accent-hover active:scale-[0.98] disabled:opacity-60"
           >
             {busy === "help" ? "Getting Titan…" : screen.help_label}
           </button>

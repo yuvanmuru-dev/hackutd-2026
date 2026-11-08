@@ -144,7 +144,7 @@ export default function SecurityPage() {
   }
 
   return (
-    <PortalShell signedIn>
+    <PortalShell signedIn current="Security">
       <h1 className="text-title font-semibold tracking-tight">Security</h1>
       <p className="mt-2 text-lead text-ink-2">Protections that keep your phone number yours.</p>
 

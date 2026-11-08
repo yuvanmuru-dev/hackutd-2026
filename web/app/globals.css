@@ -3,27 +3,31 @@
 /*
   Titan tokens. The root theme is LIGHT and calm: Maya's laptop and phone (/portal, /case, /console).
   The guardian projector screen scopes its own dark tokens inside web/components/guardian/.
-  Accent is a deep magenta of our own (D-004: no T-Mobile brand assets or exact brand hex).
+  Brand: T-Mobile magenta #E20074 (D-044). It is a FILL color (white text on it is 4.68:1).
+  Magenta TEXT uses --accent-text (#BA0060, 6.45:1 on white), because #E20074 fails as small text
+  on the off-white ground.
 */
 :root {
-  --ground: #f7f7f5;
+  --ground: #f5f5f6;
   --surface: #ffffff;
-  --surface-2: #f0f0ed;
-  --line: #e6e6e2;
-  --line-strong: #cfd0cc;
-  --ink: #141414;
-  --ink-2: #555552;
-  --ink-3: #6b6b68;
-  --accent: #b0136b;
+  --surface-2: #efeff1;
+  --line: #e3e3e6;
+  --line-strong: #c9c9ce;
+  --ink: #111114;
+  --ink-2: #4b4b52;
+  --ink-3: #64646b;
+  --accent: #e20074;
+  --accent-hover: #ba0060;
+  --accent-text: #ba0060;
   --accent-ink: #ffffff;
-  --accent-soft: #fbe9f2;
-  --positive: #1f7a4a;
-  --positive-soft: #dff5e8;
+  --accent-soft: #fde6f1;
+  --positive: #1d7a48;
+  --positive-soft: #ddf4e6;
   --notice: #8a4b06;
-  --notice-soft: #fff6e0;
+  --notice-soft: #fff4dc;
   --negative: #a3221d;
   --negative-soft: #fdeceb;
-  --focus: #b0136b;
+  --focus: #e20074;
 }
 
 @theme inline {
@@ -36,6 +40,8 @@
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-text: var(--accent-text);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
   --color-positive: var(--positive);

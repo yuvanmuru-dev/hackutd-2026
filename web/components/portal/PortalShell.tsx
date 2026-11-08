@@ -1,33 +1,74 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { TGlyph } from "@/components/TGlyph";
 
-// Mock carrier account site. Neutral name and mark: no carrier branding in the UI (D-004).
-export function PortalShell({ children, signedIn }: { children: ReactNode; signedIn?: boolean }) {
+const SECTIONS = ["Overview", "Bill", "Plan", "Security"] as const;
+
+// Maya's carrier account site (mock). Official T-Mobile T (D-044).
+export function PortalShell({
+  children,
+  signedIn,
+  current,
+}: {
+  children: ReactNode;
+  signedIn?: boolean;
+  current?: (typeof SECTIONS)[number];
+}) {
   return (
     <div className="flex min-h-screen flex-col bg-ground">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex h-18 w-full max-w-5xl items-center gap-4 px-5 sm:px-8">
-          <Link href="/portal" className="flex items-center gap-3 rounded-md text-lead font-bold tracking-tight">
-            <span aria-hidden className="grid h-10 w-10 place-items-center rounded-lg bg-ink text-[20px] font-black text-surface">
-              M
-            </span>
-            My Mobile
+      <header className="bg-surface shadow-[0_1px_0_var(--line)]">
+        <div className="mx-auto flex h-[72px] w-full max-w-5xl items-center gap-4 px-5 sm:px-8">
+          <Link href="/portal" className="flex items-center gap-3 rounded-md" aria-label="My account home">
+            <TGlyph size={40} title="" />
+            <span className="text-[20px] font-extrabold tracking-[-0.02em]">My account</span>
           </Link>
           {signedIn && (
-            <nav className="ml-auto flex items-center gap-6 text-body" aria-label="Account">
-              <span className="hidden text-ink-2 sm:inline">Bill</span>
-              <span className="hidden text-ink-2 sm:inline">Plan</span>
-              <Link href="/portal/security" className="font-semibold text-ink underline-offset-4 hover:underline">
-                Security
-              </Link>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 font-semibold" title="Maya">
+            <div className="ml-auto flex items-center gap-3">
+              <span className="hidden text-body text-ink-2 sm:inline">Maya</span>
+              <span
+                aria-hidden
+                className="grid h-11 w-11 place-items-center rounded-full bg-accent-soft text-body font-bold text-accent-text"
+              >
                 M
               </span>
-            </nav>
+            </div>
           )}
         </div>
+        {signedIn && (
+          <nav aria-label="Account sections" className="mx-auto w-full max-w-5xl overflow-x-auto px-5 sm:px-8">
+            <ul className="flex gap-7">
+              {SECTIONS.map((s) => {
+                const active = s === current;
+                return (
+                  <li key={s}>
+                    {s === "Security" ? (
+                      <Link
+                        href="/portal/security"
+                        aria-current={active ? "page" : undefined}
+                        className={`inline-flex h-12 items-center border-b-[3px] text-body font-semibold transition-colors ${
+                          active ? "border-accent text-ink" : "border-transparent text-ink-2 hover:text-ink"
+                        }`}
+                      >
+                        {s}
+                      </Link>
+                    ) : (
+                      <span className="inline-flex h-12 items-center border-b-[3px] border-transparent text-body text-ink-3">
+                        {s}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        )}
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-10 sm:px-8 sm:py-14">{children}</main>
+      <footer className="border-t border-line bg-surface">
+        <p className="mx-auto w-full max-w-5xl px-5 py-6 text-meta text-ink-2 sm:px-8">
+          Hackathon prototype built for the T-Mobile track; not affiliated with or endorsed by T-Mobile.
+        </p>
+      </footer>
     </div>
   );
 }

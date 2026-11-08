@@ -55,7 +55,7 @@ export function CaseView({ caseId }: { caseId: string }) {
         </section>
       )}
 
-      {!detail && !missing && <p className="mt-10 text-lead text-ink-2">Opening your case…</p>}
+      {!detail && !missing && <CaseSkeleton />}
 
       {detail && !s && (
         <section className="mt-10">
@@ -137,7 +137,31 @@ export function CaseView({ caseId }: { caseId: string }) {
           )}
         </article>
       )}
+      <footer className="mt-14 border-t border-line pt-6 text-meta text-ink-2">
+        Hackathon prototype built for the T-Mobile track; not affiliated with or endorsed by T-Mobile.
+      </footer>
     </main>
+  );
+}
+
+/** Same shape as the loaded page, so the first paint already reads as "your case". */
+function CaseSkeleton() {
+  const bar = "rounded-lg bg-surface-2 motion-safe:animate-pulse";
+  return (
+    <div className="mt-10" role="status" aria-label="Opening your case">
+      <div className={`h-9 w-64 rounded-2xl ${bar}`} />
+      <div className={`mt-5 h-10 w-4/5 ${bar}`} />
+      <div className={`mt-4 h-5 w-full ${bar}`} />
+      <div className={`mt-2 h-5 w-11/12 ${bar}`} />
+      <div className={`mt-2 h-5 w-3/5 ${bar}`} />
+      {[0, 1].map((i) => (
+        <div key={i} className="mt-8 rounded-2xl bg-surface p-6">
+          <div className={`h-6 w-48 ${bar}`} />
+          <div className={`mt-4 h-5 w-full ${bar}`} />
+          <div className={`mt-2 h-5 w-4/5 ${bar}`} />
+        </div>
+      ))}
+    </div>
   );
 }
 

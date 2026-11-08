@@ -57,7 +57,7 @@ export default function PortalSignIn() {
         <h1 className="text-title font-semibold tracking-tight">Sign in</h1>
         <p className="mt-3 text-lead text-ink-2">Welcome back. This laptop is saved to your account.</p>
         <div className="mt-8 flex items-center gap-4 rounded-xl bg-surface-2 p-5">
-          <span className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-[24px] font-bold text-accent">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-[24px] font-bold text-accent-text">
             M
           </span>
           <div>
