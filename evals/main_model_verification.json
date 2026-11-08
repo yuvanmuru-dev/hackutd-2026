@@ -1,0 +1,34 @@
+{
+  "all_match_frozen": true,
+  "frozen_model_commit": "67fe7df582a63f4f871eea27867391d55e6a8d16",
+  "main_checkout_model_hashes": {
+    "agent/packs/guard/ml/__init__.py": "6cd47de62b6e05eec298a556d477cbeff6c1674508581804756084e841116447",
+    "agent/packs/guard/ml/baselines.py": "952c12fbffe5edfc0ea83da74aa2fd2967c0a89d064b20912fe8556223d849fc",
+    "agent/packs/guard/ml/features.py": "63e2616ec5077941af6410eff77afe79514037a7d4341ddd9cdef2a58bd6792f",
+    "agent/packs/guard/ml/infer.py": "027d8ed5755eb6028088f52d8091a930915283e59f237eaa59ee65b3d81490f5",
+    "agent/packs/guard/ml/models/calib.json": "fa8bc6c41df08f38ae3bc32388d54a152f08608e98f303623a2285b3dc24cf91",
+    "agent/packs/guard/ml/models/meta.json": "2047f3d3ddbe644c982dabddeec6f5207865f5c164765eb55ee7048c2935fc4d",
+    "agent/packs/guard/ml/models/risk.json": "9ac92a8d737ee5874aa0344adbb74fb645ddd77a38859c44ee476894216d97a2",
+    "agent/packs/guard/ml/rules.py": "b845b5aeea3781740a37f6f8907b510a358288f23d1be1336a2b7dd564961d08",
+    "agent/packs/guard/ml/test_ml.py": "371d6ac9af515fa2942672fa5d5ccd1335d5c0cdd46052dfa4638c7053e271bf",
+    "agent/packs/guard/ml/text.py": "94ab96a08dac0b3bca3600b42891cab3f1263c6fa39877e438a774d1d0fbc98d",
+    "agent/packs/guard/ml/train.py": "8a360d6a7fe04e921c9166b1b9b6e2e78525b0c03ed08e37929ff91d4480ba74"
+  },
+  "main_commit": "eeb11e5dfe80f1f9d9cb2e0738e68e701b16bc3c",
+  "main_model_hashes": {
+    "agent/packs/guard/ml/__init__.py": "6cd47de62b6e05eec298a556d477cbeff6c1674508581804756084e841116447",
+    "agent/packs/guard/ml/baselines.py": "952c12fbffe5edfc0ea83da74aa2fd2967c0a89d064b20912fe8556223d849fc",
+    "agent/packs/guard/ml/features.py": "63e2616ec5077941af6410eff77afe79514037a7d4341ddd9cdef2a58bd6792f",
+    "agent/packs/guard/ml/infer.py": "027d8ed5755eb6028088f52d8091a930915283e59f237eaa59ee65b3d81490f5",
+    "agent/packs/guard/ml/models/calib.json": "fa8bc6c41df08f38ae3bc32388d54a152f08608e98f303623a2285b3dc24cf91",
+    "agent/packs/guard/ml/models/meta.json": "2047f3d3ddbe644c982dabddeec6f5207865f5c164765eb55ee7048c2935fc4d",
+    "agent/packs/guard/ml/models/risk.json": "9ac92a8d737ee5874aa0344adbb74fb645ddd77a38859c44ee476894216d97a2",
+    "agent/packs/guard/ml/rules.py": "b845b5aeea3781740a37f6f8907b510a358288f23d1be1336a2b7dd564961d08",
+    "agent/packs/guard/ml/test_ml.py": "371d6ac9af515fa2942672fa5d5ccd1335d5c0cdd46052dfa4638c7053e271bf",
+    "agent/packs/guard/ml/text.py": "94ab96a08dac0b3bca3600b42891cab3f1263c6fa39877e438a774d1d0fbc98d",
+    "agent/packs/guard/ml/train.py": "8a360d6a7fe04e921c9166b1b9b6e2e78525b0c03ed08e37929ff91d4480ba74"
+  },
+  "method": "SHA-256 of every tracked ml/ file on origin/main and its checkout; compared with frozen merge git blobs.",
+  "model_sha256": "fe2a9b18314624ae3507d029f53110b0d539c87f54005287e9d9392d3a8140d2",
+  "verified_at_utc": "2026-11-08T07:03:11.170911+00:00"
+}
