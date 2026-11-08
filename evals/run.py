@@ -1,7 +1,7 @@
-"""Independent, offline evaluation of the brain scorer on the frozen test set.
+"""Offline Titan evaluation: development split, or one sealed attempt (D-053).
 
 Run from the repository root: python3 evals/run.py
-Use --require-model for the final model run; rules-only runs are provisional.
+Use --sealed for headline evidence. The original split is development-only.
 """
 from __future__ import annotations
 
@@ -71,6 +71,8 @@ def offline_read_only(audit: dict, extra_forbidden=()):
     """Never let an implicitly caught provider error masquerade as model success."""
     original_open, original_io_open = builtins.open, io.open
     forbidden_paths = {Path(p).resolve() for p in extra_forbidden} | {BENIGN_TEXTS.resolve()}
+    forbidden_dirs = {p for p in forbidden_paths if p.is_dir()} | {
+        ROOT / "agent/packs/guard/data/sealed"}
 
     def deny_network(*_args, **_kwargs):
         audit["network_attempts"] += 1
@@ -81,7 +83,8 @@ def offline_read_only(audit: dict, extra_forbidden=()):
             if isinstance(file, (str, bytes, Path)):
                 path = Path(file).resolve() if not isinstance(file, bytes) else Path(file.decode()).resolve()
                 scenario_dir = ROOT / "agent/packs/guard/data/scenarios"
-                if path.is_relative_to(scenario_dir) or path in forbidden_paths:
+                if path.is_relative_to(scenario_dir) or path in forbidden_paths \
+                        or any(path.is_relative_to(folder) for folder in forbidden_dirs):
                     audit["scenario_read_attempts"] = audit.get("scenario_read_attempts", 0) + 1
                     raise RuntimeError("Scorer must not read labeled scenario files during evaluation")
             if any(c in mode for c in "wax+"):
@@ -172,7 +175,7 @@ def load_benign(path: Path) -> dict[str, dict]:
     return rows
 
 
-def evaluate(split: dict, rows: dict[str, dict], audit: dict):
+def evaluate(split: dict, rows: dict[str, dict], audit: dict, outputs=None):
     module, import_error = None, None
     try:
         module = importlib.import_module("packs.guard.ml")
@@ -181,7 +184,7 @@ def evaluate(split: dict, rows: dict[str, dict], audit: dict):
             import_error = f"{type(exc).__name__}: {exc.name}"
     except Exception as exc:
         import_error = type(exc).__name__
-    active, baseline = [], []
+    active, baseline = outputs if outputs is not None else ([], [])
     for path in split["test"]:
         scenario = rows[path]
         violations = errors("DatasetScenario", scenario)
@@ -240,10 +243,10 @@ def independent_split(split_sha256: str, audit: dict) -> bool:
 
 def report(result: dict) -> str:
     meta, active, baseline = result["provenance"], result["brain"], result["rules"]
-    lines = ["# Independent Titan evaluation", "", f"Mode: **{meta['mode']}**.", "",
-             f"Presentation status: **{'final independent model run' if meta['final_model_run'] else 'provisional; final model run pending'}**.", "",
-             "Rules-only results are provisional. The final post-model run of this script is the source for Devpost/video numbers; do not substitute training scores.", "",
-             f"Model training audit: **{result['training_audit'].get('status', 'not recorded')}**. {result['training_audit'].get('reason', '')} See model_audit.md; a Lane 1 decision is pending before independent model claims.", "",
+    lines = ["# Titan development evaluation", "", f"Mode: **{meta['mode']}**.", "",
+             "Presentation status: **test-informed during development; provisional, no headline claim**.", "",
+             "D-053/D-053a reserve Devpost/video headline numbers for the single sealed run in sealed_run/results.md. These original-split results remain development evidence even with a model present.", "",
+             f"Model training audit: **{result['training_audit'].get('status', 'not recorded')}**. {result['training_audit'].get('reason', '')} See model_audit.md and D-053.", "",
              f"Scorer source on main: `{meta['main_commit']}`. Evaluation checkout: `{meta['evaluation_commit']}`.",
              f"Dataset SHA-256: `{meta['dataset_sha256']}`. Split SHA-256: `{meta['split_sha256']}`.",
              f"Scored {len(result['predictions'])} test cases; train={meta['train_count']}, test={meta['test_count']}. All 36 hard negatives and the entire code_relay family are held out.",
@@ -261,7 +264,7 @@ def report(result: dict) -> str:
               "Code relay is part of coached (D-031). The subtype has no distinct predicted label, so no subtype precision is invented. Only eight ordinary legit cases remain in train after all hard-negative variant families are reserved for test.", ""]
     controls = result["benign_texts"]
     lines += ["## Separate benign forwarded-text controls", "",
-              "These evaluation-only controls are outside the frozen split and are never used for training or tuning. Scam-text FPR = number predicted scam_text / number of benign texts; any other threat prediction is also shown as a false alert.", "",
+              "These evaluation-only controls are outside the frozen development split and are never used for training or tuning. Scam-text FPR = number predicted scam_text / number of benign texts; any other threat prediction is also shown as a false alert.", "",
               "| Scorer | Benign texts | Scam-text false positives | Scam-text FPR | Any-threat false alerts | Any-threat false-alert rate |",
               "|---|---:|---:|---:|---:|---:|"]
     for name in ("rules", "brain"):
@@ -281,9 +284,9 @@ def report(result: dict) -> str:
               f"Blocked network attempts: {meta['audit']['network_attempts']}; blocked file writes: {meta['audit']['write_attempts']}; blocked labeled-scenario reads: {meta['audit'].get('scenario_read_attempts', 0)}.",
               "The baseline is core.toolbox.rules_score unchanged; the brain column calls core.toolbox.score, which selects the ML implementation automatically when present. Identical rules columns do not demonstrate model improvement.",
               f"D-051 maps all {active['recovery_scam']['support']} recovery_scam cases into exact-class metrics: call-based triggers are coached; message.forwarded is scam_text. Original dataset labels and the split are unchanged. Their mapped accuracy is {percent(active['recovery_scam']['mapped_exact_class_accuracy'])}; predicted labels: `{json.dumps(active['recovery_scam']['predicted_labels'], sort_keys=True)}`.",
-              "Each case uses a fresh Store, only its user's pre-trigger baseline and incident prefix, and time frozen at the trigger. Later attacker logins are excluded. Whole variants are disjoint, all hard negatives are held out, and the split fingerprint is checked before scoring. No training, tuning, or test-label input to the scorer occurs.",
+              "Each case uses a fresh Store, only its user's pre-trigger baseline and incident prefix, and time frozen at the trigger. Later attacker logins are excluded. Whole variants remain disjoint in the frozen split, whose fingerprint is checked before scoring. The model was tuned after inspecting this development set; the scorer receives no labels during this run.",
               "These are small, synthetic, generator-held-out results. They do not establish performance on real carrier data. The primary per-class FPR across all scenario types and the separate benign-text FPR measure different negative populations.",
-              "", "## Reproduce", "", "```bash", "python3 evals/build_split.py --check", "python3 evals/run.py", "# After the ML implementation/artifacts are merged into main:", "git pull --rebase origin main", "python3 evals/run.py --require-model", "```", "",
+              "", "## Development commands", "", "```bash", "python3 evals/build_split.py --check", "python3 evals/run.py", "# Require an installed model, still development evidence:", "python3 evals/run.py --require-model", "```", "",
               "Machine-readable scores, confusion counts, histories/scorer/model hashes, and fallback routing are in results.json.", ""]
     return "\n".join(lines)
 
@@ -291,9 +294,20 @@ def report(result: dict) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-model", action="store_true")
+    parser.add_argument("--sealed", action="store_true", help="consume the single frozen-model sealed attempt")
+    parser.add_argument("--sealed-manifest", type=Path,
+                        default=ROOT / "agent/packs/guard/data/sealed/manifest.json")
+    parser.add_argument("--freeze", type=Path, default=OUT / "frozen_model.json")
     parser.add_argument("--benign-texts", type=Path, default=BENIGN_TEXTS,
                         help="separate control file; defaults to the data file on main")
     args = parser.parse_args()
+    if args.sealed:
+        if __package__:
+            from . import sealed
+        else:
+            import sealed
+        sealed.execute(args, sys.modules[__name__])
+        return
     split = json.loads(SPLIT.read_text())
     rows = validate(split)
     if git("diff", "origin/main", "--", "agent"):
@@ -330,13 +344,11 @@ def main():
     if args.require_model and not ready:
         raise RuntimeError("Final run requires a model on every route without errors, and benign controls on main")
     training_audit = json.loads(OUT.joinpath("model_audit.json").read_text())
-    independent = independent_split(file_hash(SPLIT), training_audit)
-    if args.require_model and not independent:
-        raise RuntimeError("This test split informed model tuning; see evals/model_audit.md and the pending Lane 1 decision")
     agent = ROOT / "agent"
     scorer_paths = list((agent / "core").glob("*.py")) + list((agent / "packs/guard").glob("*.py"))
     result = {"provenance": {
-        "mode": mode, "final_model_run": bool(args.require_model and ready and independent),
+        "mode": mode, "final_model_run": False,
+        "evaluation_role": "test-informed during development",
         "main_commit": git("rev-parse", "origin/main"),
         "evaluation_commit": git("rev-parse", "HEAD"), "dataset_sha256": split["dataset"]["sha256"],
         "split_sha256": file_hash(SPLIT), "train_count": len(split["train"]), "test_count": len(split["test"]),

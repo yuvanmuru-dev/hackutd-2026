@@ -78,6 +78,18 @@ class ProtocolTests(unittest.TestCase):
                 (run.ROOT / "agent/packs/guard/data/scenarios/seed_code_relay_01.json").read_text()
         self.assertEqual(audit["scenario_read_attempts"], 1)
 
+    def test_scorer_cannot_read_sealed_design_or_generator(self):
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            for name in ("DESIGN.md", "generate.py", "manifest.json"):
+                (directory / name).write_text("invented fixture, no real sealed content")
+            audit = {"network_attempts": 0, "write_attempts": 0}
+            with run.offline_read_only(audit, (directory,)):
+                for path in directory.iterdir():
+                    with self.assertRaises(RuntimeError):
+                        path.read_text()
+            self.assertEqual(audit["scenario_read_attempts"], 3)
+
     def test_hidden_model_exception_is_recorded_as_rules_fallback(self):
         path = "agent/packs/guard/data/scenarios/seed_code_relay_01.json"
         scenario = json.loads((run.ROOT / path).read_text())

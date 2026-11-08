@@ -5393,6 +5393,7 @@
       "evals/test_metrics.py": "6d5d362454a1c9f978fb76b7a1808626eb88eaa4481c75dce7cc35c62960b254",
       "evals/test_run.py": "58b1582ef1086ec06b0721fde9d507216a6c5d13c12eccff7b95fd3e3bdf494c"
     },
+    "evaluation_role": "test-informed during development",
     "fallback_errors": {},
     "final_model_run": false,
     "history_hashes": {

@@ -24,7 +24,8 @@ Inference is pure Python and offline. Risk results are `ml+rules`; text results
 are intentionally `rules`. The evaluator distinguishes a valid rules score
 returned by the ML entry point from an empty/error-driven brain fallback.
 
-A Lane 1 decision is required before final independent claims. The recommended
-path is to freeze the model, create a new separate sealed evaluation set, and
-evaluate once without further tuning. Alternatively, retain explicit
-test-informed/provisional labeling. The original frozen split remains unchanged.
+D-053/D-053a resolve this audit: the original split is **test-informed during
+development**. Lane 2b may tune against it until T+12, then the final PR #57
+head/merge commit are frozen. A new independently designed sealed set is scored
+once after that freeze and supplies the only headline Devpost/video numbers.
+The original frozen split remains unchanged.
