@@ -1,5 +1,6 @@
 "use client";
 
+import { productCase } from "@/lib/copy";
 import { useCallback, useEffect, useState } from "react";
 import { Wordmark } from "@/components/TGlyph";
 import { BTN_DARK } from "@/components/ui";
@@ -94,15 +95,15 @@ export function CaseView({ caseId }: { caseId: string }) {
             </dd>
             {detail.status === "watching" && (
               <dd className="text-ink-2">
-                Titan is watching your account for 24 hours
+                Titan is watching for 24 hours
               </dd>
             )}
           </dl>
-          <p className="mt-6 text-lead">{s.what_happened}</p>
+          <p className="mt-6 text-lead">{productCase(s.what_happened)}</p>
 
           <div className="mt-8 divide-y divide-line border-t border-line">
             <Block title="Why Titan stepped in">
-              <p>{s.why_we_stepped_in}</p>
+              <p>{productCase(s.why_we_stepped_in)}</p>
               <p className="mt-3 text-ink-2">{s.confidence_text}</p>
             </Block>
 
@@ -120,7 +121,7 @@ export function CaseView({ caseId }: { caseId: string }) {
               <ol className="flex list-decimal flex-col gap-3 pl-6 marker:font-semibold marker:text-ink-2">
                 {s.next_steps.map((n) => (
                   <li key={n} className="pl-1">
-                    {n}
+                    {productCase(n)}
                   </li>
                 ))}
               </ol>
@@ -129,7 +130,7 @@ export function CaseView({ caseId }: { caseId: string }) {
             <div className="py-7">
               <section className="border-l-4 border-accent py-1 pl-5">
                 <h2 className="text-[20px] font-semibold">Spot it next time</h2>
-                <p className="mt-2 text-body">{s.spot_it_next_time}</p>
+                <p className="mt-2 text-body">{productCase(s.spot_it_next_time)}</p>
               </section>
             </div>
 
@@ -263,7 +264,7 @@ function Checklist({ items }: { items: string[] }) {
           >
             <path d="m3.5 8.5 3 3 6-7" />
           </svg>
-          {t}
+          {productCase(t)}
         </li>
       ))}
     </ul>

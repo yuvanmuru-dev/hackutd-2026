@@ -8,7 +8,7 @@ export const BRAIN_URL: string = process.env.NEXT_PUBLIC_BRAIN_URL ?? "http://lo
 export const MAYA = "usr_maya";
 
 export type ProtectionName = "sim_protection" | "port_out_protection" | "scam_block";
-export type DemoScenario = "t1" | "t2" | "t3";
+export type DemoScenario = "t1" | "t2" | "t3" | "t5";
 
 /** Brain 4xx bodies are FastAPI-wrapped: { detail: { error, detail? } }. */
 export type BrainErrorBody = { detail?: { error?: string; detail?: string[] } | string } | null;

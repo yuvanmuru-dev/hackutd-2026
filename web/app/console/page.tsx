@@ -15,11 +15,28 @@ import {
 } from "@/lib/api/client";
 import { callEnded, callStarted, newDeviceLogin } from "@/lib/fixtures/events";
 
-const SCENARIOS: { id: DemoScenario; name: string; what: string }[] = [
-  { id: "t2", name: "Play T2: coached call", what: "Fake support call, protection off, transfer PIN" },
-  { id: "t1", name: "Play T1: takeover", what: "New-device login, then a SIM swap" },
-  { id: "t3", name: "Play T3: scam text", what: "Maya forwards a lookalike-link text" },
+/** The show, in order (docs/DEMO.md). The next beat to run is the one filled button on the page. */
+const BEATS: { id: DemoScenario; n: number; name: string; what: string }[] = [
+  { id: "t2", n: 1, name: "T2 · Coached call", what: "Fake “T-Mobile Support” call: protection off, Transfer PIN" },
+  { id: "t5", n: 2, name: "T5 · The callback", what: "The number reported in T2 calls back: “we can recover your money”" },
+  { id: "t3", n: 3, name: "T3 · Scam text", what: "Maya forwards a lookalike-link text" },
 ];
+const OTHER: { id: DemoScenario; name: string; what: string }[] = [
+  { id: "t1", name: "T1 · Takeover", what: "New-device login, then a SIM swap" },
+];
+
+const finished = (c: C.Case) => c.status === "watching" || c.status === "closed";
+
+/** Which beats have run, from the cases the brain holds: T5 shows up as a second coached case. */
+function beatsDone(cases: C.Case[]): Record<DemoScenario, boolean> {
+  const coached = cases.filter((c) => c.threat === "coached");
+  return {
+    t2: coached.some(finished),
+    t5: coached.length >= 2,
+    t3: cases.some((c) => c.threat === "scam_text"),
+    t1: cases.some((c) => c.threat === "takeover"),
+  };
+}
 
 // Backstage only. /demo/play returns before its events land, so refresh twice after a play.
 export default function ConsolePage() {
@@ -64,6 +81,13 @@ export default function ConsolePage() {
   }
 
   const active = timeline?.active_call ?? null;
+  const done = beatsDone(cases ?? []);
+  const running = (cases ?? []).some((c) => !finished(c));
+  // T5 is the number reported in T2 calling back: it only makes sense after a finished T2 (and a T2 played
+  // after T5 without a reset gets stuck in the brain), so it waits.
+  const blocked = (id: DemoScenario) => (id === "t5" && !done.t2 ? "Run T2 first" : null);
+  const next = running ? null : (BEATS.find((b) => !done[b.id] && !blocked(b.id))?.id ?? null);
+  const play = (id: DemoScenario, name: string) => run(name, async () => (await demoPlay(id), `${name} started`), true);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-10 text-[16px] sm:px-8">
@@ -84,18 +108,59 @@ export default function ConsolePage() {
         </p>
       )}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+      <section aria-labelledby="beats-title" className={`${PANEL} mt-8 p-5`}>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="beats-title" className="text-[20px] font-semibold">
+            Demo beats
+          </h2>
+          <p className="text-[15px] text-ink-2" aria-live="polite">
+            {running ? "A case is running. Wait for it to finish." : next ? `Next: ${BEATS.find((b) => b.id === next)?.name}` : "All three beats have run. Reset for another take."}
+          </p>
+        </div>
+        <ol className="mt-4 grid gap-3 md:grid-cols-3">
+          {BEATS.map((b) => {
+            const why = blocked(b.id);
+            const isNext = b.id === next;
+            return (
+              <li key={b.id} className="min-w-0">
+                <button
+                  type="button"
+                  disabled={busy !== null || !!why}
+                  aria-describedby={`beat-${b.id}-state`}
+                  onClick={() => play(b.id, b.name)}
+                  className={`flex h-full min-h-[120px] w-full flex-col items-start gap-2 rounded-control border px-5 py-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                    isNext
+                      ? "border-accent bg-accent text-accent-ink hover:bg-accent-hover"
+                      : "border-line-strong bg-surface text-ink hover:bg-surface-2"
+                  }`}
+                >
+                  <span className="flex w-full items-baseline gap-3">
+                    <span className="text-[28px] font-bold leading-none tabular">{b.n}</span>
+                    <span className="text-[20px] font-semibold leading-tight">{b.name}</span>
+                  </span>
+                  <span className={`text-[15px] leading-snug ${isNext ? "text-accent-ink" : "text-ink-2"}`}>{b.what}</span>
+                  <span id={`beat-${b.id}-state`} className={`mt-auto text-[14px] font-semibold ${isNext ? "text-accent-ink" : "text-ink-3"}`}>
+                    {why ?? (done[b.id] ? "Played · play again" : isNext ? "Play next" : "Not played yet")}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
         <section aria-labelledby="play-title" className={`${PANEL} p-5`}>
           <h2 id="play-title" className="text-[18px] font-semibold">
-            Scenarios
+            Other scenarios
           </h2>
           <ul className="mt-4 flex flex-col gap-3">
-            {SCENARIOS.map((s) => (
+            {OTHER.map((s) => (
               <li key={s.id}>
                 <button
                   type="button"
                   disabled={busy !== null}
-                  onClick={() => run(s.name, async () => (await demoPlay(s.id), `${s.name} started`), true)}
+                  onClick={() => play(s.id, s.name)}
                   className="flex min-h-12 w-full items-center justify-between gap-4 rounded-control border border-line-strong bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="flex flex-col">
@@ -168,8 +233,8 @@ export default function ConsolePage() {
           <ul className="mt-4 divide-y divide-line" aria-live="polite">
             {cases?.length === 0 && <li className="py-3 text-ink-2">No cases yet. Play a scenario.</li>}
             {cases?.map((c) => (
-              <li key={c.case_id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
-                <div className="min-w-0 flex-1">
+              <li key={c.case_id} className="flex flex-wrap items-center gap-x-4 gap-y-3 py-4">
+                <div className="min-w-0 basis-full sm:basis-0 sm:flex-1">
                   <p className="font-semibold">{c.title}</p>
                   <p className="text-meta text-ink-2 tabular">
                     {c.case_number} · {c.status}
@@ -211,7 +276,7 @@ function EventButton({ label, disabled, onClick }: { label: string; disabled: bo
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`${BTN_SECONDARY} !h-11 !px-4 !text-[15px]`}
+      className={`${BTN_SECONDARY} !h-auto min-h-11 !px-4 py-2 !text-[15px]`}
     >
       {label}
     </button>
