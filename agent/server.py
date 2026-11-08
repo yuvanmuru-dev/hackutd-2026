@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from core import gate, mock_runs, workflow
+from core import commands, gate, mock_runs, workflow
 from core.contracts import require
 from core.events import _case_for_call, ingest
 from core.store import iso, new_id, now, store
@@ -103,6 +103,10 @@ async def timeline(uid: str):
 async def post_event(request: Request):
     ev = require("Event", await request.json())
     _user(ev["user_id"])
+    cmd = commands.match(ev)
+    if cmd:  # STATUS / LOCK / HELP by text (D-062): safer-only, never reaches the reply classifier or starts a run
+        result = commands.handle(store, ev, cmd)
+        return {"accepted": not result["duplicate"], "duplicate": result["duplicate"], "case_id": result["case_id"], "trigger": None}
     result = ingest(store, ev)
     if result["trigger"]:
         _start(result["case_id"], result["trigger"])
