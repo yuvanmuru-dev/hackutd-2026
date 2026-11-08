@@ -25,9 +25,20 @@ REASSURING_WHEN_ZERO = {"new_device", "region_mismatch", "call_unverified", "odd
 REASSURING_WHEN_SET = {"caller_seen_before", "sim_swap_in_store"}
 
 
+_IDX = {f: i for i, f in enumerate(FEATURE_ORDER)}
+
+
 def _reassuring(i: int, x: list[float]) -> bool:
     f = FEATURE_ORDER[i]
+    if f == "region_mismatch" and x[_IDX["region_unknown"]] > 0:
+        return False  # "her usual area" is not a fact when we don't know where she is
     return (f in REASSURING_WHEN_ZERO and x[i] == 0) or (f in REASSURING_WHEN_SET and x[i] > 0)
+
+
+def _against_text(f: str, ctx: dict) -> str:
+    if f == "call_unverified" and not ctx.get("call"):
+        return "No call in progress"
+    return AGAINST_TEXT.get(f) or reason_text(f, ctx)
 
 
 def _reasons(threat: str, x: list[float], c: list[float], ctx: dict) -> list[dict]:
@@ -41,7 +52,7 @@ def _reasons(threat: str, x: list[float], c: list[float], ctx: dict) -> list[dic
         if threat == "legit":
             if not _reassuring(i, x):
                 continue
-            text = AGAINST_TEXT.get(f) or reason_text(f, ctx)
+            text = _against_text(f, ctx)
         else:
             if x[i] <= 0 or f in REASSURING_WHEN_SET:
                 continue
@@ -51,7 +62,7 @@ def _reasons(threat: str, x: list[float], c: list[float], ctx: dict) -> list[dic
         for i in sorted(range(len(c)), key=lambda i: c[i]):
             if c[i] < -0.01 and _reassuring(i, x):
                 out.append({"feature": FEATURE_ORDER[i], "contribution": round(c[i] / total, 2),
-                            "text": AGAINST_TEXT.get(FEATURE_ORDER[i], reason_text(FEATURE_ORDER[i], ctx))})
+                            "text": _against_text(FEATURE_ORDER[i], ctx)})
                 break
     return out or [{"feature": "none", "contribution": 0, "text": "Nothing unusual"}]
 
@@ -77,12 +88,23 @@ def score(user_id: str, event: dict, history: list[dict]) -> dict:
         threat, p, calibrated = "legit", 1.0 - p, False
         reasons = _reasons("legit", x, contrib[li], ctx)
 
+    # An unverified call with nothing sensitive done during it is not "coached": the model learned that every
+    # training call was a scam call, but a call alone is only worth a look. Return the rules' low-confidence view.
+    if (threat == "coached" and floor["threat"] == "legit"
+            and x[_IDX["sensitive_action_during_call"]] == 0 and x[_IDX["protection_off_during_call"]] == 0):
+        return {**floor, "model": "ml+rules"}
+
+    # A legit verdict shown as "0% calibrated" is not a verdict. If isotonic maps a weak legit below the raw
+    # softmax, show the raw probability and say it is uncalibrated.
+    if threat == "legit" and calibrated and p < probs[k]:
+        p, calibrated = probs[k], False
+
     # Rules floor (D-010): the model can't talk itself out of an obvious case.
     if floor["threat"] in THREATS and floor["probability"] >= 0.5:
         if threat != floor["threat"]:
             threat, p, calibrated, reasons = floor["threat"], floor["probability"], False, floor["top_reasons"]
         elif floor["probability"] > p:
-            p, calibrated = floor["probability"], False
+            p, calibrated, reasons = floor["probability"], False, floor["top_reasons"]
     p = round(min(max(p, 0.0), 0.99), 2)
     return {"threat": threat, "probability": p, "calibrated": calibrated, "confidence": rules.conf(p),
             "anomaly": None, "top_reasons": reasons[:4], "model": "ml+rules"}

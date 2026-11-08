@@ -214,6 +214,8 @@ def main() -> None:
             "2. SIM swap store channel added (in-store swaps need ID). A remote-swap feature was tried and dropped: it became the only takeover reason.",
             "3. Serving rule in __init__.py: a threat whose calibrated probability is < 0.5 does not fire when the rules see nothing (reported as legit).",
             "4. Rules floor counts >= 3 failed PIN attempts in 10 minutes as a bot burst (family pin_guess_burst was floored to takeover by new device + wrong region).",
+            "5. Pre-freeze adversarial probe with invented cases (no dev-set verdict changed): the actor's device/region is the last SUCCESSFUL sign-in in the past hour; a SIM swap is judged by its target device; a call that ended < 15 min ago still counts; remote swap to a never-seen device -> takeover 0.6; a burst from her own device at home is not a bot; a burst that got in and moves the line is a takeover; an unverified call with nothing sensitive done is legit 0.35 (serving rule).",
+            "6. score_text: negated asks ('don't share this code') and physical codes (garage) are not asks; money needs a pay/send verb before the rail; more ask verbs and 'OTP'; leet/spaced normalisation for matching; T-Mobile-owned domains are official; transposed 'tmoblie' is a lookalike.",
         ],
         "versions": {"xgboost": xgb.__version__, "shap": shap.__version__, "python": sys.version.split()[0]},
     }
