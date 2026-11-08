@@ -13,7 +13,7 @@ import pytest
 
 from brain import validate
 from conversation import Conversation, explicit_answer
-from models import NvidiaModels, SpeechBlocked, redact, speech_policy
+from models import NvidiaModels, SpeechBlocked, redact, speech_policy, spoken_fact
 from service import create_app
 from test_bridge import SETTINGS, SID, ACCOUNT, post, socket_headers, probe_start
 
@@ -94,6 +94,44 @@ def test_interruption_invalidates_approval_prompt():
     asyncio.run(run())
 
 
+def test_yes_after_natural_question_end_approves_one_step():
+    async def run():
+        _, request, brain = setup_case()
+        session = Conversation(request, brain, ModelStub())
+        plan = await session.next_action()
+        first = plan.action_id
+        # A person answers at the question mark, not after an appended spoken
+        # instruction. The full action question must be sufficient to arm it.
+        complete_question = plan.lines[-1].split("?", 1)[0] + "?"
+        session.heard(complete_question)
+        await session.turn("yes")
+        brain.decide.assert_awaited_once_with(first, True)
+        assert session.awaiting != first
+    asyncio.run(run())
+
+
+def test_interrupted_question_recovers_without_approving_or_repeating_completed_step():
+    async def run():
+        _, request, brain = setup_case()
+        session = Conversation(request, brain, ModelStub())
+        plan = await session.next_action()
+        first = plan.action_id
+        session.heard(plan.lines[-1][:25], interrupted=True)
+        repeated = await session.turn("yes")
+        assert repeated.action_id == first
+        brain.decide.assert_not_awaited()
+        session.heard(repeated.lines[-1])
+        next_plan = await session.turn("yes")
+        brain.decide.assert_awaited_once_with(first, True)
+        assert next_plan.action_id != first
+        # Interrupting an acknowledgement never re-runs its completed action.
+        session.heard("That step", interrupted=True)
+        await session.turn("yes")
+        brain.decide.assert_awaited_once_with(first, True)
+        assert session.awaiting != first
+    asyncio.run(run())
+
+
 def test_brain_409_is_preserved_and_hangup_is_requested():
     async def run():
         detail, request, brain = setup_case()
@@ -136,6 +174,19 @@ def test_spelled_digits_are_redacted():
     assert "2025550100" not in redact("My phone is 2025550100.")
 
 
+def test_calendar_fact_is_rendered_without_changing_the_date():
+    assert spoken_fact("The hold ends November 9, 2026.") == "The hold ends November 9, two thousand twenty-six."
+    assert spoken_fact("The hold ends February 29, 2000.") == "The hold ends February 29, two thousand."
+
+
+@pytest.mark.parametrize("text", ["The hold ends February 29, 2026.",
+    "The hold ends November 9, 20260.", "Your code is 2026.",
+    "Please read your PIN on November 9, 2026."])
+def test_calendar_rendering_never_permits_invalid_dates_or_secret_requests(text):
+    with pytest.raises(SpeechBlocked):
+        spoken_fact(text)
+
+
 VOICE_SETTINGS = replace(SETTINGS, nvidia_key="synthetic-nvidia", llm_model="nvidia/synthetic-nano")
 
 
@@ -161,6 +212,21 @@ def test_call_request_retries_do_not_ring_twice():
             time.sleep(.01)
         provider.place.assert_awaited_once()
         assert provider.place.await_args.args[0] == "usr_maya"
+
+
+def test_brain_calendar_deadline_does_not_reject_a_safe_call_request():
+    _, request, brain = setup_case()
+    request["facts"] = ["Your Shield mode will hold the transfer PIN until November 9, 2026."]
+    provider = AsyncMock()
+    provider.place.return_value = SID
+    app = create_app(VOICE_SETTINGS, brain, call_provider=provider,
+        model_provider=ModelStub(), asr_check=AsyncMock())
+    with TestClient(app, client=("127.0.0.1", 50000)) as client:
+        assert client.post("/internal/call", json=request).status_code == 202
+        for _ in range(30):
+            if provider.place.await_count: break
+            time.sleep(.01)
+        provider.place.assert_awaited_once()
 
 
 def test_unknown_user_or_unsafe_opening_never_dials():

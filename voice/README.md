@@ -139,3 +139,19 @@ Ctrl-C stops voice. Finish calls before restarting: dedupe/call/grant state is i
 ### Shared trial console (D-048)
 
 The new shared trial number may not appear under IncomingPhoneNumbers in the API. Use One Console -> Voice -> Try out Voice -> Receive a call -> Custom to configure its webhook. The signed probe URL was saved successfully through that console. Zero owned-number API results alone do not mean no trial number exists. Keep the tunnel running and perform the incoming teammate test; only the audible result or an actual Twilio error establishes whether streaming works on trial.
+
+### Conversation response timing
+
+`voice.response_delay` reports the elapsed time from VAD-estimated incoming speech end to the next transport audio-start event. It subtracts the VAD silence window; it does not measure handset/network playback. The live approval test is still in progress: the long prompt tail caused natural YES replies to interrupt the completion gate. Approval questions now end at the natural question mark; complete-question and interruption safeguards remain enforced. Keep conversation dispatch disabled until the corrected phone test passes.
+
+
+### Noise and interruptions
+
+Turn starts now require recognized speech rather than VAD activity alone. While Titan is speaking, at least two transcribed words are required to interrupt (for example, "please stop"); a cough, clatter or isolated backchannel does not cut off the question. Once playback ends, a single "yes" or "no" is accepted. Silero uses confidence 0.8, a 250 ms start window and a 300 ms stop window; turn end allows 800 ms for the caller to continue after a pause.
+
+An interrupted approval question is not actionable. Titan repeats the current pending question, and a later explicit answer can approve only that fully spoken step. Completed actions are not repeated. No microphone recordings, speaker identification or new provider is added. Background speech/TV can still be recognized as words; these settings are noise tolerance, not speaker authentication. Test handset volume and representative venue noise before relying on the live demo.
+
+
+### SIP rejection diagnostics
+
+LiveKit SDK server failures now include `provider_code`, `provider_http_status`, `provider_message` and `provider_metadata` in `intervention.setup_failed`; provisioning CLI failures use the same sanitizer. Reason phrases and support call IDs remain readable. Configured credentials, signed URLs, SIP URIs, phone numbers and sensitive metadata fields are redacted, and nested payloads are bounded. Non-LiveKit/model/customer exceptions do not expose their message. Do not log `str(error)` or raw SIP headers. This logging cannot reconstruct messages discarded by older processes; inspect Telephony -> Calls -> Events for historical rejections. Reading logs never requires another call.

@@ -78,14 +78,7 @@ if __name__ == "__main__":
     except Exception as error:
         print("LIVEKIT FAILED:", type(error).__name__, "code=", getattr(error, "code", None),
             "sip_status_code=", getattr(error, "sip_status_code", None))
-        # Provider failure reasons are useful for SIP setup, but can contain
-        # destinations or credentials. Never print an unfiltered SDK exception.
-        import re
-        from dotenv import dotenv_values
-        reason = str(getattr(error, "message", ""))
-        for value in dotenv_values(Path(__file__).with_name(".env")).values():
-            if value and len(value) >= 4:
-                reason = reason.replace(value, "[configured value]")
-        reason = re.sub(r"\+?\d{7,}", "[number]", reason)
-        print("SANITIZED REASON:", reason[:600])
+        from diagnostics import provider_diagnostics
+        import json
+        print("SANITIZED PROVIDER DIAGNOSTICS:", json.dumps(provider_diagnostics(error, Settings.from_env())))
         raise SystemExit(1) from None

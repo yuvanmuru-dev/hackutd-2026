@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date
 
 import httpx
 
@@ -43,6 +44,33 @@ def speech_policy(text: str) -> str:
                 or re.search(r"\bwhat(?:'s| is) your (?:pin|code|password)\b", lower)):
             raise SpeechBlocked("Spoken text could request a secret")
     return text.strip()
+
+
+def spoken_fact(text: str) -> str:
+    """Render a valid calendar year in words, then apply the unchanged policy.
+
+    The brain supplies dates such as November 9, 2026. A four-digit year
+    otherwise looks like a secret to the conservative speech filter. Only
+    valid, fully named calendar dates in 2000-2099 get this presentation change;
+    standalone numbers, invalid dates and secret requests remain blocked.
+    """
+    months = ("January February March April May June July August September October November December").split()
+    small = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split()
+    tens = "zero ten twenty thirty forty fifty sixty seventy eighty ninety".split()
+
+    def render(match):
+        month, day, year = match.groups()
+        value = int(year)
+        try:
+            date(value, months.index(month) + 1, int(day))
+        except ValueError:
+            return match.group(0)
+        rest = value % 100
+        suffix = small[rest] if rest < 20 else tens[rest // 10] + ("-" + small[rest % 10] if rest % 10 else "")
+        return f"{month} {day}, two thousand" + (" " + suffix if rest else "")
+
+    rendered = re.sub(r"\b(" + "|".join(months) + r") (\d{1,2}), (20\d{2})\b", render, text)
+    return speech_policy(rendered)
 
 
 class NvidiaModels:
