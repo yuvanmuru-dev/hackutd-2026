@@ -94,7 +94,7 @@ export function CaseView({ caseId }: { caseId: string }) {
           </h1>
           <p className="mt-4 max-w-3xl text-lead">{s.what_happened}</p>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+          <div className="mt-8 columns-1 gap-6 lg:columns-2 [&>*]:mb-6 [&>*]:break-inside-avoid">
             <Block title="Why Titan stepped in">
               <p>{s.why_we_stepped_in}</p>
               <p className="mt-3 text-ink-2">{s.confidence_text}</p>
