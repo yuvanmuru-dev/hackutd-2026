@@ -5,7 +5,7 @@ export const BTN =
 /** The one magenta action on a screen. Pill is T-Mobile's CTA shape. */
 export const BTN_PRIMARY = `${BTN} !rounded-full bg-accent text-accent-ink hover:bg-accent-hover`;
 export const BTN_DARK = `${BTN} bg-ink text-surface hover:bg-[#2b2b2b]`;
-export const BTN_SECONDARY = `${BTN} border border-line-strong bg-surface text-ink hover:bg-surface-2`;
+export const BTN_SECONDARY = `${BTN} border border-control bg-surface text-ink hover:bg-surface-2`;
 export const BTN_DANGER = `${BTN} border border-negative bg-surface text-negative hover:bg-negative-soft`;
 /** A resting panel: 1px border, no shadow. */
 export const PANEL = "rounded-panel border border-line bg-surface";

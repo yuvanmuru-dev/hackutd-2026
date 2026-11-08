@@ -175,7 +175,7 @@ export default function SecurityPage() {
       <p className="mt-2 text-body text-ink-2">Manage the protections on your account and lines.</p>
 
       {/* Always mounted so screen readers announce changes; empty when there is nothing to say. */}
-      <div role="status" className="empty:hidden">
+      <div role="status">
         {down && (
           <p className={`${NOTE} mt-6 border-notice`}>
             We can’t reach your account right now. Nothing has changed.{" "}
@@ -202,7 +202,10 @@ export default function SecurityPage() {
           {state ? (
             <>
               <p className="flex flex-wrap items-center justify-between gap-x-4 border-b border-line py-3 text-[15px] text-ink-3">
-                <span>Maya · (214) •••-••48</span>
+                <span>
+                  Maya · <span aria-hidden>(214) •••-••48</span>
+                  <span className="sr-only">phone number ending in 48</span>
+                </span>
                 <span>Primary Account Holder</span>
               </p>
               <ul>

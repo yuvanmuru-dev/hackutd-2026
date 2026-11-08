@@ -149,7 +149,10 @@ export default function ConsolePage() {
             <button
               type="button"
               disabled={busy !== null}
-              onClick={() => run("Reset", async () => (await demoReset(), "Reset: all cases and events cleared"))}
+              onClick={() => {
+                if (!window.confirm("Reset demo data? This deletes every case and event.")) return;
+                run("Reset", async () => (await demoReset(), "Reset: all cases and events cleared"));
+              }}
               className={`${BTN_DANGER} w-full`}
             >
               Reset demo data

@@ -24,6 +24,12 @@ export function PortalShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-ground">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-control focus:bg-surface focus:px-4 focus:py-2 focus:text-body focus:font-semibold"
+      >
+        Skip to content
+      </a>
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex h-[72px] w-full max-w-5xl items-center gap-4 px-5 sm:px-8">
           <Link href="/portal" className="flex items-center gap-3 rounded-md" aria-label="My account home">
@@ -74,7 +80,7 @@ export function PortalShell({
           </nav>
         )}
       </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8 sm:py-10">{children}</main>
+      <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8 sm:py-10">{children}</main>
       <footer className="border-t border-line bg-surface">
         <div className="mx-auto w-full max-w-5xl px-5 py-6 text-[14px] text-ink-3 sm:px-8">
           <p>Demo account · Titan prototype</p>

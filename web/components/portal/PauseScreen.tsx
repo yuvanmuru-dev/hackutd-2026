@@ -25,6 +25,14 @@ function Modal({ labelledBy, describedBy, children }: { labelledBy: string; desc
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       onCancel={(e) => e.preventDefault()}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") e.preventDefault();
+      }}
+      // The pause must be answered: if the browser closes it anyway (a repeated Escape), open it again.
+      onClose={(e) => {
+        const d = e.currentTarget;
+        if (d.isConnected && !d.open) d.showModal();
+      }}
       className="m-0 h-dvh max-h-dvh w-full max-w-none overflow-y-auto overscroll-contain border-t-4 border-accent bg-surface p-6 text-ink backdrop:bg-[rgb(20_20_20/0.72)] sm:m-auto sm:h-fit sm:max-h-[calc(100dvh-4rem)] sm:w-[calc(100%-2rem)] sm:max-w-[560px] sm:rounded-panel sm:p-8 sm:shadow-float"
     >
       {children}
