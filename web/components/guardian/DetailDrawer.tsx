@@ -157,6 +157,24 @@ export function DetailDrawer({ detail, head, view, onClose }: Props) {
           </ol>
         </section>
 
+        {view.errors.length > 0 && (
+          <section aria-labelledby="d-errors">
+            <h3 id="d-errors" className="g-d-h">
+              What went wrong
+            </h3>
+            <div className="g-d-card">
+              <ul className="g-d-rows">
+                {view.errors.map((s) => (
+                  <li key={s.seq}>
+                    <span className="g-d-kind">{s.agent === "system" ? "Run" : s.agent}</span>
+                    <span className="g-d-text">{productCase(s.title)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
+
         <section aria-labelledby="d-why">
           <h3 id="d-why" className="g-d-h">
             Why

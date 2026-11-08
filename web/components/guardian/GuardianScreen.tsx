@@ -9,6 +9,14 @@ import { decidedOf, storyOf, type StoryStep, type ThreadItem } from "./story";
 import titanT from "./titan-t.png";
 import { useGuardianCase } from "./useGuardianCase";
 
+/** Where the NVIDIA models ran, from the models the steps report: only claim Brev when a Brev model answered. */
+function servedBy(steps: { data?: unknown }[]): string {
+  const models = steps.map((s) => (s.data as Record<string, unknown> | undefined)?.model).filter((m): m is string => typeof m === "string");
+  if (models.some((m) => m.toLowerCase().includes("nemotron-nano"))) return "Nemotron · self-hosted on Brev";
+  if (models.length) return "Nemotron · NVIDIA hosted";
+  return "Nemotron";
+}
+
 /** Keeps the thread scrolled to the newest message, as a phone does. */
 function usePinnedBottom(count: number) {
   const box = useRef<HTMLDivElement>(null);
@@ -42,6 +50,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === "d" || e.key === "D") setDrawer((o) => !o);
     };
     window.addEventListener("keydown", onKey);
@@ -66,9 +75,13 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
         </span>
       </header>
 
-      <h1 key={story.stage} className="g-headline" aria-live="polite">
-        {detail ? story.headline : "Loading the case…"}
-      </h1>
+      {/* The live region stays mounted; only the h1 inside it is re-keyed (for the swap animation). */}
+      <div aria-live="polite">
+        <h1 key={story.stage} className="g-headline">
+          {detail ? story.headline : "Loading the case…"}
+        </h1>
+        {story.failed && <p className="g-failed">{story.failed}</p>}
+      </div>
 
       <div className="g-body">
         <ol className="g-story" aria-label="What happened, step by step">
@@ -122,7 +135,7 @@ export function GuardianScreen({ caseId }: { caseId: string | null }) {
             </li>
           ))}
         </ol>
-        <span>Nemotron · self-hosted on Brev</span>
+        <span>{servedBy(view.steps)}</span>
         <span>Risk model: {detail?.risk?.model ?? "…"}</span>
         <button type="button" className="g-key" onClick={() => setDrawer(true)} aria-keyshortcuts="D">
           Details <kbd>D</kbd>
