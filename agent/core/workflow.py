@@ -184,6 +184,7 @@ class Run:
             self.step("context", "context", "tool_result", out["summary"], {"tool": n, "result": out.get("result"), "source": out.get("source")})
         self.case["data_used"] = [DATA_USED[n] for n in names if n in DATA_USED] + \
             (["The screenshot she forwarded (read by Nemotron VL)"] if "read_screenshot" in self.results else [])
+        model = None
         try:
             f, model = await self.call(agents.context_facts, self.trigger, self.results)
             self.facts = [x for x in f.get("facts", []) if x.get("tool") in self.results]
@@ -193,7 +194,7 @@ class Run:
             self.facts = [{"fact": r["summary"], "tool": n} for n, r in self.results.items()]
         self.case["signals"] = [{"group": "call" if n == "call_context" else "account", "name": n, "value": r["summary"],
                                  "baseline": None, "source": r.get("source") or {"name": n}} for n, r in self.results.items()]
-        self.step("context", "context", "signal", f"{len(self.facts)} facts gathered", {"facts": self.facts})
+        self.step("context", "context", "signal", f"{len(self.facts)} facts gathered", {"facts": self.facts, "model": model})
 
     async def risk(self):
         self.step("risk", "risk", "tool_call", f"ml.score({self.uid}, {self.trigger['type']})", {"tool": "ml.score"})
@@ -221,7 +222,7 @@ class Run:
     async def verify(self):
         checkable = [c for c in self.claims if c.get("tool") in self.results or c.get("tool") == "ml.score"]
         dropped = len(self.claims) - len(checkable)
-        notes = []
+        notes, model = [], None
         try:
             raw = dict(self.results) | {"ml.score": {"result": self.score}}
             v, model = await self.call(agents.verify, checkable, raw)
@@ -243,7 +244,7 @@ class Run:
         self.case["verification"] = {"status": status, "claims_checked": len(kept) + dropped, "claims_dropped": dropped,
                                      "notes": notes or ["Every claim matched a tool result."]}
         self.step("verifier", "verify", "verify", f"{len(kept) + dropped} claims checked against the data · {dropped} dropped",
-                  {"verification": self.case["verification"], "claims": kept})
+                  {"verification": self.case["verification"], "claims": kept, "model": model})
 
     async def respond(self) -> bool:
         """Safer-only actions through the protections, then the alert. Returns True if we should wait for her."""
@@ -272,7 +273,7 @@ class Run:
                 self.step("response", "respond", "action", a["description"], {"action_id": a["action_id"]})
         self.taken = taken
         on_call = bool(st.active_call(self.uid))
-        name = st.users[self.uid]["name"]
+        name, model = st.users[self.uid]["name"], None
         try:
             words, model = await self.call(agents.response_text, name, self.case["threat"], self.story(),
                                            [c["claim"] for c in self.claims], taken, on_call)
@@ -281,7 +282,7 @@ class Run:
         self.call_words = words
         alert = words.get("alert_text") or TEMPLATES["alert"].format(name=name, story=self.story())
         self.send("alert", alert, True, model_written=bool(words.get("alert_text")))
-        self.step("messaging", "reach", "message", f"iMessage sent: \"{alert[:90]}{'…' if len(alert) > 90 else ''}\"", {})
+        self.step("messaging", "reach", "message", f"iMessage sent: \"{alert[:90]}{'…' if len(alert) > 90 else ''}\"", {"model": model if words.get("alert_text") else None})
         return True
 
     async def reach_and_wait(self):
@@ -389,12 +390,15 @@ class Run:
         summary["next_steps"] = [_sentence(x) for x in summary["next_steps"]]
         self.case["summary"] = summary
         self.step("response", "summary", "summary", "Incident summary written and checked", {"summary": summary, "replaced": replaced})
-        text = (f"Titan · Case {summary['case_number']}. What happened: {summary['what_happened']} "
-                f"What we did: {'; '.join(summary['what_we_did'])}."
-                + (f" You approved: {'; '.join(approved)}." if approved else "")
-                + f" {summary['confidence_text']} {summary['spot_it_next_time']} Reply REPORT for an FTC report.")
-        self.send("summary", text, False)
-        self.step("messaging", "summary", "message", "Incident summary sent by iMessage (no links)", {})
+        texts = [  # three short texts read like a real conversation, not one wall of text
+            f"Titan · Case {summary['case_number']}. {summary['what_happened']}",
+            f"What we did: {'; '.join(summary['what_we_did'])}."
+            + (f" You approved: {'; '.join(approved)}." if approved else "") + f" {summary['confidence_text']}",
+            f"{summary['spot_it_next_time']} Reply REPORT for an FTC report.",
+        ]
+        for t in texts:
+            self.send("summary", t, False)
+        self.step("messaging", "summary", "message", "Incident summary sent by iMessage in 3 short texts (no links)", {})
 
     async def go(self):
         self.case["run_running"] = True

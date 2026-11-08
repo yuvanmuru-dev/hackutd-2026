@@ -219,6 +219,10 @@ def rules_score(store: Store, user_id: str, event: dict) -> dict:
 
 
 def score(store: Store, user_id: str, event: dict) -> dict:
+    # D-060: forwarded texts go to the rules (sealed test: rules 28/30 scam texts vs ML 6/30); calls, logins,
+    # SIM swaps and PIN requests use the hybrid ML+rules model (30/30 coached calls vs rules 21/30).
+    if event.get("type") == "message.forwarded":
+        return rules_score(store, user_id, event)
     try:
         from packs.guard.ml import score as ml_score  # type: ignore
         history = [e for e in store.events.values() if e["user_id"] == user_id]

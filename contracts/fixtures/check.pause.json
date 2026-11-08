@@ -21,7 +21,7 @@
   "case_id": null,
   "hold_until": null,
   "pause_screen": {
-    "title": "Pause. Are you on the phone with someone who asked you to do this?",
+    "title": "Are you on the phone with someone who asked you to do this?",
     "body": "T-Mobile will never call and ask you to turn off protection or share a PIN. The call you're on right now is from a number we can't verify.",
     "help_label": "I'm on a call: help me",
     "continue_label": "I'm doing this on my own"
