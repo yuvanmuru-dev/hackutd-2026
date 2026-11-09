@@ -97,6 +97,18 @@ body {
     outline: 3px solid var(--focus);
     outline-offset: 3px;
   }
+  /* No one-word last lines on a phone: body copy wraps "pretty", headings balance. */
+  p,
+  li,
+  dd,
+  dt {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
 }
 
 .tabular {
