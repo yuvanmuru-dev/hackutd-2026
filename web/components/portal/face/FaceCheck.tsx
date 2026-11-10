@@ -2,7 +2,9 @@
 
 // The face check (a few seconds, one blink) that runs after Maya taps "I'm doing this on my own" (D-007). It proves the person is Maya;
 // it does not prove nobody is coaching her, so Titan keeps watching the call either way.
-// Any failure to run (camera blocked, library or models fail) returns null and the portal carries on as today.
+// If the check can't run at all (camera blocked, library or models fail) it returns null and the portal carries on
+// as today. Once the camera and models are up, no face or no blink is a FAILED check, not a skipped one: otherwise
+// "cover your camera" would get past it (the brain re-pauses on a failed result, D-007).
 import { useEffect, useRef, useState } from "react";
 import { FaceCamera } from "@/components/portal/face/FaceCamera";
 import { closeCamera, loadHuman, openCamera, scan, verify } from "@/lib/face/engine";
@@ -10,6 +12,9 @@ import type { Contract as C } from "@/lib/api/client";
 
 const SCAN_MS = 6000; // at most; ends about 1 s after a blink
 const START_TIMEOUT_MS = 15000;
+
+/** The check ran but saw no usable face or blink: report it as failed so the brain asks again. */
+const NO_FACE: C.FaceResult = { match: false, similarity: 0, liveness: 0, antispoof: 0 };
 
 export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => void }) {
   const video = useRef<HTMLVideoElement>(null);
@@ -21,6 +26,7 @@ export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => v
   useEffect(() => {
     let stream: MediaStream | null = null;
     let over = false;
+    let ready = false; // camera open and models loaded: from here on, "no result" means the check failed
     const el = video.current;
     const finish = (f: C.FaceResult | null) => {
       if (over) return;
@@ -28,16 +34,17 @@ export function FaceCheck({ onDone }: { onDone: (face: C.FaceResult | null) => v
       closeCamera(stream, el);
       done.current(f);
     };
-    const timeout = setTimeout(() => finish(null), START_TIMEOUT_MS + SCAN_MS);
+    const timeout = setTimeout(() => finish(ready ? NO_FACE : null), START_TIMEOUT_MS + SCAN_MS);
     (async () => {
       if (!el) return finish(null);
       const [s] = await Promise.all([openCamera(el, () => over), loadHuman()]);
       stream = s;
       if (over) return closeCamera(s, el);
+      ready = true;
       setScanning(true);
       const r = await scan(el, SCAN_MS, setProgress, { blink: true, onBlink: () => setBlinked(true) });
-      finish(r ? await verify(r) : null);
-    })().catch(() => finish(null));
+      finish(r ? await verify(r) : NO_FACE);
+    })().catch(() => finish(ready ? NO_FACE : null));
     return () => {
       clearTimeout(timeout);
       over = true;
